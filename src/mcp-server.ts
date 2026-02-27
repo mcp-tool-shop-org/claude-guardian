@@ -30,7 +30,7 @@ export function createMcpServer(): McpServer {
   const server = new McpServer(
     {
       name: 'claude-guardian',
-      version: '1.3.0',
+      version: '1.0.0',
     },
     {
       capabilities: {

@@ -1,6 +1,6 @@
 {
   "name": "@mcptoolshop/claude-guardian",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Flight computer for Claude Code — log rotation, watchdog, crash bundles, and MCP self-awareness",
   "type": "module",
   "bin": {

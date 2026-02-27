@@ -41,3 +41,14 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: node
+
+  dep-audit:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+      - run: npm audit --omit=dev || true

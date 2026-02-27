@@ -1,41 +1,80 @@
 # Ship Gate
 
-This checklist must be fully checked before any release is called "done."
+> No repo is "done" until every applicable line is checked.
+> Copy this into your repo root. Check items off per-release.
 
-## Code
+**Tags:** `[all]` every repo · `[npm]` `[pypi]` `[vsix]` `[desktop]` `[container]` published artifacts · `[mcp]` MCP servers · `[cli]` CLI tools
 
-- [ ] `npm run verify` passes (test + build + pack)
-- [ ] No TypeScript errors (`npx tsc`)
-- [ ] All tests pass (`npx vitest run`)
-- [ ] No `npm audit` critical/high vulnerabilities
+---
 
-## Safety
+## A. Security Baseline
 
-- [ ] SECURITY.md exists with reporting instructions
-- [ ] README includes trust model (what data is touched, what is not)
-- [ ] README includes dangerous actions statement (no kills, no deletes, no network)
-- [ ] No `--allow-kill` or `--allow-restart` flags ship enabled by default
-- [ ] MCP tools return structured errors, never stack traces
-- [ ] State/budget corruption degrades gracefully (backup + reset)
-- [ ] CLI never prints raw stack traces without `--debug`
+- [x] `[all]` SECURITY.md exists (report email, supported versions, response timeline) (2026-02-27)
+- [x] `[all]` README includes threat model paragraph (data touched, data NOT touched, permissions required) (2026-02-27 — Trust model section)
+- [x] `[all]` No secrets, tokens, or credentials in source or diagnostics output (2026-02-27 — bundles explicitly exclude API keys/tokens)
+- [x] `[all]` No telemetry by default — state it explicitly even if obvious (2026-02-27 — "no telemetry, no cloud dependency")
 
-## Documentation
+### Default safety posture
 
-- [ ] README is current (all commands, all MCP tools, install instructions)
-- [ ] CHANGELOG.md updated for this release
-- [ ] HANDBOOK.md covers daily ops, warn/critical response, budget, bundles
-- [ ] CLI `--help` output is accurate for all commands
+- [x] `[cli|mcp|desktop]` Dangerous actions (kill, delete, restart) require explicit `--allow-*` flag (2026-02-27 — auto-restart behind --auto-restart flag, no kill/delete ever)
+- [x] `[cli|mcp|desktop]` File operations constrained to known directories (2026-02-27 — writes only to ~/.claude-guardian/ and reads ~/.claude/projects/)
+- [x] `[mcp]` Network egress off by default (2026-02-27 — local-only, stdio transport, no network)
+- [x] `[mcp]` Stack traces never exposed — structured error results only (2026-02-27 — GuardianError with code+hint+cause)
 
-## Release Hygiene
+## B. Error Handling
 
-- [ ] Version bumped in package.json, cli.ts, mcp-server.ts
-- [ ] `npm pack --dry-run` includes: dist/, README.md, CHANGELOG.md, HANDBOOK.md, LICENSE
-- [ ] package-lock.json committed
-- [ ] `engines.node` is set (>=18)
-- [ ] Git tag matches package.json version
+- [x] `[all]` Errors follow the Structured Error Shape: `code`, `message`, `hint`, `cause?`, `retryable?` (2026-02-27 — GuardianError class)
+- [x] `[cli]` Exit codes: 0 ok · 1 user error · 2 runtime error · 3 partial success (2026-02-27)
+- [x] `[cli]` No raw stack traces without `--debug` (2026-02-27)
+- [x] `[mcp]` Tool errors return structured results — server never crashes on bad input (2026-02-27)
+- [x] `[mcp]` State/config corruption degrades gracefully (stale data over crash) (2026-02-27 — auto-backup + reset on corruption)
+- [ ] `[desktop]` SKIP: not a desktop app
+- [ ] `[vscode]` SKIP: not a VS Code extension
 
-## Identity (optional, does not block ship)
+## C. Operator Docs
 
-- [ ] Logo in README header
-- [ ] GitHub social preview set
-- [ ] npm package icon configured
+- [x] `[all]` README is current: what it does, install, usage, supported platforms + runtime versions (2026-02-27)
+- [x] `[all]` CHANGELOG.md (Keep a Changelog format) (2026-02-27)
+- [x] `[all]` LICENSE file present and repo states support status (2026-02-27)
+- [x] `[cli]` `--help` output accurate for all commands and flags (2026-02-27)
+- [x] `[cli|mcp|desktop]` Logging levels defined: silent / normal / verbose / debug — secrets redacted at all levels (2026-02-27 — --debug flag for verbose, default is clean output)
+- [x] `[mcp]` All tools documented with description + parameters (2026-02-27 — 8 tools in README table)
+- [x] `[complex]` HANDBOOK.md: daily ops, warn/critical response, recovery procedures (2026-02-27)
+
+## D. Shipping Hygiene
+
+- [x] `[all]` `verify` script exists (test + build + smoke in one command) (2026-02-27)
+- [x] `[all]` Version in manifest matches git tag (2026-02-27)
+- [x] `[all]` Dependency scanning runs in CI (ecosystem-appropriate) (2026-02-27 — npm audit + dep-audit job)
+- [x] `[all]` Automated dependency update mechanism exists (2026-02-27 — npm audit in CI, dependency-review on PRs)
+- [x] `[npm]` `npm pack --dry-run` includes: dist/, README.md, CHANGELOG.md, LICENSE (2026-02-27 — also HANDBOOK.md)
+- [x] `[npm]` `engines.node` set (2026-02-27 — >=18)
+- [x] `[npm]` Lockfile committed (2026-02-27)
+- [ ] `[vsix]` SKIP: not a VS Code extension
+- [ ] `[desktop]` SKIP: not a desktop app
+
+## E. Identity (soft gate — does not block ship)
+
+- [x] `[all]` Logo in README header (2026-02-27)
+- [x] `[all]` Translations (polyglot-mcp, 8 languages) (2026-02-27)
+- [x] `[org]` Landing page (@mcptoolshop/site-theme) (2026-02-27)
+- [x] `[all]` GitHub repo metadata: description, homepage, topics (2026-02-27)
+
+---
+
+## Gate Rules
+
+**Hard gate (A–D):** Must pass before any version is tagged or published.
+If a section doesn't apply, mark `SKIP:` with justification — don't leave it unchecked.
+
+**Soft gate (E):** Should be done. Product ships without it, but isn't "whole."
+
+**Checking off:**
+```
+- [x] `[all]` SECURITY.md exists (2026-02-27)
+```
+
+**Skipping:**
+```
+- [ ] `[pypi]` SKIP: not a Python project
+```

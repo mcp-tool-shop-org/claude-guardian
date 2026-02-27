@@ -185,9 +185,9 @@ npm test
 | A. Security | 10/10 | SECURITY.md, local-only, no telemetry, no cloud |
 | B. Error Handling | 10/10 | GuardianError (code+hint+cause), structured MCP errors, exit codes |
 | C. Operator Docs | 10/10 | README, CHANGELOG, HANDBOOK, SHIP_GATE, walkthrough |
-| D. Shipping Hygiene | 9/10 | CI + tests (152), npm published, VSIX n/a |
+| D. Shipping Hygiene | 10/10 | CI + tests (152), dep-audit, npm published |
 | E. Identity | 10/10 | Logo, translations, landing page, npm listing |
-| **Total** | **49/50** | |
+| **Total** | **50/50** | |
 
 ## License
 

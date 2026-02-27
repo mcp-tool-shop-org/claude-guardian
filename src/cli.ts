@@ -12,16 +12,26 @@ import { getDiskFreeGB, bytesToMB, pathExists, dirSize } from './fs-utils.js';
 import { DEFAULT_CONFIG, getClaudeProjectsPath } from './defaults.js';
 import { Budget } from './budget.js';
 import { readBudget, writeBudget, emptyBudget } from './budget-store.js';
+import { GuardianError } from './errors.js';
 import { homedir } from 'os';
 import type { GuardianConfig } from './types.js';
 import type { GuardianState } from './state.js';
+
+/**
+ * Exit codes:
+ *   0 = success
+ *   1 = user error (bad arguments, missing input)
+ *   2 = runtime error (IO failure, unexpected crash)
+ *   3 = partial success (some actions failed)
+ */
 
 const program = new Command();
 
 program
   .name('claude-guardian')
   .description('Flight computer for Claude Code — log rotation, watchdog, crash bundles, and MCP self-awareness')
-  .version('1.2.0');
+  .version('1.3.0')
+  .option('--debug', 'Print full stack traces on error', false);
 
 // ─── preflight ───
 program
@@ -358,7 +368,8 @@ budgetCmd
       console.log(`Lease granted: ${result.lease!.id} (${result.lease!.slots} slot(s), TTL ${opts.ttl}s)`);
       console.log(`Budget: ${result.slotsInUse}/${result.currentCap} in use`);
     } else {
-      console.log(`Denied: ${result.reason}`);
+      console.error(`Denied: ${result.reason}`);
+      process.exitCode = 1;
     }
   });
 
@@ -386,4 +397,30 @@ program
     await startMcpServer();
   });
 
-program.parse();
+// ─── Global error handler ───
+function handleFatalError(err: unknown): never {
+  const debug = program.opts().debug;
+  if (err instanceof GuardianError) {
+    console.error(err.toCliText());
+    if (debug && err.cause?.stack) {
+      console.error('\nStack trace:');
+      console.error(err.cause.stack);
+    }
+    process.exit(2);
+  }
+  if (err instanceof Error) {
+    console.error(`[guardian] Error: ${err.message}`);
+    if (debug && err.stack) {
+      console.error('\nStack trace:');
+      console.error(err.stack);
+    }
+    process.exit(2);
+  }
+  console.error(`[guardian] Error: ${String(err)}`);
+  process.exit(2);
+}
+
+process.on('uncaughtException', handleFatalError);
+process.on('unhandledRejection', handleFatalError);
+
+program.parseAsync().catch(handleFatalError);

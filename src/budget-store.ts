@@ -1,6 +1,7 @@
-import { readFile, writeFile, mkdir, rename } from 'fs/promises';
+import { readFile, writeFile, mkdir, rename, copyFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { getBudgetPath, getGuardianDataPath, BUDGET_THRESHOLDS } from './defaults.js';
+import { wrapError } from './errors.js';
 import type { RiskLevel } from './process-monitor.js';
 
 /** A single concurrency lease. */
@@ -39,17 +40,38 @@ export async function writeBudget(data: BudgetData): Promise<void> {
   const tmpPath = budgetPath + '.tmp';
   const json = JSON.stringify(data, null, 2);
 
-  await writeFile(tmpPath, json, 'utf-8');
-  await rename(tmpPath, budgetPath);
+  try {
+    await writeFile(tmpPath, json, 'utf-8');
+    await rename(tmpPath, budgetPath);
+  } catch (err) {
+    throw wrapError(err, 'BUDGET_WRITE_FAILED', 'Check disk space and permissions on ~/.claude-guardian/');
+  }
 }
 
-/** Read the current budget. Returns null if no budget file exists. */
+/**
+ * Read the current budget. Returns null if no budget file exists.
+ * If the file exists but is corrupt, backs it up and returns null with a warning.
+ */
 export async function readBudget(): Promise<BudgetData | null> {
   const budgetPath = getBudgetPath();
+  let content: string;
   try {
-    const content = await readFile(budgetPath, 'utf-8');
-    return JSON.parse(content) as BudgetData;
+    content = await readFile(budgetPath, 'utf-8');
   } catch {
+    return null; // File doesn't exist — normal
+  }
+
+  try {
+    return JSON.parse(content) as BudgetData;
+  } catch (parseErr) {
+    // Corrupt budget file — back it up and reset
+    const backupPath = budgetPath + '.corrupt.' + Date.now();
+    try {
+      await copyFile(budgetPath, backupPath);
+    } catch {
+      // Best-effort backup
+    }
+    console.error(`[guardian] WARNING: budget.json is corrupt. Backed up to ${backupPath} and resetting.`);
     return null;
   }
 }

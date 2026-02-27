@@ -1,7 +1,8 @@
-import { readFile, writeFile, mkdir, rename } from 'fs/promises';
+import { readFile, writeFile, mkdir, rename, copyFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join } from 'path';
 import { getGuardianDataPath } from './defaults.js';
+import { GuardianError, wrapError } from './errors.js';
 import type { ClaudeProcess, ActivitySignals, HangRisk } from './process-monitor.js';
 import type { Incident } from './incident.js';
 import type { BudgetSummary } from './budget.js';
@@ -69,17 +70,38 @@ export async function writeState(state: GuardianState): Promise<void> {
   const tmpPath = statePath + '.tmp';
   const json = JSON.stringify(state, null, 2);
 
-  await writeFile(tmpPath, json, 'utf-8');
-  await rename(tmpPath, statePath);
+  try {
+    await writeFile(tmpPath, json, 'utf-8');
+    await rename(tmpPath, statePath);
+  } catch (err) {
+    throw wrapError(err, 'STATE_WRITE_FAILED', 'Check disk space and permissions on ~/.claude-guardian/');
+  }
 }
 
-/** Read the current state. Returns null if no state file exists. */
+/**
+ * Read the current state. Returns null if no state file exists.
+ * If the file exists but is corrupt, backs it up and returns null with a warning.
+ */
 export async function readState(): Promise<GuardianState | null> {
   const statePath = getStatePath();
+  let content: string;
   try {
-    const content = await readFile(statePath, 'utf-8');
-    return JSON.parse(content) as GuardianState;
+    content = await readFile(statePath, 'utf-8');
   } catch {
+    return null; // File doesn't exist — normal
+  }
+
+  try {
+    return JSON.parse(content) as GuardianState;
+  } catch (parseErr) {
+    // Corrupt state file — back it up and reset
+    const backupPath = statePath + '.corrupt.' + Date.now();
+    try {
+      await copyFile(statePath, backupPath);
+    } catch {
+      // Best-effort backup
+    }
+    console.error(`[guardian] WARNING: state.json is corrupt. Backed up to ${backupPath} and resetting.`);
     return null;
   }
 }

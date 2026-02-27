@@ -12,7 +12,9 @@ Claude Guardian is a local reliability layer that keeps Claude Code sessions hea
 | `doctor` | Generate a diagnostics bundle (zip) with system info, log tails, journal |
 | `run -- <cmd>` | Launch any command with watchdog monitoring, auto-bundle on crash/hang |
 | `status` | One-shot health check: disk free, log sizes, warnings |
-| `mcp` | Start MCP server so Claude can call `guardian_status` / `guardian_preflight_fix` / `guardian_doctor` |
+| `watch` | Background daemon: continuous monitoring, incident tracking, budget enforcement |
+| `budget` | View and manage the concurrency budget (show/acquire/release) |
+| `mcp` | Start MCP server (8 tools) for Claude Code self-monitoring |
 
 ## Install
 
@@ -104,11 +106,16 @@ Then Claude can call:
 
 | Tool | What it returns |
 |------|----------------|
-| `guardian_status` | Disk free, log sizes, health banner, issue list |
+| `guardian_status` | Disk, logs, processes, hang risk, budget, attention level |
 | `guardian_preflight_fix` | Runs log rotation/trimming, returns before/after report |
-| `guardian_doctor` | Creates diagnostics bundle, returns path + summary |
+| `guardian_doctor` | Creates diagnostics bundle (zip), returns path + summary |
+| `guardian_nudge` | Safe auto-remediation: fix logs if bloated, capture bundle if needed |
+| `guardian_budget_get` | Current concurrency cap, slots in use, active leases |
+| `guardian_budget_acquire` | Request concurrency slots (returns lease ID) |
+| `guardian_budget_release` | Release a lease when done with heavy work |
+| `guardian_recovery_plan` | Step-by-step recovery plan naming exact tools to call |
 
-This lets Claude say: *"Health looks bad. Running `guardian_preflight_fix`, then continuing with smaller batches."*
+This lets Claude say: *"Attention is WARN. Running `guardian_nudge`, then reducing concurrency."*
 
 ## Configuration
 
@@ -122,6 +129,25 @@ Three knobs (everything else is hardcoded with sane defaults):
 
 Plus one hardcoded guardrail:
 - **Disk free < 5GB** → aggressive mode auto-enabled (shorter retention, lower thresholds)
+
+## Trust model
+
+Claude Guardian is **local-only**. It has no network listener, no telemetry, and no cloud dependency.
+
+**What it reads:** `~/.claude/projects/` (log files, sizes, modification times), process list (CPU, memory, uptime, handle counts for Claude-related processes via `pidusage`).
+
+**What it writes:** `~/.claude-guardian/` (state.json, budget.json, journal.jsonl, doctor bundles). All files are under the user's home directory.
+
+**What it collects in bundles:** System info (OS, CPU, memory, disk), log file tails (last 500 lines), process snapshots, and guardian's own journal. No API keys, tokens, credentials, or user content.
+
+**Dangerous actions — what Guardian will NOT do:**
+- Kill processes or send signals (no `SIGKILL`, no `SIGTERM`)
+- Restart Claude Code or any other process
+- Delete files (rotation = gzip, trimming = keep last N lines)
+- Make network requests or phone home
+- Elevate privileges or access other users' data
+
+If process killing or auto-restart is ever added, it will be behind an explicit opt-in flag, documented here, and off by default.
 
 ## Design principles
 

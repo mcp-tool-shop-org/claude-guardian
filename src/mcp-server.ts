@@ -10,14 +10,27 @@ import { readState, isStateFresh, computeAttention, type GuardianState } from '.
 import { readBudget, writeBudget, emptyBudget } from './budget-store.js';
 import { Budget } from './budget.js';
 import { generateRecoveryPlan, formatRecoveryPlan } from './recovery-plan.js';
+import { GuardianError, wrapError } from './errors.js';
 import { homedir } from 'os';
+
+/** Wrap an MCP tool handler so thrown errors become structured text, never stack traces. */
+function mcpResult(text: string) {
+  return { content: [{ type: 'text' as const, text }] };
+}
+
+function mcpError(err: unknown, fallbackHint: string) {
+  const ge = err instanceof GuardianError
+    ? err
+    : wrapError(err, 'UNKNOWN', fallbackHint);
+  return { content: [{ type: 'text' as const, text: ge.toMcpText() }], isError: true as const };
+}
 
 /** Create and configure the MCP server with all guardian tools. */
 export function createMcpServer(): McpServer {
   const server = new McpServer(
     {
       name: 'claude-guardian',
-      version: '1.2.0',
+      version: '1.3.0',
     },
     {
       capabilities: {
@@ -33,63 +46,57 @@ export function createMcpServer(): McpServer {
       'Returns current health status: disk free space, Claude log sizes, and a one-line health banner. ' +
       'Use this to check environment health before or during long tasks.',
   }, async () => {
-    // Try reading fresh state from the watch daemon first
-    const state = await readState();
-    if (state && isStateFresh(state)) {
-      return {
-        content: [{
-          type: 'text' as const,
-          text: formatStatus(state),
-        }],
+    try {
+      // Try reading fresh state from the watch daemon first
+      const state = await readState();
+      if (state && isStateFresh(state)) {
+        return mcpResult(formatStatus(state));
+      }
+
+      // No daemon — do a live scan with default composite values
+      const claudePath = getClaudeProjectsPath();
+      const diskFreeGB = await getDiskFreeGB(homedir());
+      let claudeLogSizeMB = 0;
+      if (await pathExists(claudePath)) {
+        claudeLogSizeMB = bytesToMB(await dirSize(claudePath));
+      }
+
+      const processes = await findClaudeProcesses();
+      const activity = await checkActivitySignals(processes);
+
+      // Without the daemon we can't track process age or composite quiet duration,
+      // so we use safe defaults (grace=0, quiet=0) — risk will be ok.
+      const hangRisk = assessHangRisk(
+        processes, activity, diskFreeGB,
+        DEFAULT_CONFIG.hangNoActivitySeconds,
+        0, // processAgeSeconds — unknown without daemon
+        0, // compositeQuietSeconds — unknown without daemon
+      );
+      const actions = recommendActions(hangRisk);
+
+      const scan = await scanLogs();
+
+      const liveState: GuardianState = {
+        updatedAt: new Date().toISOString(),
+        daemonRunning: false,
+        daemonPid: null,
+        claudeProcesses: processes,
+        activity,
+        hangRisk,
+        recommendedActions: actions,
+        diskFreeGB: Math.round(diskFreeGB * 100) / 100,
+        claudeLogSizeMB,
+        activeIncident: null,
+        processAgeSeconds: 0,
+        compositeQuietSeconds: 0,
+        budgetSummary: null,
+        attention: computeAttention(hangRisk, null, null),
       };
+
+      return mcpResult(formatStatus(liveState) + '\n\n' + formatPreflightReport(scan));
+    } catch (err) {
+      return mcpError(err, 'Run `claude-guardian status` from CLI for more detail.');
     }
-
-    // No daemon — do a live scan with default composite values
-    const claudePath = getClaudeProjectsPath();
-    const diskFreeGB = await getDiskFreeGB(homedir());
-    let claudeLogSizeMB = 0;
-    if (await pathExists(claudePath)) {
-      claudeLogSizeMB = bytesToMB(await dirSize(claudePath));
-    }
-
-    const processes = await findClaudeProcesses();
-    const activity = await checkActivitySignals(processes);
-
-    // Without the daemon we can't track process age or composite quiet duration,
-    // so we use safe defaults (grace=0, quiet=0) — risk will be ok.
-    const hangRisk = assessHangRisk(
-      processes, activity, diskFreeGB,
-      DEFAULT_CONFIG.hangNoActivitySeconds,
-      0, // processAgeSeconds — unknown without daemon
-      0, // compositeQuietSeconds — unknown without daemon
-    );
-    const actions = recommendActions(hangRisk);
-
-    const scan = await scanLogs();
-
-    const liveState: GuardianState = {
-      updatedAt: new Date().toISOString(),
-      daemonRunning: false,
-      daemonPid: null,
-      claudeProcesses: processes,
-      activity,
-      hangRisk,
-      recommendedActions: actions,
-      diskFreeGB: Math.round(diskFreeGB * 100) / 100,
-      claudeLogSizeMB,
-      activeIncident: null,
-      processAgeSeconds: 0,
-      compositeQuietSeconds: 0,
-      budgetSummary: null,
-      attention: computeAttention(hangRisk, null, null),
-    };
-
-    return {
-      content: [{
-        type: 'text' as const,
-        text: formatStatus(liveState) + '\n\n' + formatPreflightReport(scan),
-      }],
-    };
   });
 
   // === guardian_preflight_fix ===
@@ -105,20 +112,19 @@ export function createMcpServer(): McpServer {
       ),
     },
   }, async ({ aggressive }) => {
-    const scanBefore = await scanLogs();
-    const fixActions = await fixLogs(DEFAULT_CONFIG, aggressive ?? false);
-    const scanAfter = await scanLogs();
+    try {
+      const scanBefore = await scanLogs();
+      const fixActions = await fixLogs(DEFAULT_CONFIG, aggressive ?? false);
+      const scanAfter = await scanLogs();
 
-    const report = formatFixReport(fixActions);
-    const bannerBefore = healthBanner(scanBefore);
-    const bannerAfter = healthBanner(scanAfter);
+      const report = formatFixReport(fixActions);
+      const bannerBefore = healthBanner(scanBefore);
+      const bannerAfter = healthBanner(scanAfter);
 
-    return {
-      content: [{
-        type: 'text' as const,
-        text: `Before: ${bannerBefore}\nAfter:  ${bannerAfter}\n\n${report}`,
-      }],
-    };
+      return mcpResult(`Before: ${bannerBefore}\nAfter:  ${bannerAfter}\n\n${report}`);
+    } catch (err) {
+      return mcpError(err, 'Check disk permissions. Try `claude-guardian preflight --fix` from CLI.');
+    }
   });
 
   // === guardian_doctor ===
@@ -134,15 +140,13 @@ export function createMcpServer(): McpServer {
       ),
     },
   }, async ({ outputPath }) => {
-    const bundle = await generateBundle(outputPath);
-    const report = formatDoctorReport(bundle.summary);
-
-    return {
-      content: [{
-        type: 'text' as const,
-        text: `Bundle saved: ${bundle.zipPath}\n\n${report}`,
-      }],
-    };
+    try {
+      const bundle = await generateBundle(outputPath);
+      const report = formatDoctorReport(bundle.summary);
+      return mcpResult(`Bundle saved: ${bundle.zipPath}\n\n${report}`);
+    } catch (err) {
+      return mcpError(err, 'Check disk space. Try `claude-guardian doctor` from CLI.');
+    }
   });
 
   // === guardian_nudge ===
@@ -153,84 +157,77 @@ export function createMcpServer(): McpServer {
       'If warn/critical with no bundle yet, captures diagnostics. ' +
       'Returns what changed and what to do next. Never kills processes or restarts.',
   }, async () => {
-    // Get current state (daemon or live)
-    const state = await readState();
-    let effectiveState: GuardianState;
+    try {
+      // Get current state (daemon or live)
+      const state = await readState();
+      let effectiveState: GuardianState;
 
-    if (state && isStateFresh(state)) {
-      effectiveState = state;
-    } else {
-      // Build live state
-      const claudePath = getClaudeProjectsPath();
-      const diskFreeGB = await getDiskFreeGB(homedir());
-      let claudeLogSizeMB = 0;
-      if (await pathExists(claudePath)) {
-        claudeLogSizeMB = bytesToMB(await dirSize(claudePath));
+      if (state && isStateFresh(state)) {
+        effectiveState = state;
+      } else {
+        // Build live state
+        const claudePath = getClaudeProjectsPath();
+        const diskFreeGB = await getDiskFreeGB(homedir());
+        let claudeLogSizeMB = 0;
+        if (await pathExists(claudePath)) {
+          claudeLogSizeMB = bytesToMB(await dirSize(claudePath));
+        }
+        const processes = await findClaudeProcesses();
+        const activity = await checkActivitySignals(processes);
+        const hangRisk = assessHangRisk(
+          processes, activity, diskFreeGB,
+          DEFAULT_CONFIG.hangNoActivitySeconds, 0, 0,
+        );
+        effectiveState = {
+          updatedAt: new Date().toISOString(),
+          daemonRunning: false,
+          daemonPid: null,
+          claudeProcesses: processes,
+          activity,
+          hangRisk,
+          recommendedActions: recommendActions(hangRisk),
+          diskFreeGB: Math.round(diskFreeGB * 100) / 100,
+          claudeLogSizeMB,
+          activeIncident: null,
+          processAgeSeconds: 0,
+          compositeQuietSeconds: 0,
+          budgetSummary: null,
+          attention: computeAttention(hangRisk, null, null),
+        };
       }
-      const processes = await findClaudeProcesses();
-      const activity = await checkActivitySignals(processes);
-      const hangRisk = assessHangRisk(
-        processes, activity, diskFreeGB,
-        DEFAULT_CONFIG.hangNoActivitySeconds, 0, 0,
-      );
-      effectiveState = {
-        updatedAt: new Date().toISOString(),
-        daemonRunning: false,
-        daemonPid: null,
-        claudeProcesses: processes,
-        activity,
-        hangRisk,
-        recommendedActions: recommendActions(hangRisk),
-        diskFreeGB: Math.round(diskFreeGB * 100) / 100,
-        claudeLogSizeMB,
-        activeIncident: null,
-        processAgeSeconds: 0,
-        compositeQuietSeconds: 0,
-        budgetSummary: null,
-        attention: computeAttention(hangRisk, null, null),
-      };
-    }
 
-    const actions: string[] = [];
+      const actions: string[] = [];
 
-    // 1. Logs/disk threshold check
-    if (effectiveState.hangRisk.diskLow || effectiveState.claudeLogSizeMB > DEFAULT_CONFIG.maxProjectLogDirMB) {
-      const fixActions = await fixLogs(DEFAULT_CONFIG, effectiveState.hangRisk.diskLow);
-      if (fixActions.length > 0) {
-        actions.push(`Preflight fix: ${fixActions.length} items repaired`);
+      // 1. Logs/disk threshold check
+      if (effectiveState.hangRisk.diskLow || effectiveState.claudeLogSizeMB > DEFAULT_CONFIG.maxProjectLogDirMB) {
+        const fixActions = await fixLogs(DEFAULT_CONFIG, effectiveState.hangRisk.diskLow);
+        if (fixActions.length > 0) {
+          actions.push(`Preflight fix: ${fixActions.length} items repaired`);
+        }
       }
-    }
 
-    // 2. Bundle capture for active incident without bundle
-    if (effectiveState.activeIncident &&
-        (effectiveState.hangRisk.level === 'warn' || effectiveState.hangRisk.level === 'critical') &&
-        !effectiveState.activeIncident.bundleCaptured) {
-      try {
-        const bundle = await generateBundle();
-        actions.push(`Doctor bundle saved: ${bundle.zipPath}`);
-      } catch (err) {
-        actions.push(`Doctor bundle failed: ${err instanceof Error ? err.message : String(err)}`);
+      // 2. Bundle capture for active incident without bundle
+      if (effectiveState.activeIncident &&
+          (effectiveState.hangRisk.level === 'warn' || effectiveState.hangRisk.level === 'critical') &&
+          !effectiveState.activeIncident.bundleCaptured) {
+        try {
+          const bundle = await generateBundle();
+          actions.push(`Doctor bundle saved: ${bundle.zipPath}`);
+        } catch (err) {
+          actions.push(`Doctor bundle failed: ${err instanceof Error ? err.message : String(err)}`);
+        }
       }
-    }
 
-    // 3. No-op
-    if (actions.length === 0) {
-      return {
-        content: [{
-          type: 'text' as const,
-          text: 'All clear. No actions needed.',
-        }],
-      };
-    }
+      // 3. No-op
+      if (actions.length === 0) {
+        return mcpResult('All clear. No actions needed.');
+      }
 
-    // 4. Operator script
-    const script = formatNudgeReport(actions, effectiveState);
-    return {
-      content: [{
-        type: 'text' as const,
-        text: script,
-      }],
-    };
+      // 4. Operator script
+      return mcpResult(formatNudgeReport(actions, effectiveState));
+    } catch (err) {
+      return mcpError(err, 'Nudge failed. Try `guardian_status` to check state.');
+    }
   });
 
   // === guardian_budget_get ===
@@ -240,42 +237,36 @@ export function createMcpServer(): McpServer {
       'Returns the current concurrency budget: cap, slots in use, available slots, and active leases. ' +
       'Use this before starting heavy work to check if capacity is available.',
   }, async () => {
-    const data = await readBudget();
-    if (!data) {
-      return {
-        content: [{
-          type: 'text' as const,
-          text: 'Budget not initialized. No daemon running and no previous budget state.',
-        }],
-      };
-    }
-    const budget = new Budget(data);
-    budget.expireLeases();
-    const s = budget.summarize();
-
-    const lines: string[] = [];
-    lines.push(`Budget: cap=${s.currentCap}/${s.baseCap} | in-use=${s.slotsInUse} | available=${s.slotsAvailable}`);
-    lines.push(`Active leases: ${s.activeLeases}`);
-    if (s.capSetByRisk) {
-      lines.push(`Cap reduced by: ${s.capSetByRisk}`);
-    }
-    if (s.hysteresisRemainingSeconds > 0) {
-      lines.push(`Recovery in: ${s.hysteresisRemainingSeconds}s`);
-    }
-    if (data.leases.length > 0) {
-      lines.push('');
-      for (const l of data.leases) {
-        const expiresIn = Math.max(0, Math.round((new Date(l.expiresAt).getTime() - Date.now()) / 1000));
-        lines.push(`  ${l.id}: ${l.slots} slot(s) — "${l.reason}" (expires in ${expiresIn}s)`);
+    try {
+      const data = await readBudget();
+      if (!data) {
+        return mcpResult('Budget not initialized. No daemon running and no previous budget state.');
       }
-    }
+      const budget = new Budget(data);
+      budget.expireLeases();
+      const s = budget.summarize();
 
-    return {
-      content: [{
-        type: 'text' as const,
-        text: lines.join('\n'),
-      }],
-    };
+      const lines: string[] = [];
+      lines.push(`Budget: cap=${s.currentCap}/${s.baseCap} | in-use=${s.slotsInUse} | available=${s.slotsAvailable}`);
+      lines.push(`Active leases: ${s.activeLeases}`);
+      if (s.capSetByRisk) {
+        lines.push(`Cap reduced by: ${s.capSetByRisk}`);
+      }
+      if (s.hysteresisRemainingSeconds > 0) {
+        lines.push(`Recovery in: ${s.hysteresisRemainingSeconds}s`);
+      }
+      if (data.leases.length > 0) {
+        lines.push('');
+        for (const l of data.leases) {
+          const expiresIn = Math.max(0, Math.round((new Date(l.expiresAt).getTime() - Date.now()) / 1000));
+          lines.push(`  ${l.id}: ${l.slots} slot(s) — "${l.reason}" (expires in ${expiresIn}s)`);
+        }
+      }
+
+      return mcpResult(lines.join('\n'));
+    } catch (err) {
+      return mcpError(err, 'Budget file may be corrupt. Try `claude-guardian budget show` from CLI.');
+    }
   });
 
   // === guardian_budget_acquire ===
@@ -290,27 +281,21 @@ export function createMcpServer(): McpServer {
       reason: z.string().default('mcp-acquire').describe('Why you need the slots'),
     },
   }, async ({ slots, ttlSeconds, reason }) => {
-    const data = await readBudget() ?? emptyBudget();
-    const budget = new Budget(data);
-    budget.expireLeases();
-    const result = budget.acquire(slots, ttlSeconds, reason);
-    await writeBudget(budget.getData());
+    try {
+      const data = await readBudget() ?? emptyBudget();
+      const budget = new Budget(data);
+      budget.expireLeases();
+      const result = budget.acquire(slots, ttlSeconds, reason);
+      await writeBudget(budget.getData());
 
-    if (result.granted) {
-      return {
-        content: [{
-          type: 'text' as const,
-          text: `Granted: lease=${result.lease!.id} | slots=${result.lease!.slots} | ttl=${ttlSeconds}s\nBudget: ${result.slotsInUse}/${result.currentCap} in use | ${result.slotsAvailable} available`,
-        }],
-      };
+      if (result.granted) {
+        return mcpResult(`Granted: lease=${result.lease!.id} | slots=${result.lease!.slots} | ttl=${ttlSeconds}s\nBudget: ${result.slotsInUse}/${result.currentCap} in use | ${result.slotsAvailable} available`);
+      }
+
+      return mcpResult(`Denied: ${result.reason}\nBudget: ${result.slotsInUse}/${result.currentCap} in use | ${result.slotsAvailable} available`);
+    } catch (err) {
+      return mcpError(err, 'Budget acquire failed. Check disk space and permissions.');
     }
-
-    return {
-      content: [{
-        type: 'text' as const,
-        text: `Denied: ${result.reason}\nBudget: ${result.slotsInUse}/${result.currentCap} in use | ${result.slotsAvailable} available`,
-      }],
-    };
   });
 
   // === guardian_budget_release ===
@@ -322,35 +307,24 @@ export function createMcpServer(): McpServer {
       leaseId: z.string().describe('The lease ID returned by guardian_budget_acquire'),
     },
   }, async ({ leaseId }) => {
-    const data = await readBudget();
-    if (!data) {
-      return {
-        content: [{
-          type: 'text' as const,
-          text: 'Budget not initialized. Nothing to release.',
-        }],
-      };
-    }
-    const budget = new Budget(data);
-    const released = budget.release(leaseId);
-    await writeBudget(budget.getData());
+    try {
+      const data = await readBudget();
+      if (!data) {
+        return mcpResult('Budget not initialized. Nothing to release.');
+      }
+      const budget = new Budget(data);
+      const released = budget.release(leaseId);
+      await writeBudget(budget.getData());
 
-    if (released) {
-      const s = budget.summarize();
-      return {
-        content: [{
-          type: 'text' as const,
-          text: `Released: lease=${leaseId}\nBudget: ${s.slotsInUse}/${s.currentCap} in use | ${s.slotsAvailable} available`,
-        }],
-      };
-    }
+      if (released) {
+        const s = budget.summarize();
+        return mcpResult(`Released: lease=${leaseId}\nBudget: ${s.slotsInUse}/${s.currentCap} in use | ${s.slotsAvailable} available`);
+      }
 
-    return {
-      content: [{
-        type: 'text' as const,
-        text: `Lease ${leaseId} not found. It may have already expired or been released.`,
-      }],
-    };
+      return mcpResult(`Lease ${leaseId} not found. It may have already expired or been released.`);
+    } catch (err) {
+      return mcpError(err, 'Budget release failed. Check disk space and permissions.');
+    }
   });
 
   // === guardian_recovery_plan ===
@@ -360,50 +334,49 @@ export function createMcpServer(): McpServer {
       'Returns a deterministic step-by-step recovery plan based on current signals. ' +
       'Each step names the exact MCP tool to call. Never auto-restarts or kills processes.',
   }, async () => {
-    // Get current state (daemon or live)
-    const state = await readState();
-    let effectiveState: GuardianState;
+    try {
+      // Get current state (daemon or live)
+      const state = await readState();
+      let effectiveState: GuardianState;
 
-    if (state && isStateFresh(state)) {
-      effectiveState = state;
-    } else {
-      const claudePath = getClaudeProjectsPath();
-      const diskFreeGB = await getDiskFreeGB(homedir());
-      let claudeLogSizeMB = 0;
-      if (await pathExists(claudePath)) {
-        claudeLogSizeMB = bytesToMB(await dirSize(claudePath));
+      if (state && isStateFresh(state)) {
+        effectiveState = state;
+      } else {
+        const claudePath = getClaudeProjectsPath();
+        const diskFreeGB = await getDiskFreeGB(homedir());
+        let claudeLogSizeMB = 0;
+        if (await pathExists(claudePath)) {
+          claudeLogSizeMB = bytesToMB(await dirSize(claudePath));
+        }
+        const processes = await findClaudeProcesses();
+        const activity = await checkActivitySignals(processes);
+        const hangRisk = assessHangRisk(
+          processes, activity, diskFreeGB,
+          DEFAULT_CONFIG.hangNoActivitySeconds, 0, 0,
+        );
+        effectiveState = {
+          updatedAt: new Date().toISOString(),
+          daemonRunning: false,
+          daemonPid: null,
+          claudeProcesses: processes,
+          activity,
+          hangRisk,
+          recommendedActions: recommendActions(hangRisk),
+          diskFreeGB: Math.round(diskFreeGB * 100) / 100,
+          claudeLogSizeMB,
+          activeIncident: null,
+          processAgeSeconds: 0,
+          compositeQuietSeconds: 0,
+          budgetSummary: null,
+          attention: computeAttention(hangRisk, null, null),
+        };
       }
-      const processes = await findClaudeProcesses();
-      const activity = await checkActivitySignals(processes);
-      const hangRisk = assessHangRisk(
-        processes, activity, diskFreeGB,
-        DEFAULT_CONFIG.hangNoActivitySeconds, 0, 0,
-      );
-      effectiveState = {
-        updatedAt: new Date().toISOString(),
-        daemonRunning: false,
-        daemonPid: null,
-        claudeProcesses: processes,
-        activity,
-        hangRisk,
-        recommendedActions: recommendActions(hangRisk),
-        diskFreeGB: Math.round(diskFreeGB * 100) / 100,
-        claudeLogSizeMB,
-        activeIncident: null,
-        processAgeSeconds: 0,
-        compositeQuietSeconds: 0,
-        budgetSummary: null,
-        attention: computeAttention(hangRisk, null, null),
-      };
-    }
 
-    const plan = generateRecoveryPlan(effectiveState);
-    return {
-      content: [{
-        type: 'text' as const,
-        text: formatRecoveryPlan(plan),
-      }],
-    };
+      const plan = generateRecoveryPlan(effectiveState);
+      return mcpResult(formatRecoveryPlan(plan));
+    } catch (err) {
+      return mcpError(err, 'Recovery plan generation failed. Try `guardian_status` first.');
+    }
   });
 
   return server;

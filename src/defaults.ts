@@ -20,6 +20,9 @@ export const THRESHOLDS = {
   /** How many days of logs to retain during rotation. */
   retainDays: 7,
 
+  /** Days before a session transcript is considered stale and eligible for cleanup. */
+  staleSessionDays: 3,
+
   /** Tail lines to include in doctor bundle per log file. */
   doctorTailLines: 500,
 

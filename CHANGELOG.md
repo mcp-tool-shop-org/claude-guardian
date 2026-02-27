@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-02-27
+
+### Added
+- Stale session cleanup: `preflight --fix` and `guardian_preflight_fix` now detect and remove
+  old UUID-named session transcripts (.jsonl, .jsonl.gz) and session directories
+- Configurable retention: sessions older than 3 days are cleaned (1.5 days in aggressive mode)
+- Protected entries: `memory/` and `sessions-index.json` are never touched
+- Scan-time warning: `preflight` reports stale session count and size before fix
+- 6 new tests for session cleanup
+
 ## [1.0.0] - 2026-02-27
 
 First public release.

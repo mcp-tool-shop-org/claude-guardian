@@ -1,4 +1,4 @@
-import { readdir, stat, mkdir } from 'fs/promises';
+import { readdir, stat, mkdir, rm, unlink } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
 import type { GuardianConfig, PreflightResult, PreflightAction, ScanEntry } from './types.js';
@@ -62,6 +62,39 @@ export async function scanLogs(config: GuardianConfig = DEFAULT_CONFIG): Promise
         detail: `Project log dir is ${entry.sizeMB}MB (limit: ${config.maxProjectLogDirMB}MB)`,
       });
     }
+  }
+
+  // Count stale sessions per project directory
+  const cutoff = Date.now() - THRESHOLDS.staleSessionDays * 24 * 60 * 60 * 1000;
+  for (const entry of result.entries) {
+    if (entry.isFile) continue;
+    try {
+      const subEntries = await readdir(entry.path, { withFileTypes: true });
+      let staleCount = 0;
+      let staleBytes = 0;
+      for (const sub of subEntries) {
+        if (PROTECTED_NAMES.has(sub.name)) continue;
+        const subPath = join(entry.path, sub.name);
+        // Match UUID session files and dirs
+        const isSessionFile = sub.isFile() && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.jsonl(\.gz)?$/i.test(sub.name);
+        const isSessionDir = sub.isDirectory() && UUID_RE.test(sub.name);
+        if (!isSessionFile && !isSessionDir) continue;
+        try {
+          const subStat = await stat(subPath);
+          if (subStat.mtimeMs < cutoff) {
+            staleCount++;
+            staleBytes += sub.isFile() ? subStat.size : await dirSize(subPath);
+          }
+        } catch { /* skip */ }
+      }
+      if (staleCount > 0) {
+        result.actions.push({
+          type: 'warning',
+          target: entry.path,
+          detail: `${staleCount} stale session(s) (${bytesToMB(staleBytes)}MB) older than ${THRESHOLDS.staleSessionDays}d. Run with --fix to clean.`,
+        });
+      }
+    } catch { /* skip */ }
   }
 
   // Scan for individual oversized files
@@ -173,6 +206,19 @@ export async function fixLogs(
         }
       }
     }
+  }
+
+  // Clean stale session transcripts from each project directory
+  try {
+    const topEntries = await readdir(claudePath, { withFileTypes: true });
+    for (const entry of topEntries) {
+      if (!entry.isDirectory()) continue;
+      const fullPath = join(claudePath, entry.name);
+      const sessionActions = await cleanStaleSessions(fullPath, effectiveAggressive);
+      actions.push(...sessionActions);
+    }
+  } catch {
+    // unreadable
   }
 
   // Check total project dir sizes after per-file fixes
@@ -289,6 +335,109 @@ export function healthBanner(result: PreflightResult): string {
   parts.push(`issues=${result.actions.length}`);
   if (result.diskFreeWarning) parts.push('LOW-DISK');
   return `[guardian] ${parts.join(' | ')}`;
+}
+
+/** UUID pattern matching session IDs (directories and files). */
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Entries to never delete inside a project directory. */
+const PROTECTED_NAMES = new Set(['memory', 'sessions-index.json']);
+
+/**
+ * Clean stale session transcripts from a single project directory.
+ * Removes UUID-named .jsonl files, .jsonl.gz files, and UUID-named
+ * subdirectories older than the configured threshold.
+ */
+export async function cleanStaleSessions(
+  projectDir: string,
+  aggressive: boolean = false,
+): Promise<PreflightAction[]> {
+  const actions: PreflightAction[] = [];
+  const retainDays = aggressive
+    ? Math.floor(THRESHOLDS.staleSessionDays / 2)
+    : THRESHOLDS.staleSessionDays;
+  const cutoff = Date.now() - retainDays * 24 * 60 * 60 * 1000;
+
+  let entries;
+  try {
+    entries = await readdir(projectDir, { withFileTypes: true });
+  } catch {
+    return actions;
+  }
+
+  for (const entry of entries) {
+    const name = entry.name;
+
+    // Never touch protected entries
+    if (PROTECTED_NAMES.has(name)) continue;
+
+    const fullPath = join(projectDir, name);
+
+    if (entry.isFile()) {
+      // Match: <uuid>.jsonl or <uuid>.jsonl.gz
+      const match = name.match(/^([0-9a-f-]+)\.jsonl(\.gz)?$/i);
+      if (!match) continue;
+      const stem = match[1];
+      if (!UUID_RE.test(stem)) continue;
+
+      try {
+        const fileStat = await stat(fullPath);
+        if (fileStat.mtimeMs < cutoff) {
+          const size = fileStat.size;
+          await unlink(fullPath);
+          const action: PreflightAction = {
+            type: 'cleaned',
+            target: fullPath,
+            detail: `Removed stale session transcript ${name} (${bytesToMB(size)}MB, ${Math.round((Date.now() - fileStat.mtimeMs) / 86400000)}d old)`,
+            sizeBefore: size,
+            sizeAfter: 0,
+          };
+          actions.push(action);
+          await writeJournalEntry({
+            timestamp: new Date().toISOString(),
+            action: 'cleaned',
+            target: fullPath,
+            detail: action.detail,
+            sizeBefore: size,
+            sizeAfter: 0,
+          });
+        }
+      } catch {
+        // Skip files we can't stat or delete
+      }
+    } else if (entry.isDirectory()) {
+      // Match UUID-named session directories
+      if (!UUID_RE.test(name)) continue;
+
+      try {
+        const dirStat = await stat(fullPath);
+        if (dirStat.mtimeMs < cutoff) {
+          const size = await dirSize(fullPath);
+          await rm(fullPath, { recursive: true, force: true });
+          const action: PreflightAction = {
+            type: 'cleaned',
+            target: fullPath,
+            detail: `Removed stale session dir ${name} (${bytesToMB(size)}MB, ${Math.round((Date.now() - dirStat.mtimeMs) / 86400000)}d old)`,
+            sizeBefore: size,
+            sizeAfter: 0,
+          };
+          actions.push(action);
+          await writeJournalEntry({
+            timestamp: new Date().toISOString(),
+            action: 'cleaned',
+            target: fullPath,
+            detail: action.detail,
+            sizeBefore: size,
+            sizeAfter: 0,
+          });
+        }
+      } catch {
+        // Skip dirs we can't remove
+      }
+    }
+  }
+
+  return actions;
 }
 
 /** Check if a file is likely text-based (safe to trim by lines). */

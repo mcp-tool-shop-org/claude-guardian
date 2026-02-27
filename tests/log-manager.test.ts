@@ -4,6 +4,7 @@ import { join } from 'path';
 import { tmpdir } from 'os';
 import {
   scanLogs, fixLogs, formatPreflightReport, formatFixReport, healthBanner,
+  cleanStaleSessions,
 } from '../src/log-manager.js';
 import { dirSize, fileSize, bytesToMB, tailFile, trimFileToLines, gzipFile } from '../src/fs-utils.js';
 import type { GuardianConfig, PreflightResult } from '../src/types.js';
@@ -269,6 +270,131 @@ describe('log-manager integration (temp fs)', () => {
 
     const smallSize = await fileSize(smallFile);
     expect(bytesToMB(smallSize)).toBeLessThan(1);
+  });
+
+  describe('cleanStaleSessions', () => {
+    it('removes stale UUID-named jsonl files', async () => {
+      const projectDir = join(tempDir, 'proj');
+      await mkdir(projectDir);
+
+      // Create a stale session file (fake old mtime via utimes)
+      const staleFile = join(projectDir, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee.jsonl');
+      await writeFile(staleFile, '{"data":"old session"}');
+      const fourDaysAgo = new Date(Date.now() - 4 * 86400000);
+      const { utimes } = await import('fs/promises');
+      await utimes(staleFile, fourDaysAgo, fourDaysAgo);
+
+      // Create a fresh session file
+      const freshFile = join(projectDir, '11111111-2222-3333-4444-555555555555.jsonl');
+      await writeFile(freshFile, '{"data":"active session"}');
+
+      const actions = await cleanStaleSessions(projectDir);
+
+      expect(actions.length).toBe(1);
+      expect(actions[0].type).toBe('cleaned');
+      expect(actions[0].detail).toContain('stale session transcript');
+
+      // Stale file should be gone, fresh file should remain
+      const remaining = await readdir(projectDir);
+      expect(remaining).toContain('11111111-2222-3333-4444-555555555555.jsonl');
+      expect(remaining).not.toContain('aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee.jsonl');
+    });
+
+    it('removes stale UUID-named directories', async () => {
+      const projectDir = join(tempDir, 'proj');
+      await mkdir(projectDir);
+
+      const staleDir = join(projectDir, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee');
+      await mkdir(staleDir);
+      await writeFile(join(staleDir, 'data.json'), '{}');
+      const fourDaysAgo = new Date(Date.now() - 4 * 86400000);
+      const { utimes } = await import('fs/promises');
+      await utimes(staleDir, fourDaysAgo, fourDaysAgo);
+
+      const actions = await cleanStaleSessions(projectDir);
+
+      expect(actions.length).toBe(1);
+      expect(actions[0].type).toBe('cleaned');
+      expect(actions[0].detail).toContain('stale session dir');
+
+      const remaining = await readdir(projectDir);
+      expect(remaining).not.toContain('aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee');
+    });
+
+    it('never deletes memory/ or sessions-index.json', async () => {
+      const projectDir = join(tempDir, 'proj');
+      await mkdir(projectDir);
+      await mkdir(join(projectDir, 'memory'));
+      await writeFile(join(projectDir, 'memory', 'MEMORY.md'), '# Memory');
+      await writeFile(join(projectDir, 'sessions-index.json'), '{}');
+
+      // Make them old
+      const oldDate = new Date(Date.now() - 30 * 86400000);
+      const { utimes } = await import('fs/promises');
+      await utimes(join(projectDir, 'memory'), oldDate, oldDate);
+      await utimes(join(projectDir, 'sessions-index.json'), oldDate, oldDate);
+
+      const actions = await cleanStaleSessions(projectDir);
+      expect(actions.length).toBe(0);
+
+      const remaining = await readdir(projectDir);
+      expect(remaining).toContain('memory');
+      expect(remaining).toContain('sessions-index.json');
+    });
+
+    it('ignores non-UUID files', async () => {
+      const projectDir = join(tempDir, 'proj');
+      await mkdir(projectDir);
+
+      await writeFile(join(projectDir, 'config.json'), '{}');
+      await writeFile(join(projectDir, 'notes.txt'), 'hello');
+
+      const oldDate = new Date(Date.now() - 30 * 86400000);
+      const { utimes } = await import('fs/promises');
+      await utimes(join(projectDir, 'config.json'), oldDate, oldDate);
+      await utimes(join(projectDir, 'notes.txt'), oldDate, oldDate);
+
+      const actions = await cleanStaleSessions(projectDir);
+      expect(actions.length).toBe(0);
+    });
+
+    it('removes stale .jsonl.gz files', async () => {
+      const projectDir = join(tempDir, 'proj');
+      await mkdir(projectDir);
+
+      const gzFile = join(projectDir, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee.jsonl.gz');
+      await writeFile(gzFile, 'fake compressed data');
+      const oldDate = new Date(Date.now() - 5 * 86400000);
+      const { utimes } = await import('fs/promises');
+      await utimes(gzFile, oldDate, oldDate);
+
+      const actions = await cleanStaleSessions(projectDir);
+
+      expect(actions.length).toBe(1);
+      expect(actions[0].type).toBe('cleaned');
+      const remaining = await readdir(projectDir);
+      expect(remaining.length).toBe(0);
+    });
+
+    it('aggressive mode uses shorter retention', async () => {
+      const projectDir = join(tempDir, 'proj');
+      await mkdir(projectDir);
+
+      // File that is 2 days old — would survive normal (3d) but not aggressive (1d)
+      const file = join(projectDir, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee.jsonl');
+      await writeFile(file, 'data');
+      const twoDaysAgo = new Date(Date.now() - 2 * 86400000);
+      const { utimes } = await import('fs/promises');
+      await utimes(file, twoDaysAgo, twoDaysAgo);
+
+      // Normal mode: should keep it
+      const normalActions = await cleanStaleSessions(projectDir, false);
+      expect(normalActions.length).toBe(0);
+
+      // Aggressive mode: should delete it
+      const aggressiveActions = await cleanStaleSessions(projectDir, true);
+      expect(aggressiveActions.length).toBe(1);
+    });
   });
 
   it('trims and compresses files correctly', async () => {

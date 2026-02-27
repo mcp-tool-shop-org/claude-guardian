@@ -32,7 +32,7 @@ export interface PreflightResult {
 
 /** An action taken (or recommended) during preflight. */
 export interface PreflightAction {
-  type: 'rotated' | 'trimmed' | 'archived' | 'warning';
+  type: 'rotated' | 'trimmed' | 'archived' | 'cleaned' | 'warning';
   target: string;
   detail: string;
   sizeBefore?: number;

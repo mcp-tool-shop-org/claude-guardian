@@ -5,7 +5,12 @@ import { scanLogs, fixLogs, formatPreflightReport, formatFixReport, healthBanner
 import { generateBundle, formatDoctorReport } from './doctor.js';
 import { Watchdog, formatHealthStatus } from './watchdog.js';
 import { startMcpServer } from './mcp-server.js';
+import { startWatchDaemon } from './watch-daemon.js';
+import { findClaudeProcesses, checkActivitySignals, assessHangRisk, recommendActions } from './process-monitor.js';
+import { readState, isStateFresh } from './state.js';
+import { getDiskFreeGB } from './fs-utils.js';
 import { DEFAULT_CONFIG } from './defaults.js';
+import { homedir } from 'os';
 import type { GuardianConfig } from './types.js';
 
 const program = new Command();
@@ -13,7 +18,7 @@ const program = new Command();
 program
   .name('claude-guardian')
   .description('Flight computer for Claude Code — log rotation, watchdog, crash bundles, and MCP self-awareness')
-  .version('0.1.0');
+  .version('0.2.0');
 
 // ─── preflight ───
 program
@@ -131,14 +136,87 @@ program
     watchdog.start();
   });
 
+// ─── watch ───
+program
+  .command('watch')
+  .description('Run background daemon: monitor Claude Code processes, track health, persist state for MCP.')
+  .option('--hang-timeout <seconds>', 'Seconds of inactivity before warning', String(DEFAULT_CONFIG.hangNoActivitySeconds))
+  .option('--auto-fix', 'Auto-run preflight fixes when disk is low', false)
+  .option('--verbose', 'Print every poll cycle', false)
+  .action(async (opts) => {
+    await startWatchDaemon({
+      hangTimeoutSeconds: parseInt(opts.hangTimeout, 10),
+      autoFix: opts.autoFix,
+      verbose: opts.verbose,
+    });
+  });
+
 // ─── status ───
 program
   .command('status')
-  .description('Show current health status (disk, logs, warnings).')
+  .description('Show current health status: processes, hang risk, disk, logs.')
   .action(async () => {
-    const result = await scanLogs();
-    console.log(formatPreflightReport(result));
-    console.log('\n' + healthBanner(result));
+    // Try daemon state first
+    const state = await readState();
+    if (state && isStateFresh(state)) {
+      console.log(`[guardian] daemon=active | pid=${state.daemonPid}`);
+      console.log(`[guardian] disk=${state.diskFreeGB}GB | logs=${state.claudeLogSizeMB}MB | risk=${state.hangRisk.level}`);
+      console.log('');
+      if (state.claudeProcesses.length > 0) {
+        console.log(`Claude processes: ${state.claudeProcesses.length}`);
+        for (const p of state.claudeProcesses) {
+          const uptime = p.uptimeSeconds < 60 ? `${p.uptimeSeconds}s` : `${Math.floor(p.uptimeSeconds / 60)}m`;
+          console.log(`  PID ${p.pid} (${p.name}): CPU ${p.cpuPercent}% | RAM ${p.memoryMB}MB | up ${uptime}`);
+        }
+      } else {
+        console.log('Claude processes: none detected');
+      }
+      console.log('');
+      console.log(`Hang risk: ${state.hangRisk.level.toUpperCase()}`);
+      if (state.hangRisk.reasons.length > 0) {
+        for (const r of state.hangRisk.reasons) {
+          console.log(`  - ${r}`);
+        }
+      }
+      if (state.recommendedActions.length > 0) {
+        console.log('');
+        console.log('Recommended:');
+        for (const a of state.recommendedActions) {
+          console.log(`  - ${a}`);
+        }
+      }
+    } else {
+      // No daemon — do a live scan
+      console.log('[guardian] daemon=inactive (run `claude-guardian watch` to enable background monitoring)');
+      console.log('');
+
+      const diskFreeGB = await getDiskFreeGB(homedir());
+      const processes = await findClaudeProcesses();
+      const activity = await checkActivitySignals();
+      const hangRisk = assessHangRisk(processes, activity, diskFreeGB, DEFAULT_CONFIG.hangNoActivitySeconds);
+
+      if (processes.length > 0) {
+        console.log(`Claude processes: ${processes.length}`);
+        for (const p of processes) {
+          const uptime = p.uptimeSeconds < 60 ? `${p.uptimeSeconds}s` : `${Math.floor(p.uptimeSeconds / 60)}m`;
+          console.log(`  PID ${p.pid} (${p.name}): CPU ${p.cpuPercent}% | RAM ${p.memoryMB}MB | up ${uptime}`);
+        }
+      } else {
+        console.log('Claude processes: none detected');
+      }
+      console.log('');
+      console.log(`Hang risk: ${hangRisk.level.toUpperCase()}`);
+      if (hangRisk.reasons.length > 0) {
+        for (const r of hangRisk.reasons) {
+          console.log(`  - ${r}`);
+        }
+      }
+
+      console.log('');
+      const result = await scanLogs();
+      console.log(formatPreflightReport(result));
+      console.log('\n' + healthBanner(result));
+    }
   });
 
 // ─── mcp ───

@@ -1,0 +1,47 @@
+{
+  "name": "claude-guardian",
+  "version": "0.1.0",
+  "description": "Flight computer for Claude Code — log rotation, watchdog, crash bundles, and MCP self-awareness",
+  "type": "module",
+  "bin": {
+    "claude-guardian": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "dev": "tsc --watch"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "guardian",
+    "watchdog",
+    "mcp",
+    "reliability",
+    "diagnostics"
+  ],
+  "author": "mcp-tool-shop",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "archiver": "^7.0.1",
+    "commander": "^13.1.0",
+    "pidusage": "^3.0.2"
+  },
+  "devDependencies": {
+    "@types/archiver": "^6.0.3",
+    "@types/node": "^22.13.4",
+    "@types/pidusage": "^2.0.5",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
+}

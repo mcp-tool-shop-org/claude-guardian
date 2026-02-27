@@ -3,7 +3,7 @@ import { writeState, readState, isStateFresh, emptyState, type GuardianState } f
 
 describe('state', () => {
   describe('emptyState', () => {
-    it('creates a valid default state with all Phase 1 fields', () => {
+    it('creates a valid default state with all fields', () => {
       const state = emptyState();
       expect(state.daemonRunning).toBe(false);
       expect(state.daemonPid).toBeNull();
@@ -17,11 +17,13 @@ describe('state', () => {
       expect(state.activity.cpuActive).toBe(false);
       expect(state.hangRisk.cpuLowSeconds).toBe(0);
       expect(state.hangRisk.graceRemainingSeconds).toBe(0);
+      // Phase 2 fields
+      expect(state.budgetSummary).toBeNull();
     });
   });
 
   describe('writeState / readState round-trip', () => {
-    it('persists and reads back state with all Phase 1 fields', async () => {
+    it('persists and reads back state with all fields', async () => {
       const state: GuardianState = {
         ...emptyState(),
         daemonRunning: true,
@@ -58,6 +60,16 @@ describe('state', () => {
         },
         processAgeSeconds: 120,
         compositeQuietSeconds: 400,
+        budgetSummary: {
+          currentCap: 2,
+          baseCap: 4,
+          slotsInUse: 1,
+          slotsAvailable: 1,
+          activeLeases: 1,
+          capSetByRisk: 'warn',
+          okSinceAt: null,
+          hysteresisRemainingSeconds: 0,
+        },
       };
 
       await writeState(state);
@@ -78,6 +90,10 @@ describe('state', () => {
       expect(read!.activity.cpuActive).toBe(true);
       expect(read!.hangRisk.cpuLowSeconds).toBe(0);
       expect(read!.hangRisk.graceRemainingSeconds).toBe(0);
+      // Phase 2 round-trip
+      expect(read!.budgetSummary).not.toBeNull();
+      expect(read!.budgetSummary!.currentCap).toBe(2);
+      expect(read!.budgetSummary!.capSetByRisk).toBe('warn');
     });
   });
 

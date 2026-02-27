@@ -10,6 +10,8 @@ import {
   tailFile, readJournal, pathExists,
 } from './fs-utils.js';
 import { scanLogs } from './log-manager.js';
+import { findClaudeProcesses } from './process-monitor.js';
+import { getHandleCounts, type HandleCountResult } from './handle-count.js';
 
 export interface DoctorBundle {
   /** Path to the generated zip file. */
@@ -25,6 +27,8 @@ export interface DoctorSummary {
   biggestFiles: Array<{ path: string; sizeMB: number }>;
   journalEntries: number;
   recentJournal: Array<{ timestamp: string; action: string; detail: string }>;
+  /** Handle/FD counts for Claude processes at bundle time. */
+  handleCounts: HandleCountResult[];
 }
 
 export interface SystemInfo {
@@ -95,6 +99,12 @@ export async function generateBundle(outputPath?: string): Promise<DoctorBundle>
     detail: e.detail,
   }));
 
+  // Collect handle counts for running Claude processes
+  const processes = await findClaudeProcesses();
+  const handleCounts = processes.length > 0
+    ? await getHandleCounts(processes.map(p => p.pid))
+    : [];
+
   const summary: DoctorSummary = {
     timestamp: new Date().toISOString(),
     system: systemInfo,
@@ -102,6 +112,7 @@ export async function generateBundle(outputPath?: string): Promise<DoctorBundle>
     biggestFiles,
     journalEntries: journal.length,
     recentJournal,
+    handleCounts,
   };
 
   // Build the zip

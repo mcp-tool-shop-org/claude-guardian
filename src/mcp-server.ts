@@ -7,6 +7,8 @@ import { getDiskFreeGB, dirSize, bytesToMB, pathExists } from './fs-utils.js';
 import { getClaudeProjectsPath, DEFAULT_CONFIG, THRESHOLDS } from './defaults.js';
 import { findClaudeProcesses, checkActivitySignals, assessHangRisk, recommendActions } from './process-monitor.js';
 import { readState, isStateFresh, type GuardianState } from './state.js';
+import { readBudget } from './budget-store.js';
+import { Budget } from './budget.js';
 import { homedir } from 'os';
 
 /** Create and configure the MCP server with all guardian tools. */
@@ -14,7 +16,7 @@ export function createMcpServer(): McpServer {
   const server = new McpServer(
     {
       name: 'claude-guardian',
-      version: '1.0.0',
+      version: '1.1.0',
     },
     {
       capabilities: {
@@ -77,6 +79,7 @@ export function createMcpServer(): McpServer {
       activeIncident: null,
       processAgeSeconds: 0,
       compositeQuietSeconds: 0,
+      budgetSummary: null,
     };
 
     return {
@@ -140,7 +143,122 @@ export function createMcpServer(): McpServer {
     };
   });
 
+  // === guardian_nudge ===
+  server.registerTool('guardian_nudge', {
+    title: 'Guardian Nudge',
+    description:
+      'Deterministic "do the safe things" action. If logs/disk thresholds breached, runs preflight fix. ' +
+      'If warn/critical with no bundle yet, captures diagnostics. ' +
+      'Returns what changed and what to do next. Never kills processes or restarts.',
+  }, async () => {
+    // Get current state (daemon or live)
+    const state = await readState();
+    let effectiveState: GuardianState;
+
+    if (state && isStateFresh(state)) {
+      effectiveState = state;
+    } else {
+      // Build live state
+      const claudePath = getClaudeProjectsPath();
+      const diskFreeGB = await getDiskFreeGB(homedir());
+      let claudeLogSizeMB = 0;
+      if (await pathExists(claudePath)) {
+        claudeLogSizeMB = bytesToMB(await dirSize(claudePath));
+      }
+      const processes = await findClaudeProcesses();
+      const activity = await checkActivitySignals(processes);
+      const hangRisk = assessHangRisk(
+        processes, activity, diskFreeGB,
+        DEFAULT_CONFIG.hangNoActivitySeconds, 0, 0,
+      );
+      effectiveState = {
+        updatedAt: new Date().toISOString(),
+        daemonRunning: false,
+        daemonPid: null,
+        claudeProcesses: processes,
+        activity,
+        hangRisk,
+        recommendedActions: recommendActions(hangRisk),
+        diskFreeGB: Math.round(diskFreeGB * 100) / 100,
+        claudeLogSizeMB,
+        activeIncident: null,
+        processAgeSeconds: 0,
+        compositeQuietSeconds: 0,
+        budgetSummary: null,
+      };
+    }
+
+    const actions: string[] = [];
+
+    // 1. Logs/disk threshold check
+    if (effectiveState.hangRisk.diskLow || effectiveState.claudeLogSizeMB > DEFAULT_CONFIG.maxProjectLogDirMB) {
+      const fixActions = await fixLogs(DEFAULT_CONFIG, effectiveState.hangRisk.diskLow);
+      if (fixActions.length > 0) {
+        actions.push(`Preflight fix: ${fixActions.length} items repaired`);
+      }
+    }
+
+    // 2. Bundle capture for active incident without bundle
+    if (effectiveState.activeIncident &&
+        (effectiveState.hangRisk.level === 'warn' || effectiveState.hangRisk.level === 'critical') &&
+        !effectiveState.activeIncident.bundleCaptured) {
+      try {
+        const bundle = await generateBundle();
+        actions.push(`Doctor bundle saved: ${bundle.zipPath}`);
+      } catch (err) {
+        actions.push(`Doctor bundle failed: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }
+
+    // 3. No-op
+    if (actions.length === 0) {
+      return {
+        content: [{
+          type: 'text' as const,
+          text: 'All clear. No actions needed.',
+        }],
+      };
+    }
+
+    // 4. Operator script
+    const script = formatNudgeReport(actions, effectiveState);
+    return {
+      content: [{
+        type: 'text' as const,
+        text: script,
+      }],
+    };
+  });
+
   return server;
+}
+
+/** Format the nudge action report with next-step guidance. */
+function formatNudgeReport(actions: string[], state: GuardianState): string {
+  const lines: string[] = [];
+  lines.push('Guardian Nudge — actions taken:');
+  for (const a of actions) {
+    lines.push(`  - ${a}`);
+  }
+  lines.push('');
+
+  // Next-step recommendations
+  lines.push('Next steps:');
+  if (state.hangRisk.level === 'critical') {
+    lines.push('  - Risk is CRITICAL: consider restarting Claude Code if no recovery in 2 minutes');
+    lines.push('  - Reduce concurrency immediately');
+  } else if (state.hangRisk.level === 'warn') {
+    lines.push('  - Risk is WARN: reduce concurrency to prevent escalation');
+    lines.push('  - Monitor with guardian_status');
+  } else {
+    lines.push('  - Continue monitoring with guardian_status');
+  }
+
+  if (state.budgetSummary) {
+    lines.push(`  - Budget cap: ${state.budgetSummary.currentCap}/${state.budgetSummary.baseCap} (${state.budgetSummary.slotsAvailable} available)`);
+  }
+
+  return lines.join('\n');
 }
 
 /** Format full status from state (works for both daemon and live). */
@@ -163,7 +281,12 @@ function formatStatus(state: GuardianState): string {
   if (state.claudeProcesses.length > 0) {
     lines.push(`Claude processes: ${state.claudeProcesses.length}`);
     for (const p of state.claudeProcesses) {
-      lines.push(`  PID ${p.pid} (${p.name}): CPU ${p.cpuPercent}% | RAM ${p.memoryMB}MB | up ${fmtUptime(p.uptimeSeconds)}`);
+      let line = `  PID ${p.pid} (${p.name}): CPU ${p.cpuPercent}% | RAM ${p.memoryMB}MB`;
+      if (p.handleCount != null) {
+        line += ` | handles=${p.handleCount}`;
+      }
+      line += ` | up ${fmtUptime(p.uptimeSeconds)}`;
+      lines.push(line);
     }
   } else {
     lines.push('Claude processes: none detected');
@@ -204,6 +327,21 @@ function formatStatus(state: GuardianState): string {
   }
   lines.push('');
 
+  // Budget
+  if (state.budgetSummary) {
+    const b = state.budgetSummary;
+    lines.push(`Budget: cap=${b.currentCap}/${b.baseCap} | in-use=${b.slotsInUse} | available=${b.slotsAvailable} | leases=${b.activeLeases}`);
+    if (b.capSetByRisk) {
+      lines.push(`  Reduced by: ${b.capSetByRisk}`);
+    }
+    if (b.hysteresisRemainingSeconds > 0) {
+      lines.push(`  Recovery in: ${b.hysteresisRemainingSeconds}s`);
+    }
+  } else {
+    lines.push('Budget: not initialized');
+  }
+  lines.push('');
+
   // Recommended actions
   if (state.recommendedActions.length > 0) {
     lines.push('Recommended actions:');
@@ -227,10 +365,22 @@ export function formatBanner(state: GuardianState): string {
     parts.push(`procs=${state.claudeProcesses.length}`);
     parts.push(`cpu=${round(totalCpu)}%`);
     parts.push(`rss=${Math.round(totalMem)}MB`);
+
+    // Total handle count (if any process has it)
+    const handles = state.claudeProcesses
+      .filter(p => p.handleCount != null)
+      .reduce((s, p) => s + (p.handleCount ?? 0), 0);
+    if (handles > 0) {
+      parts.push(`handles=${handles}`);
+    }
   }
 
   parts.push(`quiet=${state.compositeQuietSeconds}s`);
   parts.push(`risk=${state.hangRisk.level}`);
+
+  if (state.budgetSummary) {
+    parts.push(`cap=${state.budgetSummary.currentCap}/${state.budgetSummary.baseCap}`);
+  }
 
   if (state.activeIncident) {
     parts.push(`incident=${state.activeIncident.id}`);

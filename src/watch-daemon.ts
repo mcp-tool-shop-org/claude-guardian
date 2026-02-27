@@ -3,6 +3,9 @@ import { getClaudeProjectsPath, DEFAULT_CONFIG, THRESHOLDS } from './defaults.js
 import { findClaudeProcesses, checkActivitySignals, assessHangRisk, recommendActions } from './process-monitor.js';
 import { writeState, type GuardianState } from './state.js';
 import { IncidentTracker } from './incident.js';
+import { Budget } from './budget.js';
+import { readBudget, writeBudget, emptyBudget } from './budget-store.js';
+import { getHandleCounts } from './handle-count.js';
 import { fixLogs } from './log-manager.js';
 import { generateBundle } from './doctor.js';
 import { homedir } from 'os';
@@ -119,6 +122,25 @@ export async function startWatchDaemon(opts: Partial<WatchDaemonOptions> = {}): 
         }
       }
 
+      // Budget cap adjustment (read fresh each poll to avoid overwriting CLI changes)
+      const budgetData = await readBudget() ?? emptyBudget();
+      const budget = new Budget(budgetData);
+      budget.expireLeases(now);
+      const capChanged = budget.adjustCap(hangRisk.level, now);
+      if (capChanged && options.verbose) {
+        log(`Budget cap changed to ${budget.currentCap} (risk=${hangRisk.level})`);
+      }
+      await writeBudget(budget.getData());
+
+      // Handle counts (best-effort, attached to process objects)
+      if (processes.length > 0) {
+        const handleResults = await getHandleCounts(processes.map(p => p.pid));
+        for (const hc of handleResults) {
+          const proc = processes.find(p => p.pid === hc.pid);
+          if (proc) proc.handleCount = hc.count;
+        }
+      }
+
       // Persist state
       const state: GuardianState = {
         updatedAt: new Date().toISOString(),
@@ -133,6 +155,7 @@ export async function startWatchDaemon(opts: Partial<WatchDaemonOptions> = {}): 
         activeIncident: incidents.getActive(),
         processAgeSeconds,
         compositeQuietSeconds,
+        budgetSummary: budget.summarize(now),
       };
       await writeState(state);
 

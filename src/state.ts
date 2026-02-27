@@ -4,6 +4,7 @@ import { join } from 'path';
 import { getGuardianDataPath } from './defaults.js';
 import type { ClaudeProcess, ActivitySignals, HangRisk } from './process-monitor.js';
 import type { Incident } from './incident.js';
+import type { BudgetSummary } from './budget.js';
 
 /** Persisted state shared between daemon and MCP server. */
 export interface GuardianState {
@@ -31,6 +32,8 @@ export interface GuardianState {
   processAgeSeconds: number;
   /** How long the composite quiet condition has held. */
   compositeQuietSeconds: number;
+  /** Budget summary (null if budget not initialized). */
+  budgetSummary: BudgetSummary | null;
 }
 
 function getStatePath(): string {
@@ -88,5 +91,6 @@ export function emptyState(): GuardianState {
     activeIncident: null,
     processAgeSeconds: 0,
     compositeQuietSeconds: 0,
+    budgetSummary: null,
   };
 }

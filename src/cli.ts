@@ -10,6 +10,8 @@ import { findClaudeProcesses, checkActivitySignals, assessHangRisk, recommendAct
 import { readState, isStateFresh, emptyState } from './state.js';
 import { getDiskFreeGB, bytesToMB, pathExists, dirSize } from './fs-utils.js';
 import { DEFAULT_CONFIG, getClaudeProjectsPath } from './defaults.js';
+import { Budget } from './budget.js';
+import { readBudget, writeBudget, emptyBudget } from './budget-store.js';
 import { homedir } from 'os';
 import type { GuardianConfig } from './types.js';
 import type { GuardianState } from './state.js';
@@ -19,7 +21,7 @@ const program = new Command();
 program
   .name('claude-guardian')
   .description('Flight computer for Claude Code — log rotation, watchdog, crash bundles, and MCP self-awareness')
-  .version('1.0.0');
+  .version('1.1.0');
 
 // ─── preflight ───
 program
@@ -198,6 +200,7 @@ program
         activeIncident: null,
         processAgeSeconds: 0,
         compositeQuietSeconds: 0,
+        budgetSummary: null,
       };
 
       if (opts.banner) {
@@ -227,8 +230,12 @@ function printFullStatus(state: GuardianState): void {
   if (state.claudeProcesses.length > 0) {
     console.log(`Claude processes: ${state.claudeProcesses.length}`);
     for (const p of state.claudeProcesses) {
-      const uptime = fmtUptime(p.uptimeSeconds);
-      console.log(`  PID ${p.pid} (${p.name}): CPU ${p.cpuPercent}% | RAM ${p.memoryMB}MB | up ${uptime}`);
+      let line = `  PID ${p.pid} (${p.name}): CPU ${p.cpuPercent}% | RAM ${p.memoryMB}MB`;
+      if (p.handleCount != null) {
+        line += ` | handles=${p.handleCount}`;
+      }
+      line += ` | up ${fmtUptime(p.uptimeSeconds)}`;
+      console.log(line);
     }
   } else {
     console.log('Claude processes: none detected');
@@ -263,6 +270,19 @@ function printFullStatus(state: GuardianState): void {
     }
   }
 
+  // Budget
+  if (state.budgetSummary) {
+    console.log('');
+    const b = state.budgetSummary;
+    console.log(`Budget: cap=${b.currentCap}/${b.baseCap} | in-use=${b.slotsInUse} | available=${b.slotsAvailable}`);
+    if (b.capSetByRisk) {
+      console.log(`  Reduced by: ${b.capSetByRisk}`);
+    }
+    if (b.hysteresisRemainingSeconds > 0) {
+      console.log(`  Recovery in: ${b.hysteresisRemainingSeconds}s`);
+    }
+  }
+
   if (state.recommendedActions.length > 0) {
     console.log('');
     console.log('Recommended:');
@@ -281,6 +301,80 @@ function fmtUptime(seconds: number): string {
   const remMins = mins % 60;
   return `${hours}h ${remMins}m`;
 }
+
+// ─── budget ───
+const budgetCmd = program
+  .command('budget')
+  .description('View and manage the concurrency budget.');
+
+budgetCmd
+  .command('show', { isDefault: true })
+  .description('Show current budget: cap, leases, availability.')
+  .action(async () => {
+    const data = await readBudget();
+    if (!data) {
+      console.log('[guardian] No budget state. Start the daemon or run `budget acquire` to initialize.');
+      return;
+    }
+    const budget = new Budget(data);
+    budget.expireLeases();
+    const s = budget.summarize();
+
+    console.log(`Budget: cap=${s.currentCap}/${s.baseCap} | in-use=${s.slotsInUse} | available=${s.slotsAvailable}`);
+    console.log(`Active leases: ${s.activeLeases}`);
+    if (s.capSetByRisk) {
+      console.log(`Cap reduced by: ${s.capSetByRisk}`);
+    }
+    if (s.hysteresisRemainingSeconds > 0) {
+      console.log(`Recovery in: ${s.hysteresisRemainingSeconds}s`);
+    }
+
+    // Show individual leases
+    if (data.leases.length > 0) {
+      console.log('');
+      for (const l of data.leases) {
+        const expiresIn = Math.max(0, Math.round((new Date(l.expiresAt).getTime() - Date.now()) / 1000));
+        console.log(`  ${l.id}: ${l.slots} slot(s) — "${l.reason}" (expires in ${expiresIn}s)`);
+      }
+    }
+  });
+
+budgetCmd
+  .command('acquire')
+  .description('Acquire concurrency slots.')
+  .argument('<slots>', 'Number of slots to acquire')
+  .option('--ttl <seconds>', 'Lease time-to-live in seconds', '60')
+  .option('--reason <text>', 'Reason for acquiring', 'manual')
+  .action(async (slotsStr: string, opts) => {
+    const data = await readBudget() ?? emptyBudget();
+    const budget = new Budget(data);
+    budget.expireLeases();
+    const result = budget.acquire(parseInt(slotsStr, 10), parseInt(opts.ttl, 10), opts.reason);
+    await writeBudget(budget.getData());
+
+    if (result.granted) {
+      console.log(`Lease granted: ${result.lease!.id} (${result.lease!.slots} slot(s), TTL ${opts.ttl}s)`);
+      console.log(`Budget: ${result.slotsInUse}/${result.currentCap} in use`);
+    } else {
+      console.log(`Denied: ${result.reason}`);
+    }
+  });
+
+budgetCmd
+  .command('release')
+  .description('Release a lease by ID.')
+  .argument('<id>', 'Lease ID to release')
+  .action(async (id: string) => {
+    const data = await readBudget();
+    if (!data) {
+      console.log('[guardian] No budget state.');
+      return;
+    }
+    const budget = new Budget(data);
+    const released = budget.release(id);
+    await writeBudget(budget.getData());
+    console.log(released ? `Lease ${id} released.` : `Lease ${id} not found.`);
+  });
 
 // ─── mcp ───
 program

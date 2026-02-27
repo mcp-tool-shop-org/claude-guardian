@@ -14,6 +14,8 @@ export interface ClaudeProcess {
   memoryMB: number;
   uptimeSeconds: number;
   commandLine?: string;
+  /** Open handles/FDs (null if unavailable, undefined if not fetched). */
+  handleCount?: number | null;
 }
 
 export interface ActivitySignals {

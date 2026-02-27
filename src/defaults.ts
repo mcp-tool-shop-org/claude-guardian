@@ -45,6 +45,18 @@ export const THRESHOLDS = {
   bundleCooldownSeconds: 300,
 } as const;
 
+/** Budget thresholds for concurrency control. */
+export const BUDGET_THRESHOLDS = {
+  /** Maximum concurrency slots (base cap). */
+  baseCap: 4,
+  /** Cap when risk = warn. */
+  warnCap: 2,
+  /** Cap when risk = critical. */
+  criticalCap: 1,
+  /** Seconds of sustained ok before restoring base cap. */
+  hysteresisSeconds: 60,
+} as const;
+
 /** Resolve the Claude projects directory. */
 export function getClaudeProjectsPath(): string {
   return join(homedir(), '.claude', 'projects');
@@ -63,4 +75,9 @@ export function getJournalPath(): string {
 /** Resolve the archive directory. */
 export function getArchivePath(): string {
   return join(getGuardianDataPath(), 'archive');
+}
+
+/** Resolve the budget file path. */
+export function getBudgetPath(): string {
+  return join(getGuardianDataPath(), 'budget.json');
 }

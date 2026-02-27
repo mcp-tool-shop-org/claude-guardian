@@ -18,7 +18,7 @@ describe('MCP Server', () => {
   }
 
   describe('tool registration', () => {
-    it('exposes all 3 guardian tools', async () => {
+    it('exposes all 4 guardian tools', async () => {
       const { client, server } = await setupClientServer();
 
       const tools = await client.listTools();
@@ -27,7 +27,8 @@ describe('MCP Server', () => {
       expect(toolNames).toContain('guardian_status');
       expect(toolNames).toContain('guardian_preflight_fix');
       expect(toolNames).toContain('guardian_doctor');
-      expect(tools.tools.length).toBe(3);
+      expect(toolNames).toContain('guardian_nudge');
+      expect(tools.tools.length).toBe(4);
 
       await server.close();
     });
@@ -86,6 +87,7 @@ describe('MCP Server', () => {
       expect(textContent[0].text).toContain('risk=');
       expect(textContent[0].text).toContain('Hang risk:');
       expect(textContent[0].text).toContain('Incident:');
+      expect(textContent[0].text).toContain('Budget:');
 
       await server.close();
     });
@@ -164,5 +166,34 @@ describe('formatBanner', () => {
     state.daemonPid = 9999;
     const banner = formatBanner(state);
     expect(banner).toContain('daemon=on');
+  });
+
+  it('includes budget cap when budgetSummary is present', () => {
+    const state = emptyState();
+    state.diskFreeGB = 50;
+    state.claudeLogSizeMB = 100;
+    state.budgetSummary = {
+      currentCap: 2,
+      baseCap: 4,
+      slotsInUse: 1,
+      slotsAvailable: 1,
+      activeLeases: 1,
+      capSetByRisk: 'warn',
+      okSinceAt: null,
+      hysteresisRemainingSeconds: 0,
+    };
+    const banner = formatBanner(state);
+    expect(banner).toContain('cap=2/4');
+  });
+
+  it('includes handle count when processes have handles', () => {
+    const state = emptyState();
+    state.diskFreeGB = 50;
+    state.claudeLogSizeMB = 100;
+    state.claudeProcesses = [
+      { pid: 1, name: 'claude', cpuPercent: 10, memoryMB: 512, uptimeSeconds: 100, handleCount: 150 },
+    ];
+    const banner = formatBanner(state);
+    expect(banner).toContain('handles=150');
   });
 });

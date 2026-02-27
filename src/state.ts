@@ -6,6 +6,22 @@ import type { ClaudeProcess, ActivitySignals, HangRisk } from './process-monitor
 import type { Incident } from './incident.js';
 import type { BudgetSummary } from './budget.js';
 
+export type AttentionLevel = 'none' | 'info' | 'warn' | 'critical';
+
+/** Top-level "pay attention" signal for the agent. */
+export interface Attention {
+  /** Urgency level. */
+  level: AttentionLevel;
+  /** When this attention level started. */
+  since: string;
+  /** Human-readable reason. */
+  reason: string;
+  /** Concrete MCP-tool-based actions the agent should take. */
+  recommendedActions: string[];
+  /** Active incident ID (null if none). */
+  incidentId: string | null;
+}
+
 /** Persisted state shared between daemon and MCP server. */
 export interface GuardianState {
   /** When this state was last written. */
@@ -34,6 +50,8 @@ export interface GuardianState {
   compositeQuietSeconds: number;
   /** Budget summary (null if budget not initialized). */
   budgetSummary: BudgetSummary | null;
+  /** Top-level attention signal for the agent. */
+  attention: Attention;
 }
 
 function getStatePath(): string {
@@ -92,5 +110,72 @@ export function emptyState(): GuardianState {
     processAgeSeconds: 0,
     compositeQuietSeconds: 0,
     budgetSummary: null,
+    attention: { level: 'none', since: new Date().toISOString(), reason: 'All systems healthy', recommendedActions: [], incidentId: null },
+  };
+}
+
+/**
+ * Compute the attention signal from current state.
+ * Pass `previousAttention` to preserve `since` when level is unchanged.
+ */
+export function computeAttention(
+  hangRisk: HangRisk,
+  budgetSummary: BudgetSummary | null,
+  activeIncident: Incident | null,
+  previousAttention?: Attention,
+): Attention {
+  const actions: string[] = [];
+  const reasons: string[] = [];
+  let level: AttentionLevel = 'none';
+
+  // Hang risk drives the main level
+  if (hangRisk.level === 'critical') {
+    level = 'critical';
+    reasons.push('Hang risk is critical');
+    actions.push('Run guardian_nudge to capture diagnostics');
+    actions.push('Reduce concurrency — call guardian_budget_get to check cap');
+    actions.push('If no recovery in 2 minutes, restart Claude Code');
+  } else if (hangRisk.level === 'warn') {
+    level = 'warn';
+    reasons.push('Hang risk is elevated');
+    actions.push('Run guardian_nudge for safe remediation');
+    actions.push('Reduce concurrency — call guardian_budget_get to check cap');
+    actions.push('Monitor with guardian_status');
+  }
+
+  // Disk low escalates to at least warn
+  if (hangRisk.diskLow) {
+    if (level === 'none') level = 'warn';
+    reasons.push('Disk space is low');
+    actions.push('Run guardian_preflight_fix to free space');
+  }
+
+  // Budget reduction is info level
+  if (budgetSummary && budgetSummary.currentCap < budgetSummary.baseCap) {
+    if (level === 'none') level = 'info';
+    reasons.push(`Budget cap reduced to ${budgetSummary.currentCap}/${budgetSummary.baseCap}`);
+    if (!actions.some(a => a.includes('guardian_budget_get'))) {
+      actions.push('Call guardian_budget_acquire before heavy work');
+    }
+  }
+
+  // Active incident at info minimum
+  const incidentId = activeIncident?.id ?? null;
+  if (activeIncident && level === 'none') {
+    level = 'info';
+    reasons.push(`Active incident: ${activeIncident.id}`);
+  }
+
+  // Preserve `since` if level unchanged
+  const since = previousAttention && previousAttention.level === level
+    ? previousAttention.since
+    : new Date().toISOString();
+
+  return {
+    level,
+    since,
+    reason: reasons.join('; ') || 'All systems healthy',
+    recommendedActions: actions,
+    incidentId,
   };
 }

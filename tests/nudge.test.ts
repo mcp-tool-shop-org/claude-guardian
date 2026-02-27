@@ -18,7 +18,7 @@ describe('guardian_nudge', () => {
     const tools = await client.listTools();
     const names = tools.tools.map(t => t.name);
     expect(names).toContain('guardian_nudge');
-    expect(tools.tools.length).toBe(4);
+    expect(tools.tools.length).toBe(8);
     await server.close();
   });
 

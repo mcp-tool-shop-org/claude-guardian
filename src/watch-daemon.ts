@@ -1,7 +1,7 @@
 import { getDiskFreeGB, dirSize, bytesToMB, pathExists, writeJournalEntry } from './fs-utils.js';
 import { getClaudeProjectsPath, DEFAULT_CONFIG, THRESHOLDS } from './defaults.js';
 import { findClaudeProcesses, checkActivitySignals, assessHangRisk, recommendActions } from './process-monitor.js';
-import { writeState, type GuardianState } from './state.js';
+import { writeState, computeAttention, type GuardianState, type Attention } from './state.js';
 import { IncidentTracker } from './incident.js';
 import { Budget } from './budget.js';
 import { readBudget, writeBudget, emptyBudget } from './budget-store.js';
@@ -30,6 +30,7 @@ export async function startWatchDaemon(opts: Partial<WatchDaemonOptions> = {}): 
   // Tracking state across polls
   let processFirstSeenAt: number | null = null;
   let compositeQuietSince: number | null = null;
+  let previousAttention: Attention | undefined;
 
   const log = (msg: string) => {
     const ts = new Date().toISOString().substring(11, 19);
@@ -141,6 +142,10 @@ export async function startWatchDaemon(opts: Partial<WatchDaemonOptions> = {}): 
         }
       }
 
+      // Compute attention (preserving `since` when level unchanged)
+      const attention = computeAttention(hangRisk, budget.summarize(now), incidents.getActive(), previousAttention);
+      previousAttention = attention;
+
       // Persist state
       const state: GuardianState = {
         updatedAt: new Date().toISOString(),
@@ -156,6 +161,7 @@ export async function startWatchDaemon(opts: Partial<WatchDaemonOptions> = {}): 
         processAgeSeconds,
         compositeQuietSeconds,
         budgetSummary: budget.summarize(now),
+        attention,
       };
       await writeState(state);
 

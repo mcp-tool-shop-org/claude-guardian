@@ -54,6 +54,17 @@ describe('doctor', () => {
           { timestamp: '2026-02-26T10:00:00Z', action: 'trimmed', detail: 'Trimmed 50MB → 10MB' },
           { timestamp: '2026-02-27T08:00:00Z', action: 'rotated', detail: 'Compressed 30MB → 3MB' },
         ],
+        handleCounts: [],
+        processSnapshot: {
+          timestamp: '2026-02-27T00:00:00.000Z',
+          processes: [
+            { pid: 123, name: 'claude', cpuPercent: 25, memoryMB: 512, uptimeSeconds: 3600, handleCount: 150 },
+          ],
+          activitySignals: { logLastModifiedSecondsAgo: 5, cpuActive: true, sources: ['log-mtime', 'cpu'] },
+        },
+        timeline: [
+          { timestamp: '2026-02-27T00:00:00.000Z', type: 'risk_change', detail: 'Current risk: ok | attention: none' },
+        ],
       };
 
       const report = formatDoctorReport(summary);
@@ -68,6 +79,10 @@ describe('doctor', () => {
       expect(report).toContain('25 entries');
       expect(report).toContain('trimmed');
       expect(report).toContain('rotated');
+      // Phase 3: process snapshot and timeline
+      expect(report).toContain('Process Snapshot:');
+      expect(report).toContain('PID 123');
+      expect(report).toContain('Timeline:');
     });
 
     it('handles empty state gracefully', () => {
@@ -85,6 +100,13 @@ describe('doctor', () => {
         biggestFiles: [],
         journalEntries: 0,
         recentJournal: [],
+        handleCounts: [],
+        processSnapshot: {
+          timestamp: '2026-02-27T00:00:00.000Z',
+          processes: [],
+          activitySignals: { logLastModifiedSecondsAgo: -1, cpuActive: false, sources: [] },
+        },
+        timeline: [],
       };
 
       const report = formatDoctorReport(summary);

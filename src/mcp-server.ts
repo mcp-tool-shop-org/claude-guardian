@@ -6,9 +6,10 @@ import { generateBundle, formatDoctorReport } from './doctor.js';
 import { getDiskFreeGB, dirSize, bytesToMB, pathExists } from './fs-utils.js';
 import { getClaudeProjectsPath, DEFAULT_CONFIG, THRESHOLDS } from './defaults.js';
 import { findClaudeProcesses, checkActivitySignals, assessHangRisk, recommendActions } from './process-monitor.js';
-import { readState, isStateFresh, type GuardianState } from './state.js';
-import { readBudget } from './budget-store.js';
+import { readState, isStateFresh, computeAttention, type GuardianState } from './state.js';
+import { readBudget, writeBudget, emptyBudget } from './budget-store.js';
 import { Budget } from './budget.js';
+import { generateRecoveryPlan, formatRecoveryPlan } from './recovery-plan.js';
 import { homedir } from 'os';
 
 /** Create and configure the MCP server with all guardian tools. */
@@ -16,7 +17,7 @@ export function createMcpServer(): McpServer {
   const server = new McpServer(
     {
       name: 'claude-guardian',
-      version: '1.1.0',
+      version: '1.2.0',
     },
     {
       capabilities: {
@@ -80,6 +81,7 @@ export function createMcpServer(): McpServer {
       processAgeSeconds: 0,
       compositeQuietSeconds: 0,
       budgetSummary: null,
+      attention: computeAttention(hangRisk, null, null),
     };
 
     return {
@@ -185,6 +187,7 @@ export function createMcpServer(): McpServer {
         processAgeSeconds: 0,
         compositeQuietSeconds: 0,
         budgetSummary: null,
+        attention: computeAttention(hangRisk, null, null),
       };
     }
 
@@ -226,6 +229,179 @@ export function createMcpServer(): McpServer {
       content: [{
         type: 'text' as const,
         text: script,
+      }],
+    };
+  });
+
+  // === guardian_budget_get ===
+  server.registerTool('guardian_budget_get', {
+    title: 'Guardian Budget Get',
+    description:
+      'Returns the current concurrency budget: cap, slots in use, available slots, and active leases. ' +
+      'Use this before starting heavy work to check if capacity is available.',
+  }, async () => {
+    const data = await readBudget();
+    if (!data) {
+      return {
+        content: [{
+          type: 'text' as const,
+          text: 'Budget not initialized. No daemon running and no previous budget state.',
+        }],
+      };
+    }
+    const budget = new Budget(data);
+    budget.expireLeases();
+    const s = budget.summarize();
+
+    const lines: string[] = [];
+    lines.push(`Budget: cap=${s.currentCap}/${s.baseCap} | in-use=${s.slotsInUse} | available=${s.slotsAvailable}`);
+    lines.push(`Active leases: ${s.activeLeases}`);
+    if (s.capSetByRisk) {
+      lines.push(`Cap reduced by: ${s.capSetByRisk}`);
+    }
+    if (s.hysteresisRemainingSeconds > 0) {
+      lines.push(`Recovery in: ${s.hysteresisRemainingSeconds}s`);
+    }
+    if (data.leases.length > 0) {
+      lines.push('');
+      for (const l of data.leases) {
+        const expiresIn = Math.max(0, Math.round((new Date(l.expiresAt).getTime() - Date.now()) / 1000));
+        lines.push(`  ${l.id}: ${l.slots} slot(s) — "${l.reason}" (expires in ${expiresIn}s)`);
+      }
+    }
+
+    return {
+      content: [{
+        type: 'text' as const,
+        text: lines.join('\n'),
+      }],
+    };
+  });
+
+  // === guardian_budget_acquire ===
+  server.registerTool('guardian_budget_acquire', {
+    title: 'Guardian Budget Acquire',
+    description:
+      'Acquire concurrency slots before starting heavy work. Returns granted/denied with lease ID. ' +
+      'Release the lease when done with guardian_budget_release.',
+    inputSchema: {
+      slots: z.number().int().min(1).describe('Number of concurrency slots to acquire'),
+      ttlSeconds: z.number().int().min(1).default(120).describe('Lease time-to-live in seconds (default: 120)'),
+      reason: z.string().default('mcp-acquire').describe('Why you need the slots'),
+    },
+  }, async ({ slots, ttlSeconds, reason }) => {
+    const data = await readBudget() ?? emptyBudget();
+    const budget = new Budget(data);
+    budget.expireLeases();
+    const result = budget.acquire(slots, ttlSeconds, reason);
+    await writeBudget(budget.getData());
+
+    if (result.granted) {
+      return {
+        content: [{
+          type: 'text' as const,
+          text: `Granted: lease=${result.lease!.id} | slots=${result.lease!.slots} | ttl=${ttlSeconds}s\nBudget: ${result.slotsInUse}/${result.currentCap} in use | ${result.slotsAvailable} available`,
+        }],
+      };
+    }
+
+    return {
+      content: [{
+        type: 'text' as const,
+        text: `Denied: ${result.reason}\nBudget: ${result.slotsInUse}/${result.currentCap} in use | ${result.slotsAvailable} available`,
+      }],
+    };
+  });
+
+  // === guardian_budget_release ===
+  server.registerTool('guardian_budget_release', {
+    title: 'Guardian Budget Release',
+    description:
+      'Release a concurrency lease by ID. Call this when you finish heavy work to free slots for others.',
+    inputSchema: {
+      leaseId: z.string().describe('The lease ID returned by guardian_budget_acquire'),
+    },
+  }, async ({ leaseId }) => {
+    const data = await readBudget();
+    if (!data) {
+      return {
+        content: [{
+          type: 'text' as const,
+          text: 'Budget not initialized. Nothing to release.',
+        }],
+      };
+    }
+    const budget = new Budget(data);
+    const released = budget.release(leaseId);
+    await writeBudget(budget.getData());
+
+    if (released) {
+      const s = budget.summarize();
+      return {
+        content: [{
+          type: 'text' as const,
+          text: `Released: lease=${leaseId}\nBudget: ${s.slotsInUse}/${s.currentCap} in use | ${s.slotsAvailable} available`,
+        }],
+      };
+    }
+
+    return {
+      content: [{
+        type: 'text' as const,
+        text: `Lease ${leaseId} not found. It may have already expired or been released.`,
+      }],
+    };
+  });
+
+  // === guardian_recovery_plan ===
+  server.registerTool('guardian_recovery_plan', {
+    title: 'Guardian Recovery Plan',
+    description:
+      'Returns a deterministic step-by-step recovery plan based on current signals. ' +
+      'Each step names the exact MCP tool to call. Never auto-restarts or kills processes.',
+  }, async () => {
+    // Get current state (daemon or live)
+    const state = await readState();
+    let effectiveState: GuardianState;
+
+    if (state && isStateFresh(state)) {
+      effectiveState = state;
+    } else {
+      const claudePath = getClaudeProjectsPath();
+      const diskFreeGB = await getDiskFreeGB(homedir());
+      let claudeLogSizeMB = 0;
+      if (await pathExists(claudePath)) {
+        claudeLogSizeMB = bytesToMB(await dirSize(claudePath));
+      }
+      const processes = await findClaudeProcesses();
+      const activity = await checkActivitySignals(processes);
+      const hangRisk = assessHangRisk(
+        processes, activity, diskFreeGB,
+        DEFAULT_CONFIG.hangNoActivitySeconds, 0, 0,
+      );
+      effectiveState = {
+        updatedAt: new Date().toISOString(),
+        daemonRunning: false,
+        daemonPid: null,
+        claudeProcesses: processes,
+        activity,
+        hangRisk,
+        recommendedActions: recommendActions(hangRisk),
+        diskFreeGB: Math.round(diskFreeGB * 100) / 100,
+        claudeLogSizeMB,
+        activeIncident: null,
+        processAgeSeconds: 0,
+        compositeQuietSeconds: 0,
+        budgetSummary: null,
+        attention: computeAttention(hangRisk, null, null),
+      };
+    }
+
+    const plan = generateRecoveryPlan(effectiveState);
+    return {
+      content: [{
+        type: 'text' as const,
+        text: formatRecoveryPlan(plan),
       }],
     };
   });
@@ -342,10 +518,10 @@ function formatStatus(state: GuardianState): string {
   }
   lines.push('');
 
-  // Recommended actions
-  if (state.recommendedActions.length > 0) {
-    lines.push('Recommended actions:');
-    for (const a of state.recommendedActions) {
+  // Attention
+  lines.push(`Attention: ${state.attention.level.toUpperCase()} — ${state.attention.reason}`);
+  if (state.attention.level !== 'none' && state.attention.recommendedActions.length > 0) {
+    for (const a of state.attention.recommendedActions) {
       lines.push(`  - ${a}`);
     }
   }
@@ -377,6 +553,9 @@ export function formatBanner(state: GuardianState): string {
 
   parts.push(`quiet=${state.compositeQuietSeconds}s`);
   parts.push(`risk=${state.hangRisk.level}`);
+  if (state.attention.level !== 'none') {
+    parts.push(`attn=${state.attention.level}`);
+  }
 
   if (state.budgetSummary) {
     parts.push(`cap=${state.budgetSummary.currentCap}/${state.budgetSummary.baseCap}`);

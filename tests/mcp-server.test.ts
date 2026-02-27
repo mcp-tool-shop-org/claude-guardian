@@ -18,7 +18,7 @@ describe('MCP Server', () => {
   }
 
   describe('tool registration', () => {
-    it('exposes all 4 guardian tools', async () => {
+    it('exposes all 8 guardian tools', async () => {
       const { client, server } = await setupClientServer();
 
       const tools = await client.listTools();
@@ -28,7 +28,11 @@ describe('MCP Server', () => {
       expect(toolNames).toContain('guardian_preflight_fix');
       expect(toolNames).toContain('guardian_doctor');
       expect(toolNames).toContain('guardian_nudge');
-      expect(tools.tools.length).toBe(4);
+      expect(toolNames).toContain('guardian_budget_get');
+      expect(toolNames).toContain('guardian_budget_acquire');
+      expect(toolNames).toContain('guardian_budget_release');
+      expect(toolNames).toContain('guardian_recovery_plan');
+      expect(tools.tools.length).toBe(8);
 
       await server.close();
     });
@@ -88,6 +92,7 @@ describe('MCP Server', () => {
       expect(textContent[0].text).toContain('Hang risk:');
       expect(textContent[0].text).toContain('Incident:');
       expect(textContent[0].text).toContain('Budget:');
+      expect(textContent[0].text).toContain('Attention:');
 
       await server.close();
     });
@@ -195,5 +200,28 @@ describe('formatBanner', () => {
     ];
     const banner = formatBanner(state);
     expect(banner).toContain('handles=150');
+  });
+
+  it('includes attn when attention is not none', () => {
+    const state = emptyState();
+    state.diskFreeGB = 50;
+    state.claudeLogSizeMB = 100;
+    state.attention = {
+      level: 'warn',
+      since: new Date().toISOString(),
+      reason: 'test warning',
+      recommendedActions: [],
+      incidentId: null,
+    };
+    const banner = formatBanner(state);
+    expect(banner).toContain('attn=warn');
+  });
+
+  it('excludes attn when attention is none', () => {
+    const state = emptyState();
+    state.diskFreeGB = 50;
+    state.claudeLogSizeMB = 100;
+    const banner = formatBanner(state);
+    expect(banner).not.toContain('attn=');
   });
 });

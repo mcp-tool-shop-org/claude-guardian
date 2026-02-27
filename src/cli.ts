@@ -7,7 +7,7 @@ import { Watchdog, formatHealthStatus } from './watchdog.js';
 import { startMcpServer, formatBanner } from './mcp-server.js';
 import { startWatchDaemon } from './watch-daemon.js';
 import { findClaudeProcesses, checkActivitySignals, assessHangRisk, recommendActions } from './process-monitor.js';
-import { readState, isStateFresh, emptyState } from './state.js';
+import { readState, isStateFresh, computeAttention } from './state.js';
 import { getDiskFreeGB, bytesToMB, pathExists, dirSize } from './fs-utils.js';
 import { DEFAULT_CONFIG, getClaudeProjectsPath } from './defaults.js';
 import { Budget } from './budget.js';
@@ -21,7 +21,7 @@ const program = new Command();
 program
   .name('claude-guardian')
   .description('Flight computer for Claude Code — log rotation, watchdog, crash bundles, and MCP self-awareness')
-  .version('1.1.0');
+  .version('1.2.0');
 
 // ─── preflight ───
 program
@@ -201,6 +201,7 @@ program
         processAgeSeconds: 0,
         compositeQuietSeconds: 0,
         budgetSummary: null,
+        attention: computeAttention(hangRisk, null, null),
       };
 
       if (opts.banner) {
@@ -283,10 +284,11 @@ function printFullStatus(state: GuardianState): void {
     }
   }
 
-  if (state.recommendedActions.length > 0) {
-    console.log('');
-    console.log('Recommended:');
-    for (const a of state.recommendedActions) {
+  // Attention
+  console.log('');
+  console.log(`Attention: ${state.attention.level.toUpperCase()} — ${state.attention.reason}`);
+  if (state.attention.level !== 'none' && state.attention.recommendedActions.length > 0) {
+    for (const a of state.attention.recommendedActions) {
       console.log(`  - ${a}`);
     }
   }

@@ -31,6 +31,18 @@ export const THRESHOLDS = {
 
   /** Max restarts before giving up. */
   maxRestarts: 5,
+
+  /** Grace period after first discovering a PID — risk stays ok. */
+  graceWindowSeconds: 60,
+
+  /** CPU below this % counts as "low" for hang detection. */
+  cpuLowThreshold: 5,
+
+  /** After warn, escalate to critical after this many additional seconds. */
+  criticalAfterSeconds: 600,
+
+  /** Rate limit: min seconds between bundles for the same PID. */
+  bundleCooldownSeconds: 300,
 } as const;
 
 /** Resolve the Claude projects directory. */

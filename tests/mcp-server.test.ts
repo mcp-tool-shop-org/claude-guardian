@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { createMcpServer } from '../src/mcp-server.js';
+import { createMcpServer, formatBanner } from '../src/mcp-server.js';
+import { emptyState } from '../src/state.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 
@@ -69,7 +70,7 @@ describe('MCP Server', () => {
   });
 
   describe('tool execution', () => {
-    it('guardian_status returns health info', { timeout: 15000 }, async () => {
+    it('guardian_status returns composite health info', { timeout: 15000 }, async () => {
       const { client, server } = await setupClientServer();
 
       const result = await client.callTool({ name: 'guardian_status', arguments: {} });
@@ -78,9 +79,13 @@ describe('MCP Server', () => {
       expect(Array.isArray(result.content)).toBe(true);
       const textContent = result.content as Array<{ type: string; text: string }>;
       expect(textContent[0].type).toBe('text');
+      // Phase 1: should contain composite signal output
       expect(textContent[0].text).toContain('[guardian]');
       expect(textContent[0].text).toContain('disk=');
-      expect(textContent[0].text).toContain('logs=');
+      expect(textContent[0].text).toContain('quiet=');
+      expect(textContent[0].text).toContain('risk=');
+      expect(textContent[0].text).toContain('Hang risk:');
+      expect(textContent[0].text).toContain('Incident:');
 
       await server.close();
     });
@@ -96,11 +101,68 @@ describe('MCP Server', () => {
       expect(result.content).toBeDefined();
       const textContent = result.content as Array<{ type: string; text: string }>;
       expect(textContent[0].type).toBe('text');
-      // Should contain before/after banners
       expect(textContent[0].text).toContain('Before:');
       expect(textContent[0].text).toContain('After:');
 
       await server.close();
     });
+  });
+});
+
+describe('formatBanner', () => {
+  it('produces a single-line [guardian] banner', () => {
+    const state = emptyState();
+    state.diskFreeGB = 50;
+    state.claudeLogSizeMB = 100;
+    const banner = formatBanner(state);
+
+    expect(banner).toMatch(/^\[guardian\]/);
+    expect(banner).toContain('disk=');
+    expect(banner).toContain('logs=');
+    expect(banner).toContain('quiet=');
+    expect(banner).toContain('risk=ok');
+    // Single line
+    expect(banner.split('\n')).toHaveLength(1);
+  });
+
+  it('includes process stats when processes exist', () => {
+    const state = emptyState();
+    state.diskFreeGB = 50;
+    state.claudeLogSizeMB = 100;
+    state.claudeProcesses = [
+      { pid: 1, name: 'claude', cpuPercent: 30, memoryMB: 512, uptimeSeconds: 100 },
+    ];
+    const banner = formatBanner(state);
+
+    expect(banner).toContain('procs=1');
+    expect(banner).toContain('cpu=');
+    expect(banner).toContain('rss=');
+  });
+
+  it('includes incident id when incident is active', () => {
+    const state = emptyState();
+    state.diskFreeGB = 50;
+    state.claudeLogSizeMB = 100;
+    state.activeIncident = {
+      id: 'abc123',
+      startedAt: new Date().toISOString(),
+      closedAt: null,
+      reason: 'test',
+      peakLevel: 'warn',
+      bundleCaptured: false,
+      bundlePath: null,
+    };
+    const banner = formatBanner(state);
+    expect(banner).toContain('incident=abc123');
+  });
+
+  it('includes daemon=on when daemon is running', () => {
+    const state = emptyState();
+    state.diskFreeGB = 50;
+    state.claudeLogSizeMB = 100;
+    state.daemonRunning = true;
+    state.daemonPid = 9999;
+    const banner = formatBanner(state);
+    expect(banner).toContain('daemon=on');
   });
 });

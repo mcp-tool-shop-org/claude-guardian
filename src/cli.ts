@@ -4,21 +4,22 @@ import { Command } from 'commander';
 import { scanLogs, fixLogs, formatPreflightReport, formatFixReport, healthBanner } from './log-manager.js';
 import { generateBundle, formatDoctorReport } from './doctor.js';
 import { Watchdog, formatHealthStatus } from './watchdog.js';
-import { startMcpServer } from './mcp-server.js';
+import { startMcpServer, formatBanner } from './mcp-server.js';
 import { startWatchDaemon } from './watch-daemon.js';
 import { findClaudeProcesses, checkActivitySignals, assessHangRisk, recommendActions } from './process-monitor.js';
-import { readState, isStateFresh } from './state.js';
-import { getDiskFreeGB } from './fs-utils.js';
-import { DEFAULT_CONFIG } from './defaults.js';
+import { readState, isStateFresh, emptyState } from './state.js';
+import { getDiskFreeGB, bytesToMB, pathExists, dirSize } from './fs-utils.js';
+import { DEFAULT_CONFIG, getClaudeProjectsPath } from './defaults.js';
 import { homedir } from 'os';
 import type { GuardianConfig } from './types.js';
+import type { GuardianState } from './state.js';
 
 const program = new Command();
 
 program
   .name('claude-guardian')
   .description('Flight computer for Claude Code — log rotation, watchdog, crash bundles, and MCP self-awareness')
-  .version('0.2.0');
+  .version('1.0.0');
 
 // ─── preflight ───
 program
@@ -155,69 +156,131 @@ program
 program
   .command('status')
   .description('Show current health status: processes, hang risk, disk, logs.')
-  .action(async () => {
+  .option('--banner', 'Print a single-line banner (for embedding in prompts)', false)
+  .action(async (opts) => {
     // Try daemon state first
     const state = await readState();
     if (state && isStateFresh(state)) {
-      console.log(`[guardian] daemon=active | pid=${state.daemonPid}`);
-      console.log(`[guardian] disk=${state.diskFreeGB}GB | logs=${state.claudeLogSizeMB}MB | risk=${state.hangRisk.level}`);
-      console.log('');
-      if (state.claudeProcesses.length > 0) {
-        console.log(`Claude processes: ${state.claudeProcesses.length}`);
-        for (const p of state.claudeProcesses) {
-          const uptime = p.uptimeSeconds < 60 ? `${p.uptimeSeconds}s` : `${Math.floor(p.uptimeSeconds / 60)}m`;
-          console.log(`  PID ${p.pid} (${p.name}): CPU ${p.cpuPercent}% | RAM ${p.memoryMB}MB | up ${uptime}`);
-        }
-      } else {
-        console.log('Claude processes: none detected');
+      if (opts.banner) {
+        console.log(formatBanner(state));
+        return;
       }
-      console.log('');
-      console.log(`Hang risk: ${state.hangRisk.level.toUpperCase()}`);
-      if (state.hangRisk.reasons.length > 0) {
-        for (const r of state.hangRisk.reasons) {
-          console.log(`  - ${r}`);
-        }
-      }
-      if (state.recommendedActions.length > 0) {
-        console.log('');
-        console.log('Recommended:');
-        for (const a of state.recommendedActions) {
-          console.log(`  - ${a}`);
-        }
-      }
+      printFullStatus(state);
     } else {
-      // No daemon — do a live scan
-      console.log('[guardian] daemon=inactive (run `claude-guardian watch` to enable background monitoring)');
-      console.log('');
-
+      // No daemon — build a live state snapshot
       const diskFreeGB = await getDiskFreeGB(homedir());
+      const claudePath = getClaudeProjectsPath();
+      let claudeLogSizeMB = 0;
+      if (await pathExists(claudePath)) {
+        claudeLogSizeMB = bytesToMB(await dirSize(claudePath));
+      }
+
       const processes = await findClaudeProcesses();
-      const activity = await checkActivitySignals();
-      const hangRisk = assessHangRisk(processes, activity, diskFreeGB, DEFAULT_CONFIG.hangNoActivitySeconds);
+      const activity = await checkActivitySignals(processes);
+      const hangRisk = assessHangRisk(
+        processes, activity, diskFreeGB,
+        DEFAULT_CONFIG.hangNoActivitySeconds,
+        0, // processAgeSeconds — unknown without daemon
+        0, // compositeQuietSeconds — unknown without daemon
+      );
+      const actions = recommendActions(hangRisk);
 
-      if (processes.length > 0) {
-        console.log(`Claude processes: ${processes.length}`);
-        for (const p of processes) {
-          const uptime = p.uptimeSeconds < 60 ? `${p.uptimeSeconds}s` : `${Math.floor(p.uptimeSeconds / 60)}m`;
-          console.log(`  PID ${p.pid} (${p.name}): CPU ${p.cpuPercent}% | RAM ${p.memoryMB}MB | up ${uptime}`);
-        }
-      } else {
-        console.log('Claude processes: none detected');
-      }
-      console.log('');
-      console.log(`Hang risk: ${hangRisk.level.toUpperCase()}`);
-      if (hangRisk.reasons.length > 0) {
-        for (const r of hangRisk.reasons) {
-          console.log(`  - ${r}`);
-        }
-      }
+      const liveState: GuardianState = {
+        updatedAt: new Date().toISOString(),
+        daemonRunning: false,
+        daemonPid: null,
+        claudeProcesses: processes,
+        activity,
+        hangRisk,
+        recommendedActions: actions,
+        diskFreeGB: Math.round(diskFreeGB * 100) / 100,
+        claudeLogSizeMB,
+        activeIncident: null,
+        processAgeSeconds: 0,
+        compositeQuietSeconds: 0,
+      };
 
+      if (opts.banner) {
+        console.log(formatBanner(liveState));
+        return;
+      }
+      printFullStatus(liveState);
+
+      // Also show log scan when no daemon
       console.log('');
       const result = await scanLogs();
       console.log(formatPreflightReport(result));
       console.log('\n' + healthBanner(result));
     }
   });
+
+/** Print the full multi-line status from a GuardianState. */
+function printFullStatus(state: GuardianState): void {
+  if (state.daemonRunning) {
+    console.log(`[guardian] daemon=active | pid=${state.daemonPid}`);
+  } else {
+    console.log('[guardian] daemon=inactive (run `claude-guardian watch` to enable background monitoring)');
+  }
+  console.log(`[guardian] disk=${state.diskFreeGB}GB | logs=${state.claudeLogSizeMB}MB | risk=${state.hangRisk.level}`);
+  console.log('');
+
+  if (state.claudeProcesses.length > 0) {
+    console.log(`Claude processes: ${state.claudeProcesses.length}`);
+    for (const p of state.claudeProcesses) {
+      const uptime = fmtUptime(p.uptimeSeconds);
+      console.log(`  PID ${p.pid} (${p.name}): CPU ${p.cpuPercent}% | RAM ${p.memoryMB}MB | up ${uptime}`);
+    }
+  } else {
+    console.log('Claude processes: none detected');
+  }
+  console.log('');
+
+  // Signals
+  console.log('Signals:');
+  console.log(`  Log activity: ${state.activity.logLastModifiedSecondsAgo >= 0 ? state.activity.logLastModifiedSecondsAgo + 's ago' : 'unknown'}`);
+  console.log(`  CPU active: ${state.activity.cpuActive ? 'yes' : 'no'}`);
+  if (state.hangRisk.graceRemainingSeconds > 0) {
+    console.log(`  Grace remaining: ${state.hangRisk.graceRemainingSeconds}s`);
+  }
+  console.log(`  Composite quiet: ${state.compositeQuietSeconds}s`);
+  console.log('');
+
+  console.log(`Hang risk: ${state.hangRisk.level.toUpperCase()}`);
+  if (state.hangRisk.reasons.length > 0) {
+    for (const r of state.hangRisk.reasons) {
+      console.log(`  - ${r}`);
+    }
+  }
+
+  // Incident
+  if (state.activeIncident) {
+    console.log('');
+    console.log(`Incident: ${state.activeIncident.id} (${state.activeIncident.peakLevel}) — ${state.activeIncident.reason}`);
+    console.log(`  Started: ${state.activeIncident.startedAt}`);
+    console.log(`  Bundle captured: ${state.activeIncident.bundleCaptured ? 'yes' : 'no'}`);
+    if (state.activeIncident.bundlePath) {
+      console.log(`  Bundle: ${state.activeIncident.bundlePath}`);
+    }
+  }
+
+  if (state.recommendedActions.length > 0) {
+    console.log('');
+    console.log('Recommended:');
+    for (const a of state.recommendedActions) {
+      console.log(`  - ${a}`);
+    }
+  }
+}
+
+function fmtUptime(seconds: number): string {
+  if (seconds < 60) return `${seconds}s`;
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  if (mins < 60) return `${mins}m ${secs}s`;
+  const hours = Math.floor(mins / 60);
+  const remMins = mins % 60;
+  return `${hours}h ${remMins}m`;
+}
 
 // ─── mcp ───
 program

@@ -4,9 +4,9 @@ import { z } from 'zod';
 import { scanLogs, fixLogs, formatPreflightReport, formatFixReport, healthBanner } from './log-manager.js';
 import { generateBundle, formatDoctorReport } from './doctor.js';
 import { getDiskFreeGB, dirSize, bytesToMB, pathExists } from './fs-utils.js';
-import { getClaudeProjectsPath, DEFAULT_CONFIG } from './defaults.js';
+import { getClaudeProjectsPath, DEFAULT_CONFIG, THRESHOLDS } from './defaults.js';
 import { findClaudeProcesses, checkActivitySignals, assessHangRisk, recommendActions } from './process-monitor.js';
-import { readState, isStateFresh } from './state.js';
+import { readState, isStateFresh, type GuardianState } from './state.js';
 import { homedir } from 'os';
 
 /** Create and configure the MCP server with all guardian tools. */
@@ -14,7 +14,7 @@ export function createMcpServer(): McpServer {
   const server = new McpServer(
     {
       name: 'claude-guardian',
-      version: '0.2.0',
+      version: '1.0.0',
     },
     {
       capabilities: {
@@ -36,12 +36,12 @@ export function createMcpServer(): McpServer {
       return {
         content: [{
           type: 'text' as const,
-          text: formatDaemonStatus(state),
+          text: formatStatus(state),
         }],
       };
     }
 
-    // No daemon running — do a live scan
+    // No daemon — do a live scan with default composite values
     const claudePath = getClaudeProjectsPath();
     const diskFreeGB = await getDiskFreeGB(homedir());
     let claudeLogSizeMB = 0;
@@ -49,61 +49,40 @@ export function createMcpServer(): McpServer {
       claudeLogSizeMB = bytesToMB(await dirSize(claudePath));
     }
 
-    // Live process detection
     const processes = await findClaudeProcesses();
-    const activity = await checkActivitySignals();
-    const hangRisk = assessHangRisk(processes, activity, diskFreeGB, DEFAULT_CONFIG.hangNoActivitySeconds);
+    const activity = await checkActivitySignals(processes);
+
+    // Without the daemon we can't track process age or composite quiet duration,
+    // so we use safe defaults (grace=0, quiet=0) — risk will be ok.
+    const hangRisk = assessHangRisk(
+      processes, activity, diskFreeGB,
+      DEFAULT_CONFIG.hangNoActivitySeconds,
+      0, // processAgeSeconds — unknown without daemon
+      0, // compositeQuietSeconds — unknown without daemon
+    );
     const actions = recommendActions(hangRisk);
 
     const scan = await scanLogs();
-    const banner = healthBanner(scan);
 
-    const lines: string[] = [];
-    lines.push(banner);
-    lines.push('');
-
-    // Process info
-    if (processes.length > 0) {
-      lines.push(`Claude processes: ${processes.length}`);
-      for (const p of processes) {
-        lines.push(`  PID ${p.pid} (${p.name}): CPU ${p.cpuPercent}% | RAM ${p.memoryMB}MB | up ${formatUptime(p.uptimeSeconds)}`);
-      }
-    } else {
-      lines.push('Claude processes: none detected');
-    }
-    lines.push('');
-
-    // Hang risk
-    lines.push(`Hang risk: ${hangRisk.level.toUpperCase()}`);
-    if (hangRisk.reasons.length > 0) {
-      for (const r of hangRisk.reasons) {
-        lines.push(`  - ${r}`);
-      }
-    }
-    lines.push('');
-
-    // Activity
-    if (activity.logLastModifiedSecondsAgo >= 0) {
-      lines.push(`Last log activity: ${activity.logLastModifiedSecondsAgo}s ago`);
-    }
-    lines.push(`Activity sources: ${activity.sources.join(', ') || 'none'}`);
-    lines.push('');
-
-    // Recommended actions
-    if (actions.length > 0) {
-      lines.push('Recommended actions:');
-      for (const a of actions) {
-        lines.push(`  - ${a}`);
-      }
-    }
-    lines.push('');
-
-    lines.push(formatPreflightReport(scan));
+    const liveState: GuardianState = {
+      updatedAt: new Date().toISOString(),
+      daemonRunning: false,
+      daemonPid: null,
+      claudeProcesses: processes,
+      activity,
+      hangRisk,
+      recommendedActions: actions,
+      diskFreeGB: Math.round(diskFreeGB * 100) / 100,
+      claudeLogSizeMB,
+      activeIncident: null,
+      processAgeSeconds: 0,
+      compositeQuietSeconds: 0,
+    };
 
     return {
       content: [{
         type: 'text' as const,
-        text: lines.join('\n'),
+        text: formatStatus(liveState) + '\n\n' + formatPreflightReport(scan),
       }],
     };
   });
@@ -164,25 +143,45 @@ export function createMcpServer(): McpServer {
   return server;
 }
 
-/** Format state from the watch daemon into a readable report. */
-function formatDaemonStatus(state: import('./state.js').GuardianState): string {
+/** Format full status from state (works for both daemon and live). */
+function formatStatus(state: GuardianState): string {
   const lines: string[] = [];
 
-  lines.push(`[guardian] disk=${round(state.diskFreeGB)}GB | logs=${round(state.claudeLogSizeMB)}MB | risk=${state.hangRisk.level} | daemon=active`);
+  // Banner line
+  lines.push(formatBanner(state));
+  lines.push('');
+
+  // Daemon status
+  if (state.daemonRunning) {
+    lines.push(`Daemon: active (PID ${state.daemonPid})`);
+  } else {
+    lines.push('Daemon: inactive (run `claude-guardian watch` for continuous monitoring)');
+  }
   lines.push('');
 
   // Process info
   if (state.claudeProcesses.length > 0) {
     lines.push(`Claude processes: ${state.claudeProcesses.length}`);
     for (const p of state.claudeProcesses) {
-      lines.push(`  PID ${p.pid} (${p.name}): CPU ${p.cpuPercent}% | RAM ${p.memoryMB}MB | up ${formatUptime(p.uptimeSeconds)}`);
+      lines.push(`  PID ${p.pid} (${p.name}): CPU ${p.cpuPercent}% | RAM ${p.memoryMB}MB | up ${fmtUptime(p.uptimeSeconds)}`);
     }
   } else {
     lines.push('Claude processes: none detected');
   }
   lines.push('');
 
-  // Hang risk
+  // Composite signals
+  lines.push('Signals:');
+  lines.push(`  Log activity: ${state.activity.logLastModifiedSecondsAgo >= 0 ? state.activity.logLastModifiedSecondsAgo + 's ago' : 'unknown'}`);
+  lines.push(`  CPU active: ${state.activity.cpuActive ? 'yes' : 'no'}`);
+  lines.push(`  Sources: ${state.activity.sources.join(', ') || 'none'}`);
+  if (state.hangRisk.graceRemainingSeconds > 0) {
+    lines.push(`  Grace remaining: ${state.hangRisk.graceRemainingSeconds}s`);
+  }
+  lines.push(`  Composite quiet: ${state.compositeQuietSeconds}s`);
+  lines.push('');
+
+  // Risk
   lines.push(`Hang risk: ${state.hangRisk.level.toUpperCase()}`);
   if (state.hangRisk.reasons.length > 0) {
     for (const r of state.hangRisk.reasons) {
@@ -191,11 +190,18 @@ function formatDaemonStatus(state: import('./state.js').GuardianState): string {
   }
   lines.push('');
 
-  // Activity
-  if (state.activity.logLastModifiedSecondsAgo >= 0) {
-    lines.push(`Last log activity: ${state.activity.logLastModifiedSecondsAgo}s ago`);
+  // Incident
+  if (state.activeIncident) {
+    const i = state.activeIncident;
+    lines.push(`Incident: ${i.id} (${i.peakLevel}) — ${i.reason}`);
+    lines.push(`  Started: ${i.startedAt}`);
+    lines.push(`  Bundle captured: ${i.bundleCaptured ? 'yes' : 'no'}`);
+    if (i.bundlePath) {
+      lines.push(`  Bundle: ${i.bundlePath}`);
+    }
+  } else {
+    lines.push('Incident: none');
   }
-  lines.push(`Activity sources: ${state.activity.sources.join(', ') || 'none'}`);
   lines.push('');
 
   // Recommended actions
@@ -206,13 +212,38 @@ function formatDaemonStatus(state: import('./state.js').GuardianState): string {
     }
   }
 
-  lines.push('');
-  lines.push(`State updated: ${state.updatedAt}`);
-
   return lines.join('\n');
 }
 
-function formatUptime(seconds: number): string {
+/** One-line banner for bug reports. */
+export function formatBanner(state: GuardianState): string {
+  const parts: string[] = [];
+  parts.push(`disk=${round(state.diskFreeGB)}GB`);
+  parts.push(`logs=${round(state.claudeLogSizeMB)}MB`);
+
+  if (state.claudeProcesses.length > 0) {
+    const totalCpu = state.claudeProcesses.reduce((s, p) => s + p.cpuPercent, 0);
+    const totalMem = state.claudeProcesses.reduce((s, p) => s + p.memoryMB, 0);
+    parts.push(`procs=${state.claudeProcesses.length}`);
+    parts.push(`cpu=${round(totalCpu)}%`);
+    parts.push(`rss=${Math.round(totalMem)}MB`);
+  }
+
+  parts.push(`quiet=${state.compositeQuietSeconds}s`);
+  parts.push(`risk=${state.hangRisk.level}`);
+
+  if (state.activeIncident) {
+    parts.push(`incident=${state.activeIncident.id}`);
+  }
+
+  if (state.daemonRunning) {
+    parts.push('daemon=on');
+  }
+
+  return `[guardian] ${parts.join(' | ')}`;
+}
+
+function fmtUptime(seconds: number): string {
   if (seconds < 60) return `${seconds}s`;
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;

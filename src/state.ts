@@ -1,8 +1,9 @@
-import { readFile, writeFile, mkdir } from 'fs/promises';
+import { readFile, writeFile, mkdir, rename } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join } from 'path';
 import { getGuardianDataPath } from './defaults.js';
 import type { ClaudeProcess, ActivitySignals, HangRisk } from './process-monitor.js';
+import type { Incident } from './incident.js';
 
 /** Persisted state shared between daemon and MCP server. */
 export interface GuardianState {
@@ -14,9 +15,9 @@ export interface GuardianState {
   daemonPid: number | null;
   /** Detected Claude Code processes. */
   claudeProcesses: ClaudeProcess[];
-  /** Activity signals from log directory. */
+  /** Activity signals from log directory + CPU. */
   activity: ActivitySignals;
-  /** Current hang risk assessment. */
+  /** Current hang risk assessment (composite). */
   hangRisk: HangRisk;
   /** Recommended actions based on current state. */
   recommendedActions: string[];
@@ -24,6 +25,12 @@ export interface GuardianState {
   diskFreeGB: number;
   /** Claude log size in MB. */
   claudeLogSizeMB: number;
+  /** Active incident (or null if healthy). */
+  activeIncident: Incident | null;
+  /** Seconds since processes were first discovered (for grace). */
+  processAgeSeconds: number;
+  /** How long the composite quiet condition has held. */
+  compositeQuietSeconds: number;
 }
 
 function getStatePath(): string {
@@ -42,9 +49,6 @@ export async function writeState(state: GuardianState): Promise<void> {
   const json = JSON.stringify(state, null, 2);
 
   await writeFile(tmpPath, json, 'utf-8');
-
-  // Atomic rename
-  const { rename } = await import('fs/promises');
   await rename(tmpPath, statePath);
 }
 
@@ -72,10 +76,17 @@ export function emptyState(): GuardianState {
     daemonRunning: false,
     daemonPid: null,
     claudeProcesses: [],
-    activity: { logLastModifiedSecondsAgo: -1, sources: [] },
-    hangRisk: { level: 'ok', noActivitySeconds: 0, cpuHot: false, memoryHigh: false, diskLow: false, reasons: [] },
+    activity: { logLastModifiedSecondsAgo: -1, cpuActive: false, sources: [] },
+    hangRisk: {
+      level: 'ok', noActivitySeconds: 0, cpuLowSeconds: 0,
+      cpuHot: false, memoryHigh: false, diskLow: false,
+      graceRemainingSeconds: 0, reasons: [],
+    },
     recommendedActions: [],
     diskFreeGB: -1,
     claudeLogSizeMB: 0,
+    activeIncident: null,
+    processAgeSeconds: 0,
+    compositeQuietSeconds: 0,
   };
 }

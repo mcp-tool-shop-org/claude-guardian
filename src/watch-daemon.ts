@@ -2,6 +2,7 @@ import { getDiskFreeGB, dirSize, bytesToMB, pathExists, writeJournalEntry } from
 import { getClaudeProjectsPath, DEFAULT_CONFIG, THRESHOLDS } from './defaults.js';
 import { findClaudeProcesses, checkActivitySignals, assessHangRisk, recommendActions } from './process-monitor.js';
 import { writeState, type GuardianState } from './state.js';
+import { IncidentTracker } from './incident.js';
 import { fixLogs } from './log-manager.js';
 import { generateBundle } from './doctor.js';
 import { homedir } from 'os';
@@ -21,8 +22,11 @@ const DEFAULT_OPTIONS: WatchDaemonOptions = {
 /** Start the watch daemon. Runs forever, polling every 2s. */
 export async function startWatchDaemon(opts: Partial<WatchDaemonOptions> = {}): Promise<void> {
   const options = { ...DEFAULT_OPTIONS, ...opts };
-  let lastRiskLevel: string = 'ok';
-  let bundleCooldownUntil = 0; // Don't spam bundles
+  const incidents = new IncidentTracker();
+
+  // Tracking state across polls
+  let processFirstSeenAt: number | null = null;
+  let compositeQuietSince: number | null = null;
 
   const log = (msg: string) => {
     const ts = new Date().toISOString().substring(11, 19);
@@ -31,52 +35,111 @@ export async function startWatchDaemon(opts: Partial<WatchDaemonOptions> = {}): 
 
   log('Watch daemon starting...');
   log(`Hang timeout: ${options.hangTimeoutSeconds}s | Auto-fix: ${options.autoFix}`);
-
-  // Write initial state
-  await updateState(options, log);
+  log(`Grace window: ${THRESHOLDS.graceWindowSeconds}s | Critical after: ${THRESHOLDS.criticalAfterSeconds}s`);
 
   const interval = setInterval(async () => {
     try {
-      const state = await updateState(options, options.verbose ? log : undefined);
+      // Collect signals
+      const claudePath = getClaudeProjectsPath();
+      const diskFreeGB = await getDiskFreeGB(homedir());
+      let claudeLogSizeMB = 0;
+      if (await pathExists(claudePath)) {
+        claudeLogSizeMB = bytesToMB(await dirSize(claudePath));
+      }
 
-      // React to risk level changes
-      if (state.hangRisk.level !== lastRiskLevel) {
-        log(`Risk level changed: ${lastRiskLevel} → ${state.hangRisk.level}`);
+      const processes = await findClaudeProcesses();
+      const activity = await checkActivitySignals(processes);
 
-        if (state.hangRisk.level === 'critical') {
-          log('CRITICAL: ' + state.hangRisk.reasons.join('; '));
+      // Track process age (grace window)
+      const now = Date.now();
+      if (processes.length > 0 && processFirstSeenAt === null) {
+        processFirstSeenAt = now;
+      } else if (processes.length === 0) {
+        processFirstSeenAt = null;
+        compositeQuietSince = null;
+      }
+      const processAgeSeconds = processFirstSeenAt
+        ? Math.round((now - processFirstSeenAt) / 1000)
+        : 0;
 
-          // Auto-capture bundle (with cooldown)
-          if (Date.now() > bundleCooldownUntil) {
-            log('Capturing diagnostics bundle...');
-            try {
-              const bundle = await generateBundle();
-              log(`Bundle saved: ${bundle.zipPath}`);
-              await writeJournalEntry({
-                timestamp: new Date().toISOString(),
-                action: 'auto-bundle',
-                target: bundle.zipPath,
-                detail: `Critical risk detected: ${state.hangRisk.reasons.join('; ')}`,
-              });
-              bundleCooldownUntil = Date.now() + 5 * 60 * 1000; // 5 min cooldown
-            } catch (err) {
-              log(`Failed to create bundle: ${err instanceof Error ? err.message : String(err)}`);
-            }
-          }
+      // Track composite quiet duration
+      const logQuiet = activity.logLastModifiedSecondsAgo < 0 ||
+        activity.logLastModifiedSecondsAgo > options.hangTimeoutSeconds;
+      const cpuLow = !activity.cpuActive;
+      const compositeQuiet = logQuiet && cpuLow;
+
+      if (compositeQuiet) {
+        if (compositeQuietSince === null) {
+          compositeQuietSince = now;
         }
+      } else {
+        compositeQuietSince = null;
+      }
+      const compositeQuietSeconds = compositeQuietSince
+        ? Math.round((now - compositeQuietSince) / 1000)
+        : 0;
 
-        if (state.hangRisk.level === 'warn' && state.hangRisk.diskLow && options.autoFix) {
-          log('Low disk detected with auto-fix enabled. Running aggressive preflight...');
-          const actions = await fixLogs(DEFAULT_CONFIG, true);
-          if (actions.length > 0) {
-            log(`Fixed ${actions.length} items.`);
-          }
+      // Assess risk with composite signals
+      const hangRisk = assessHangRisk(
+        processes, activity, diskFreeGB,
+        options.hangTimeoutSeconds,
+        processAgeSeconds,
+        compositeQuietSeconds,
+      );
+      const actions = recommendActions(hangRisk);
+
+      // Update incident tracker
+      const reason = hangRisk.reasons.join('; ') || 'healthy';
+      const incident = incidents.update(hangRisk.level, reason);
+
+      // Bundle capture: exactly once per incident, on first critical
+      if (incidents.shouldCaptureBundle(processes.map(p => p.pid))) {
+        log('CRITICAL — capturing diagnostics bundle (once per incident)...');
+        try {
+          const bundle = await generateBundle();
+          incidents.markBundleCaptured(bundle.zipPath, processes.map(p => p.pid));
+          log(`Bundle saved: ${bundle.zipPath}`);
+          await writeJournalEntry({
+            timestamp: new Date().toISOString(),
+            action: 'auto-bundle',
+            target: bundle.zipPath,
+            detail: `Incident ${incident?.id}: ${reason}`,
+          });
+        } catch (err) {
+          log(`Failed to create bundle: ${err instanceof Error ? err.message : String(err)}`);
         }
+      }
 
-        lastRiskLevel = state.hangRisk.level;
+      // Auto-fix on low disk
+      if (hangRisk.diskLow && options.autoFix) {
+        log('Low disk detected with auto-fix enabled. Running aggressive preflight...');
+        const fixActions = await fixLogs(DEFAULT_CONFIG, true);
+        if (fixActions.length > 0) {
+          log(`Fixed ${fixActions.length} items.`);
+        }
+      }
+
+      // Persist state
+      const state: GuardianState = {
+        updatedAt: new Date().toISOString(),
+        daemonRunning: true,
+        daemonPid: process.pid,
+        claudeProcesses: processes,
+        activity,
+        hangRisk,
+        recommendedActions: actions,
+        diskFreeGB: Math.round(diskFreeGB * 100) / 100,
+        claudeLogSizeMB,
+        activeIncident: incidents.getActive(),
+        processAgeSeconds,
+        compositeQuietSeconds,
+      };
+      await writeState(state);
+
+      if (options.verbose && processes.length > 0) {
+        log(`${processes.length} procs | risk=${hangRisk.level} | grace=${hangRisk.graceRemainingSeconds}s | quiet=${compositeQuietSeconds}s | incident=${incident?.id ?? 'none'}`);
       }
     } catch (err) {
-      // Don't let errors crash the daemon
       if (options.verbose) {
         log(`Poll error: ${err instanceof Error ? err.message : String(err)}`);
       }
@@ -92,45 +155,5 @@ export async function startWatchDaemon(opts: Partial<WatchDaemonOptions> = {}): 
   process.on('SIGINT', shutdown);
   process.on('SIGTERM', shutdown);
 
-  // Keep alive
   await new Promise(() => {}); // Never resolves
-}
-
-/** Run one poll cycle and persist state. */
-async function updateState(
-  options: WatchDaemonOptions,
-  log?: (msg: string) => void,
-): Promise<GuardianState> {
-  const claudePath = getClaudeProjectsPath();
-  const diskFreeGB = await getDiskFreeGB(homedir());
-
-  let claudeLogSizeMB = 0;
-  if (await pathExists(claudePath)) {
-    claudeLogSizeMB = bytesToMB(await dirSize(claudePath));
-  }
-
-  const processes = await findClaudeProcesses();
-  const activity = await checkActivitySignals();
-  const hangRisk = assessHangRisk(processes, activity, diskFreeGB, options.hangTimeoutSeconds);
-  const actions = recommendActions(hangRisk);
-
-  const state: GuardianState = {
-    updatedAt: new Date().toISOString(),
-    daemonRunning: true,
-    daemonPid: process.pid,
-    claudeProcesses: processes,
-    activity,
-    hangRisk,
-    recommendedActions: actions,
-    diskFreeGB: Math.round(diskFreeGB * 100) / 100,
-    claudeLogSizeMB,
-  };
-
-  await writeState(state);
-
-  if (log && processes.length > 0) {
-    log(`${processes.length} Claude process(es) | risk=${hangRisk.level} | disk=${state.diskFreeGB}GB | logs=${claudeLogSizeMB}MB`);
-  }
-
-  return state;
 }

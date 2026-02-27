@@ -14,7 +14,6 @@ describe('process-monitor', () => {
     it('returns an array (may be empty if no Claude running)', async () => {
       const procs = await findClaudeProcesses();
       expect(Array.isArray(procs)).toBe(true);
-      // Each entry should have the right shape
       for (const p of procs) {
         expect(p).toHaveProperty('pid');
         expect(p).toHaveProperty('name');
@@ -28,87 +27,152 @@ describe('process-monitor', () => {
   });
 
   describe('checkActivitySignals', () => {
-    it('returns activity signals with log mtime', async () => {
-      const signals = await checkActivitySignals();
+    it('returns activity signals with log mtime and cpuActive', async () => {
+      const processes: ClaudeProcess[] = [];
+      const signals = await checkActivitySignals(processes);
       expect(signals).toHaveProperty('logLastModifiedSecondsAgo');
+      expect(signals).toHaveProperty('cpuActive');
       expect(signals).toHaveProperty('sources');
       expect(Array.isArray(signals.sources)).toBe(true);
+      expect(typeof signals.cpuActive).toBe('boolean');
+    });
+
+    it('reports cpuActive=true when a process has high CPU', async () => {
+      const processes: ClaudeProcess[] = [
+        { pid: 1, name: 'claude', cpuPercent: 50, memoryMB: 500, uptimeSeconds: 100 },
+      ];
+      const signals = await checkActivitySignals(processes);
+      expect(signals.cpuActive).toBe(true);
+      expect(signals.sources).toContain('cpu');
+    });
+
+    it('reports cpuActive=false when all processes have low CPU', async () => {
+      const processes: ClaudeProcess[] = [
+        { pid: 1, name: 'claude', cpuPercent: 1, memoryMB: 500, uptimeSeconds: 100 },
+      ];
+      const signals = await checkActivitySignals(processes);
+      expect(signals.cpuActive).toBe(false);
+      expect(signals.sources).not.toContain('cpu');
     });
   });
 
   describe('assessHangRisk', () => {
-    it('returns ok when everything is healthy', () => {
-      const procs: ClaudeProcess[] = [
-        { pid: 1, name: 'claude', cpuPercent: 20, memoryMB: 500, uptimeSeconds: 3600 },
-      ];
-      const activity: ActivitySignals = { logLastModifiedSecondsAgo: 5, sources: ['claude-projects-dir'] };
+    // Helper: default healthy args
+    const healthy = (overrides?: Partial<{
+      procs: ClaudeProcess[];
+      activity: ActivitySignals;
+      diskFreeGB: number;
+      hangThreshold: number;
+      processAge: number;
+      compositeQuiet: number;
+    }>) => {
+      const o = overrides ?? {};
+      return assessHangRisk(
+        o.procs ?? [{ pid: 1, name: 'claude', cpuPercent: 20, memoryMB: 500, uptimeSeconds: 3600 }],
+        o.activity ?? { logLastModifiedSecondsAgo: 5, cpuActive: true, sources: ['log-mtime', 'cpu'] },
+        o.diskFreeGB ?? 100,
+        o.hangThreshold ?? 300,
+        o.processAge ?? 120,     // past grace
+        o.compositeQuiet ?? 0,
+      );
+    };
 
-      const risk = assessHangRisk(procs, activity, 100, 300);
+    it('returns ok when everything is healthy', () => {
+      const risk = healthy();
       expect(risk.level).toBe('ok');
       expect(risk.cpuHot).toBe(false);
       expect(risk.memoryHigh).toBe(false);
       expect(risk.diskLow).toBe(false);
+      expect(risk.graceRemainingSeconds).toBe(0);
       expect(risk.reasons).toHaveLength(0);
     });
 
-    it('returns warn when no activity exceeds threshold', () => {
-      const procs: ClaudeProcess[] = [];
-      const activity: ActivitySignals = { logLastModifiedSecondsAgo: 600, sources: [] };
-
-      const risk = assessHangRisk(procs, activity, 50, 300);
-      expect(risk.level).toBe('warn');
-      expect(risk.noActivitySeconds).toBe(600);
-      expect(risk.reasons.length).toBeGreaterThan(0);
+    it('returns ok during grace window even if quiet', () => {
+      const risk = healthy({
+        activity: { logLastModifiedSecondsAgo: 600, cpuActive: false, sources: [] },
+        processAge: 30,         // within 60s grace
+        compositeQuiet: 30,
+      });
+      expect(risk.level).toBe('ok');
+      expect(risk.graceRemainingSeconds).toBe(30);
     });
 
-    it('returns critical when CPU hot + no activity', () => {
-      const procs: ClaudeProcess[] = [
-        { pid: 1, name: 'claude', cpuPercent: 98, memoryMB: 500, uptimeSeconds: 3600 },
-      ];
-      const activity: ActivitySignals = { logLastModifiedSecondsAgo: 600, sources: [] };
+    it('returns warn only when BOTH log quiet AND CPU low exceed threshold', () => {
+      // Log quiet but CPU active → ok
+      const risk1 = healthy({
+        activity: { logLastModifiedSecondsAgo: 600, cpuActive: true, sources: ['cpu'] },
+        compositeQuiet: 0,
+      });
+      expect(risk1.level).toBe('ok');
 
-      const risk = assessHangRisk(procs, activity, 50, 300);
+      // CPU low but log recent → ok
+      const risk2 = healthy({
+        activity: { logLastModifiedSecondsAgo: 5, cpuActive: false, sources: ['log-mtime'] },
+        compositeQuiet: 0,
+      });
+      expect(risk2.level).toBe('ok');
+
+      // Both quiet, exceeds threshold → warn
+      const risk3 = healthy({
+        activity: { logLastModifiedSecondsAgo: 600, cpuActive: false, sources: [] },
+        compositeQuiet: 400,
+      });
+      expect(risk3.level).toBe('warn');
+      expect(risk3.noActivitySeconds).toBe(400);
+    });
+
+    it('escalates to critical after criticalAfterSeconds beyond warn threshold', () => {
+      // compositeQuiet > hangThreshold + criticalAfterSeconds (300 + 600 = 900)
+      const risk = healthy({
+        activity: { logLastModifiedSecondsAgo: 1000, cpuActive: false, sources: [] },
+        compositeQuiet: 950,
+      });
       expect(risk.level).toBe('critical');
-      expect(risk.cpuHot).toBe(true);
-      expect(risk.reasons.length).toBeGreaterThanOrEqual(2);
     });
 
-    it('returns warn when disk is low', () => {
-      const procs: ClaudeProcess[] = [];
-      const activity: ActivitySignals = { logLastModifiedSecondsAgo: 5, sources: [] };
-
-      const risk = assessHangRisk(procs, activity, 3, 300);
+    it('returns warn when disk is low (even during grace)', () => {
+      const risk = healthy({
+        diskFreeGB: 3,
+        processAge: 10, // within grace
+      });
       expect(risk.level).toBe('warn');
       expect(risk.diskLow).toBe(true);
     });
 
     it('returns warn when CPU hot + memory high', () => {
-      const procs: ClaudeProcess[] = [
-        { pid: 1, name: 'claude', cpuPercent: 98, memoryMB: 5000, uptimeSeconds: 3600 },
-      ];
-      const activity: ActivitySignals = { logLastModifiedSecondsAgo: 5, sources: [] };
-
-      const risk = assessHangRisk(procs, activity, 50, 300);
+      const risk = healthy({
+        procs: [{ pid: 1, name: 'claude', cpuPercent: 98, memoryMB: 5000, uptimeSeconds: 3600 }],
+        activity: { logLastModifiedSecondsAgo: 5, cpuActive: true, sources: ['log-mtime', 'cpu'] },
+      });
       expect(risk.level).toBe('warn');
       expect(risk.cpuHot).toBe(true);
       expect(risk.memoryHigh).toBe(true);
+    });
+
+    it('includes cpuLowSeconds when CPU is low', () => {
+      const risk = healthy({
+        activity: { logLastModifiedSecondsAgo: 600, cpuActive: false, sources: [] },
+        compositeQuiet: 400,
+      });
+      expect(risk.cpuLowSeconds).toBe(400);
     });
   });
 
   describe('recommendActions', () => {
     it('returns empty for ok risk', () => {
       const risk: HangRisk = {
-        level: 'ok', noActivitySeconds: 0,
-        cpuHot: false, memoryHigh: false, diskLow: false, reasons: [],
+        level: 'ok', noActivitySeconds: 0, cpuLowSeconds: 0,
+        cpuHot: false, memoryHigh: false, diskLow: false,
+        graceRemainingSeconds: 0, reasons: [],
       };
       expect(recommendActions(risk)).toHaveLength(0);
     });
 
     it('recommends preflight_fix for low disk', () => {
       const risk: HangRisk = {
-        level: 'warn', noActivitySeconds: 0,
+        level: 'warn', noActivitySeconds: 0, cpuLowSeconds: 0,
         cpuHot: false, memoryHigh: false, diskLow: true,
-        reasons: ['Disk low'],
+        graceRemainingSeconds: 0, reasons: ['Disk low'],
       };
       const actions = recommendActions(risk);
       expect(actions).toContain('preflight_fix');
@@ -116,9 +180,9 @@ describe('process-monitor', () => {
 
     it('recommends doctor + restart for critical', () => {
       const risk: HangRisk = {
-        level: 'critical', noActivitySeconds: 600,
-        cpuHot: true, memoryHigh: false, diskLow: false,
-        reasons: ['CPU hot', 'No activity'],
+        level: 'critical', noActivitySeconds: 950, cpuLowSeconds: 950,
+        cpuHot: false, memoryHigh: false, diskLow: false,
+        graceRemainingSeconds: 0, reasons: ['No activity for 950s'],
       };
       const actions = recommendActions(risk);
       expect(actions).toContain('doctor');
@@ -127,9 +191,9 @@ describe('process-monitor', () => {
 
     it('recommends reduce_concurrency for CPU/memory warn', () => {
       const risk: HangRisk = {
-        level: 'warn', noActivitySeconds: 0,
+        level: 'warn', noActivitySeconds: 0, cpuLowSeconds: 0,
         cpuHot: true, memoryHigh: true, diskLow: false,
-        reasons: ['CPU hot', 'Memory high'],
+        graceRemainingSeconds: 0, reasons: ['CPU hot', 'Memory high'],
       };
       const actions = recommendActions(risk);
       expect(actions).toContain('reduce_concurrency');

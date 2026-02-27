@@ -2,7 +2,7 @@ import { execFile } from 'child_process';
 import { promisify } from 'util';
 import pidusage from 'pidusage';
 import { stat } from 'fs/promises';
-import { getClaudeProjectsPath } from './defaults.js';
+import { getClaudeProjectsPath, THRESHOLDS } from './defaults.js';
 import { listFilesRecursive, pathExists } from './fs-utils.js';
 
 const execFileAsync = promisify(execFile);
@@ -19,7 +19,9 @@ export interface ClaudeProcess {
 export interface ActivitySignals {
   /** Seconds since any Claude log file was modified. */
   logLastModifiedSecondsAgo: number;
-  /** Which signal sources are active. */
+  /** Whether CPU is above the "low" threshold for any Claude process. */
+  cpuActive: boolean;
+  /** Which signal sources detected activity. */
   sources: string[];
 }
 
@@ -27,10 +29,15 @@ export type RiskLevel = 'ok' | 'warn' | 'critical';
 
 export interface HangRisk {
   level: RiskLevel;
+  /** Seconds since composite "no activity" started (0 if active). */
   noActivitySeconds: number;
+  /** Seconds of CPU being low across all processes (0 if CPU active). */
+  cpuLowSeconds: number;
   cpuHot: boolean;
   memoryHigh: boolean;
   diskLow: boolean;
+  /** Seconds remaining in grace window (0 if grace expired). */
+  graceRemainingSeconds: number;
   reasons: string[];
 }
 
@@ -40,7 +47,6 @@ export async function findClaudeProcesses(): Promise<ClaudeProcess[]> {
 
   try {
     if (process.platform === 'win32') {
-      // Use tasklist + wmic on Windows
       const { stdout } = await execFileAsync('powershell', [
         '-NoProfile', '-Command',
         `Get-Process | Where-Object { $_.ProcessName -match '^claude' } | Select-Object Id, ProcessName, CPU, WorkingSet64 | ConvertTo-Json -Compress`,
@@ -61,7 +67,6 @@ export async function findClaudeProcesses(): Promise<ClaudeProcess[]> {
               uptimeSeconds: Math.round(usage.elapsed / 1000),
             });
           } catch {
-            // Process may have exited between listing and pidusage
             processes.push({
               pid: item.Id,
               name: item.ProcessName || 'claude',
@@ -73,7 +78,6 @@ export async function findClaudeProcesses(): Promise<ClaudeProcess[]> {
         }
       }
     } else {
-      // Unix: use pgrep + ps
       try {
         const { stdout } = await execFileAsync('pgrep', ['-f', 'claude'], { timeout: 5000 });
         const pids = stdout.trim().split('\n').filter(Boolean).map(Number);
@@ -81,8 +85,6 @@ export async function findClaudeProcesses(): Promise<ClaudeProcess[]> {
         for (const pid of pids) {
           try {
             const usage = await pidusage(pid);
-
-            // Get process name
             let name = 'claude';
             try {
               const { stdout: psOut } = await execFileAsync('ps', ['-p', String(pid), '-o', 'comm=']);
@@ -96,32 +98,24 @@ export async function findClaudeProcesses(): Promise<ClaudeProcess[]> {
               memoryMB: Math.round((usage.memory / (1024 * 1024)) * 100) / 100,
               uptimeSeconds: Math.round(usage.elapsed / 1000),
             });
-          } catch {
-            // Process disappeared
-          }
+          } catch { /* process disappeared */ }
         }
-      } catch {
-        // pgrep found nothing — that's fine
-      }
+      } catch { /* pgrep found nothing */ }
     }
-  } catch {
-    // Can't enumerate processes — not fatal
-  }
+  } catch { /* can't enumerate */ }
 
   return processes;
 }
 
-/** Check activity signals from Claude's log directory. */
-export async function checkActivitySignals(): Promise<ActivitySignals> {
+/** Check activity signals from Claude's log directory + process CPU. */
+export async function checkActivitySignals(processes: ClaudeProcess[]): Promise<ActivitySignals> {
   const claudePath = getClaudeProjectsPath();
   const sources: string[] = [];
   let mostRecentMtime = 0;
 
   if (await pathExists(claudePath)) {
-    sources.push('claude-projects-dir');
     const files = await listFilesRecursive(claudePath);
 
-    // Check the 50 most recently modified files (avoid scanning thousands)
     const recentFiles: Array<{ path: string; mtime: number }> = [];
     for (const f of files.slice(-200)) {
       try {
@@ -136,40 +130,74 @@ export async function checkActivitySignals(): Promise<ActivitySignals> {
     }
   }
 
-  const noActivitySeconds = mostRecentMtime > 0
+  const logAge = mostRecentMtime > 0
     ? Math.round((Date.now() - mostRecentMtime) / 1000)
     : -1;
 
+  if (logAge >= 0 && logAge < 300) {
+    sources.push('log-mtime');
+  }
+
+  // CPU activity: any Claude process above low threshold = active
+  const cpuActive = processes.some(p => p.cpuPercent > THRESHOLDS.cpuLowThreshold);
+  if (cpuActive) {
+    sources.push('cpu');
+  }
+
   return {
-    logLastModifiedSecondsAgo: noActivitySeconds,
+    logLastModifiedSecondsAgo: logAge,
+    cpuActive,
     sources,
   };
 }
 
-/** Assess hang risk from process metrics + activity signals. */
+/**
+ * Composite hang risk assessment.
+ *
+ * Three-signal logic:
+ *   - Signal A: log mtime quiet for hangThresholdSeconds
+ *   - Signal B: CPU low (below cpuLowThreshold) — not doing work
+ *   - Grace: first graceWindowSeconds after process discovery → always ok
+ *
+ * Escalation:
+ *   - During grace → ok (no matter what)
+ *   - A quiet AND B low for hangThresholdSeconds → warn
+ *   - Stays warn for criticalAfterSeconds → critical
+ */
 export function assessHangRisk(
   processes: ClaudeProcess[],
   activity: ActivitySignals,
   diskFreeGB: number,
   hangThresholdSeconds: number,
+  /** Seconds since processes were first discovered (for grace window). */
+  processAgeSeconds: number,
+  /** How long the composite "quiet+low-cpu" condition has been true. */
+  compositeQuietSeconds: number,
 ): HangRisk {
   const reasons: string[] = [];
 
-  // No activity check
-  const noActivitySeconds = activity.logLastModifiedSecondsAgo;
-  const noActivity = noActivitySeconds > hangThresholdSeconds;
-  if (noActivity) {
-    reasons.push(`No log activity for ${noActivitySeconds}s (threshold: ${hangThresholdSeconds}s)`);
-  }
+  // Grace window
+  const graceRemaining = Math.max(0, THRESHOLDS.graceWindowSeconds - processAgeSeconds);
+  const inGrace = graceRemaining > 0;
 
-  // CPU check: any claude process pegged > 95%
+  // Signal A: log quiet
+  const logQuiet = activity.logLastModifiedSecondsAgo < 0 ||
+    activity.logLastModifiedSecondsAgo > hangThresholdSeconds;
+
+  // Signal B: CPU low across all processes
+  const cpuLow = !activity.cpuActive;
+
+  // Composite: both signals quiet
+  const compositeQuiet = logQuiet && cpuLow;
+
+  // CPU hot check (separate from hang — this is "pegged, maybe serialization storm")
   const cpuHot = processes.some(p => p.cpuPercent > 95);
   if (cpuHot) {
     const hotProcs = processes.filter(p => p.cpuPercent > 95);
     reasons.push(`CPU hot: ${hotProcs.map(p => `PID ${p.pid} at ${p.cpuPercent}%`).join(', ')}`);
   }
 
-  // Memory check: any process > 4GB (heuristic for "something is bloating")
+  // Memory high check
   const memoryHigh = processes.some(p => p.memoryMB > 4096);
   if (memoryHigh) {
     const bigProcs = processes.filter(p => p.memoryMB > 4096);
@@ -182,11 +210,24 @@ export function assessHangRisk(
     reasons.push(`Disk free: ${diskFreeGB}GB (< 5GB threshold)`);
   }
 
-  // Compute risk level
+  // Risk level
   let level: RiskLevel = 'ok';
-  if (noActivity && cpuHot) {
-    level = 'critical'; // Hot CPU + no output = likely stuck
-  } else if (noActivity || diskLow) {
+
+  if (inGrace) {
+    // Grace window: only disk can cause warn, never hang-based escalation
+    if (diskLow) {
+      level = 'warn';
+    }
+  } else if (compositeQuiet && compositeQuietSeconds > hangThresholdSeconds) {
+    // Both signals quiet beyond threshold
+    if (compositeQuietSeconds > hangThresholdSeconds + THRESHOLDS.criticalAfterSeconds) {
+      level = 'critical';
+      reasons.push(`No activity for ${compositeQuietSeconds}s (logs quiet + CPU low) — critical threshold exceeded`);
+    } else {
+      level = 'warn';
+      reasons.push(`No activity for ${compositeQuietSeconds}s (logs quiet + CPU low)`);
+    }
+  } else if (diskLow) {
     level = 'warn';
   } else if (cpuHot && memoryHigh) {
     level = 'warn';
@@ -194,10 +235,12 @@ export function assessHangRisk(
 
   return {
     level,
-    noActivitySeconds: noActivitySeconds >= 0 ? noActivitySeconds : 0,
+    noActivitySeconds: compositeQuiet ? compositeQuietSeconds : 0,
+    cpuLowSeconds: cpuLow ? compositeQuietSeconds : 0,
     cpuHot,
     memoryHigh,
     diskLow,
+    graceRemainingSeconds: graceRemaining,
     reasons,
   };
 }

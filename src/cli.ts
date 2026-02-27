@@ -30,7 +30,7 @@ const program = new Command();
 program
   .name('claude-guardian')
   .description('Flight computer for Claude Code — log rotation, watchdog, crash bundles, and MCP self-awareness')
-  .version('1.1.0')
+  .version('1.1.1')
   .option('--debug', 'Print full stack traces on error', false);
 
 // ─── preflight ───

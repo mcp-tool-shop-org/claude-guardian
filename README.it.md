@@ -7,6 +7,9 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/mcp-tool-shop-org/claude-guardian/actions"><img src="https://github.com/mcp-tool-shop-org/claude-guardian/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://www.npmjs.com/package/@mcptoolshop/claude-guardian"><img src="https://img.shields.io/npm/v/@mcptoolshop/claude-guardian" alt="npm" /></a>
+  <a href="https://codecov.io/gh/mcp-tool-shop-org/claude-guardian"><img src="https://img.shields.io/codecov/c/github/mcp-tool-shop-org/claude-guardian" alt="Coverage" /></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT License" /></a>
   <a href="https://mcp-tool-shop-org.github.io/claude-guardian/"><img src="https://img.shields.io/badge/Landing_Page-live-blue" alt="Landing Page" /></a>
 </p>
@@ -64,13 +67,13 @@ Issues found:
 [guardian] disk=607.13GB | logs=1057.14MB | issues=2
 ```
 
-### Correzione automatica dei log eccessivi
+### Correzione automatica dei log troppo grandi
 
 ```bash
 claude-guardian preflight --fix
 ```
 
-Ruota i vecchi log (gzip), tronca i file `.jsonl`/`.log` di dimensioni eccessive alle ultime N righe. Ogni azione viene registrata in un file di registro per la tracciabilità.
+Ruota i vecchi log (gzip), riduce le dimensioni dei file `.jsonl`/`.log` troppo grandi alle ultime N righe. Ogni azione viene registrata in un file di registro per la tracciabilità.
 
 ### Genera un report di crash
 
@@ -118,15 +121,15 @@ Quindi Claude può chiamare:
 | Strumento | Cosa restituisce |
 |------|----------------|
 | `guardian_status` | Spazio su disco, log, processi, rischio di blocco, budget, livello di attenzione. |
-| `guardian_preflight_fix` | Esegue la rotazione/troncatura dei log, restituisce il report prima/dopo. |
+| `guardian_preflight_fix` | Esegue la rotazione/riduzione dei log, restituisce il report prima/dopo. |
 | `guardian_doctor` | Crea un pacchetto diagnostico (zip), restituisce il percorso e il riepilogo. |
-| `guardian_nudge` | Correzione automatica sicura: corregge i log se sono eccessivi, crea un pacchetto se necessario. |
+| `guardian_nudge` | Correzione automatica sicura: corregge i log se troppo grandi, crea un pacchetto se necessario. |
 | `guardian_budget_get` | Limite di concorrenza corrente, slot in uso, licenze attive. |
 | `guardian_budget_acquire` | Richiedi slot di concorrenza (restituisce l'ID della licenza). |
 | `guardian_budget_release` | Rilascia una licenza quando hai finito con i lavori pesanti. |
 | `guardian_recovery_plan` | Piano di ripristino passo-passo che indica gli strumenti specifici da chiamare. |
 
-Questo permette a Claude di dire: *"L'attenzione è a livello di AVVISO. Eseguo `guardian_nudge`, quindi riduco la concorrenza."*
+Questo permette a Claude di dire: *"Attenzione: livello WARN. Esecuzione di `guardian_nudge`, quindi riduzione della concorrenza."*
 
 ## Configurazione
 
@@ -135,11 +138,11 @@ Tre impostazioni (tutto il resto è predefinito):
 | Flag | Valore predefinito | Descrizione |
 |------|---------|-------------|
 | `--max-log-mb` | `200` | Dimensione massima della directory dei log del progetto in MB. |
-| `--hang-timeout` | `300` | Secondi di inattività prima di dichiarare un blocco. |
+| `--hang-timeout` | `300` | Secondi di inattività prima di segnalare un blocco. |
 | `--auto-restart` | `false` | Riavvio automatico in caso di crash/blocco. |
 
 Inoltre, una protezione aggiuntiva predefinita:
-- **Spazio libero su disco < 5GB** → modalità aggressiva abilitata automaticamente (ritenzione più breve, soglie più basse).
+- **Spazio libero su disco < 5GB** → modalità aggressiva abilitata automaticamente (ritenzione più breve, soglie inferiori).
 
 ## Modello di fiducia
 
@@ -147,25 +150,25 @@ Claude Guardian è **locale**. Non ha listener di rete, telemetria o dipendenze 
 
 **Cosa legge:** `~/.claude/projects/` (file di log, dimensioni, orari di modifica), elenco dei processi (CPU, memoria, uptime, conteggio degli handle per i processi relativi a Claude tramite `pidusage`).
 
-**Cosa scrive:** `~/.claude-guardian/` (state.json, budget.json, journal.jsonl, pacchetti diagnostici). Tutti i file si trovano nella directory home dell'utente.
+**Cosa scrive:** `~/.claude-guardian/` (file state.json, budget.json, journal.jsonl, e pacchetti di dati). Tutti i file si trovano nella directory home dell'utente.
 
-**Cosa raccoglie nei pacchetti:** Informazioni sul sistema (sistema operativo, CPU, memoria, disco), le ultime 500 righe dei file di log, istantanee dei processi e il registro di eventi di Guardian. Non vengono raccolte chiavi API, token, credenziali o contenuti generati dagli utenti.
+**Cosa raccoglie nei pacchetti di dati:** Informazioni sul sistema (sistema operativo, CPU, memoria, disco), le ultime 500 righe dei file di log, istantanee dei processi e il registro di eventi di Guardian stesso. Non vengono raccolte chiavi API, token, credenziali o contenuti generati dall'utente.
 
 **Azioni pericolose — cosa Guardian NON farà:**
 - Terminare processi o inviare segnali (nessun `SIGKILL`, nessun `SIGTERM`)
 - Riavviare Claude Code o qualsiasi altro processo
-- Eliminare file (la rotazione avviene tramite compressione gzip, la rimozione consiste nel conservare le ultime N righe)
-- Effettuare richieste di rete o inviare dati a un server esterno
+- Eliminare file (la rotazione avviene tramite compressione gzip, la rimozione avviene mantenendo le ultime N righe)
+- Effettuare richieste di rete o inviare dati a server esterni
 - Elevare i privilegi o accedere ai dati di altri utenti
 
 Se in futuro venissero aggiunte funzionalità per terminare processi o riavviarli automaticamente, queste saranno attivate solo tramite un'opzione esplicita, documentata qui, e saranno disattivate per impostazione predefinita.
 
 ## Principi di progettazione
 
-- **Dati concreti, non impressioni** — ogni azione viene registrata in un file di log; i pacchetti di diagnostica catturano lo stato, non supposizioni.
-- **Determinismo** — nessun utilizzo di machine learning, nessuna euristica al di là dell'età e delle dimensioni dei file. Una tabella decisionale che si può leggere in 60 secondi.
-- **Sicurezza predefinita** — la rotazione avviene tramite compressione gzip (reversibile), la rimozione consiste nel conservare le ultime N righe (i dati vengono preservati), nessuna eliminazione nella versione 1.
-- **Dipendenze minime** — commander, pidusage, archiver, @modelcontextprotocol/sdk. Niente di più.
+- **Dati concreti, non impressioni** — ogni azione genera una voce nel registro; i pacchetti di dati catturano lo stato, non supposizioni.
+- **Determinismo** — nessun utilizzo di machine learning, nessuna euristica oltre all'età e alla dimensione dei file. Una tabella decisionale che si può leggere in 60 secondi.
+- **Sicurezza predefinita** — la rotazione avviene tramite compressione gzip (reversibile), la rimozione avviene mantenendo le ultime N righe (i dati vengono preservati), nessuna eliminazione nella versione 1.
+- **Dipendenze semplici** — commander, pidusage, archiver, @modelcontextprotocol/sdk. Niente di più.
 
 ## Sviluppo
 
@@ -175,10 +178,21 @@ npm run build
 npm test
 ```
 
+## Valutazione
+
+| Categoria | Punteggio | Note |
+|----------|-------|-------|
+| A. Sicurezza | 10/10 | FILE SECURITY.md, solo locale, nessuna telemetria, nessun servizio cloud |
+| B. Gestione degli errori | 10/10 | GuardianError (codice + suggerimento + causa), errori strutturati MCP, codici di uscita |
+| C. Documentazione per gli operatori | 10/10 | FILE README, CHANGELOG, HANDBOOK, SHIP_GATE, guida passo passo |
+| D. Qualità del codice | 9/10 | CI + test (152), pubblicato su npm, VSIX non disponibile |
+| E. Identità | 10/10 | Logo, traduzioni, pagina di presentazione, elenco su npm |
+| **Total** | **49/50** | |
+
 ## Licenza
 
 MIT
 
 ---
 
-Creato da <a href="https://mcp-tool-shop.github.io/">MCP Tool Shop</a
+Creato da <a href="https://mcp-tool-shop.github.io/">MCP Tool Shop</a>

@@ -8,13 +8,15 @@
 
 <p align="center">
   <a href="https://github.com/mcp-tool-shop-org/claude-guardian/actions"><img src="https://github.com/mcp-tool-shop-org/claude-guardian/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://www.npmjs.com/package/@mcptoolshop/claude-guardian"><img src="https://img.shields.io/npm/v/@mcptoolshop/claude-guardian" alt="npm" /></a>
+  <a href="https://codecov.io/gh/mcp-tool-shop-org/claude-guardian"><img src="https://img.shields.io/codecov/c/github/mcp-tool-shop-org/claude-guardian" alt="Coverage" /></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT License" /></a>
   <a href="https://mcp-tool-shop-org.github.io/claude-guardian/"><img src="https://img.shields.io/badge/Landing_Page-live-blue" alt="Landing Page" /></a>
 </p>
 
-Claude Code用のフライトコンピュータ — ログローテーション、ウォッチドッグ機能、クラッシュ時の情報収集、およびMCP（Monitoring and Control Plane）の自己監視機能。
+Claude Code用のフライトコンピューター — ログローテーション、ウォッチドッグ機能、クラッシュ時の情報収集、およびMCP（Monitoring and Control Plane）の自己監視機能。
 
-Claude Guardianは、Claude Codeのセッションを正常に保つためのローカルな信頼性レイヤーです。 ログの肥大化、ディスク容量不足、およびシステム停止を事前に検出し、問題が発生した場合に証拠を収集し、Claudeがセッション中に自己監視できるようにするためのMCPサーバーを提供します。
+Claude Guardianは、Claude Codeのセッションを安定させるためのローカルな信頼性レイヤーです。 ログの肥大化、ディスク容量の逼迫、およびシステム停止を事前に検出し、問題が発生した場合に証拠を収集し、Claudeがセッション中に自己監視を行えるようにするためのMCPサーバーを提供します。
 
 ## 機能
 
@@ -95,11 +97,11 @@ claude-guardian run --auto-restart --hang-timeout 120 -- node server.js
 1. コマンドを子プロセスとして起動します。
 2. 標準出力/標準エラー出力を監視します。
 3. `--hang-timeout`秒間、アクティビティがない場合 → 診断情報を収集します。
-4. プロセスがクラッシュした場合 → 情報を収集し、必要に応じてバックオフ付きで再起動します。
+4. プロセスがクラッシュした場合 → 情報を収集し、必要に応じて再起動します（バックオフ付き）。
 
 ## MCPサーバー（真の機能拡張）
 
-Claudeが自己監視できるように、GuardianをローカルMCPサーバーとして登録します。
+GuardianをローカルMCPサーバーとして登録し、Claudeが自己監視できるようにします。
 
 `~/.claude.json`に追加します。
 
@@ -114,59 +116,59 @@ Claudeが自己監視できるように、GuardianをローカルMCPサーバー
 }
 ```
 
-その後、Claudeは以下を実行できます。
+その後、Claudeは以下のコマンドを実行できます。
 
 | ツール | 返却値 |
 |------|----------------|
-| `guardian_status` | ディスクの状態、ログの状態、プロセス情報、停止のリスク、リソース制限の状態、注意レベル |
+| `guardian_status` | ディスクの状態、ログの状態、プロセスの状態、停止のリスク、リソース制限の状態、注意レベル |
 | `guardian_preflight_fix` | ログのローテーション/トリミングを実行し、実行前後のレポートを返します。 |
-| `guardian_doctor` | 診断情報をまとめたzipファイルを作成し、パスと概要を返します。 |
+| `guardian_doctor` | 診断情報をまとめたzipファイルを作成し、ファイルパスと概要を返します。 |
 | `guardian_nudge` | 安全な自動修復：ログが肥大化している場合は修正し、必要に応じて情報を収集します。 |
 | `guardian_budget_get` | 現在の並行処理上限、使用中のスロット数、アクティブなリース |
 | `guardian_budget_acquire` | 並行処理スロットを要求します（リースIDを返します）。 |
 | `guardian_budget_release` | 重い処理が完了したら、リースを解放します。 |
 | `guardian_recovery_plan` | 具体的なツールを呼び出す、段階的な復旧計画 |
 
-これにより、Claudeは次のように言えます。 *"注意レベルは警告です。`guardian_nudge`を実行し、その後、並行処理を削減します。"*
+これにより、Claudeは以下のように言えます。 *"注意レベルは警告です。`guardian_nudge`を実行し、その後、並行処理を削減します。"*
 
 ## 設定
 
-設定項目（残りはデフォルト値で設定されています）。
+設定可能な項目は3つ（それ以外はデフォルト値で設定されています）。
 
 | フラグ | デフォルト値 | 説明 |
 |------|---------|-------------|
-| `--max-log-mb` | `200` | プロジェクトログディレクトリの最大サイズ（MB） |
+| `--max-log-mb` | `200` | プロジェクトのログディレクトリの最大サイズ（MB） |
 | `--hang-timeout` | `300` | 停止とみなすまでの非アクティブ時間（秒） |
 | `--auto-restart` | `false` | クラッシュまたは停止時に自動的に再起動するかどうか |
 
-さらに、ハードコーディングされた制限事項：
-- **ディスクの空き容量が5GB未満** → 積極的なモードが自動的に有効になります（保持期間の短縮、閾値の引き下げ）。
+さらに、以下のハードコーディングされた制限があります。
+- **ディスクの空き容量が5GB未満** → 積極的なモードが自動的に有効になります（保持期間を短くし、閾値を下げます）。
 
 ## 信頼モデル
 
-Claude Guardianは**ローカルでのみ動作**します。 ネットワークリスナー、テレメトリー機能、およびクラウドへの依存はありません。
+Claude Guardianは、**ローカル環境でのみ動作**します。 ネットワークリスナー、テレメトリー機能、およびクラウドへの依存はありません。
 
 **読み込む情報:** `~/.claude/projects/`（ログファイル、サイズ、最終更新日時）、プロセスリスト（Claude関連プロセスのCPU使用率、メモリ使用量、稼働時間、ハンドル数 - `pidusage`を使用）。
 
-**書き込む情報:** `~/.claude-guardian/`（state.json、budget.json、journal.jsonl、診断情報）。 すべてのファイルは、ユーザーのホームディレクトリに保存されます。
+**書き込み先:** `~/.claude-guardian/` (state.json, budget.json, journal.jsonl, ドクターバンドル)。すべてのファイルはユーザーのホームディレクトリに保存されます。
 
-**収集する情報:** システム情報（OS、CPU、メモリ、ディスク）、ログファイルの末尾部分（最新500行）、プロセスの一時的なスナップショット、およびGuardian自身のログ。APIキー、トークン、認証情報、またはユーザーコンテンツは収集しません。
+**バンドルに収集される情報:** システム情報（OS、CPU、メモリ、ディスク）、ログファイルの末尾500行、プロセススナップショット、およびGuardian自身のジャーナル。APIキー、トークン、認証情報、またはユーザーコンテンツは含まれません。
 
 **危険な操作 — Guardianが行わないこと:**
-- プロセスの停止またはシグナルの送信（`SIGKILL`や`SIGTERM`は送信しません）
+- プロセスの停止またはシグナルの送信（`SIGKILL`、`SIGTERM`は送信しません）
 - Claude Codeまたはその他のプロセスの再起動
-- ファイルの削除（ローテーションはgzip形式、トリミングは最新N行を保持）
-- ネットワークリクエストの送信や、サーバーへの情報送信
-- 特権の昇格や、他のユーザーのデータへのアクセス
+- ファイルの削除（ローテーションはgzip、トリミングは最新のN行を保持）
+- ネットワークリクエストの送信またはサーバーへの接続
+- 特権の昇格または他のユーザーのデータへのアクセス
 
-プロセス停止や自動再起動機能が将来追加される場合でも、明示的なオプション設定が必要となり、デフォルトでは無効になります。詳細はここに記載されます。
+プロセス停止や自動再起動機能が将来追加される場合でも、明示的なオプトインフラグが必要となり、デフォルトでは無効になります。この機能については、ここにドキュメントが記載されます。
 
 ## 設計原則
 
-- **根拠に基づいた判断:** すべての操作はログに記録され、クラッシュ時の情報は推測ではなく、実際の状態を捉えます。
-- **決定論的:** 機械学習や、ファイルの日付やサイズ以外のヒューリスティックは使用しません。60秒で理解できる決定テーブルを使用します。
-- **デフォルトで安全:** ローテーションはgzip形式（復元可能）、トリミングは最新N行を保持（データは保持）、v1では削除は行いません。
-- **シンプルな依存関係:** commander、pidusage、archiver、@modelcontextprotocol/sdk。これらが全てです。
+- **根拠に基づく判断:** すべてのアクションはジャーナルエントリとして記録されます。クラッシュバンドルは状態をキャプチャし、推測は含まれません。
+- **決定論的:** 機械学習や、ファイルの日付とサイズ以外のヒューリスティクスは使用しません。60秒で理解できる決定テーブルです。
+- **デフォルトで安全:** ローテーションはgzip（復元可能）、トリミングは最新のN行を保持（データは保持）、v1では削除は行いません。
+- **シンプルな依存関係:** commander, pidusage, archiver, @modelcontextprotocol/sdk。これだけです。
 
 ## 開発
 
@@ -176,10 +178,21 @@ npm run build
 npm test
 ```
 
+## 評価項目
+
+| カテゴリ | 評価 | 備考 |
+|----------|-------|-------|
+| A. セキュリティ | 10/10 | SECURITY.md、ローカルのみ、テレメトリーなし、クラウド連携なし |
+| B. エラー処理 | 10/10 | GuardianError（コード+ヒント+原因）、構造化されたMCPエラー、終了コード |
+| C. 運用ドキュメント | 10/10 | README、CHANGELOG、HANDBOOK、SHIP_GATE、チュートリアル |
+| D. リリース時の品質 | 9/10 | CI + テスト（152）、npm公開、VSIXは未対応 |
+| E. アイデンティティ | 10/10 | ロゴ、翻訳、ランディングページ、npmリスト |
+| **Total** | **49/50** | |
+
 ## ライセンス
 
 MIT
 
 ---
 
-開発元: <a href="https://mcp-tool-shop.github.io/">MCP Tool Shop</a>
+作成者: <a href="https://mcp-tool-shop.github.io/">MCP Tool Shop</a>

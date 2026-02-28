@@ -1,6 +1,6 @@
 {
   "name": "@mcptoolshop/claude-guardian",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "Flight computer for Claude Code — log rotation, watchdog, crash bundles, and MCP self-awareness",
   "type": "module",
   "bin": {
@@ -47,5 +47,13 @@
     "CHANGELOG.md",
     "HANDBOOK.md",
     "LICENSE"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mcp-tool-shop-org/claude-guardian.git"
+  },
+  "homepage": "https://mcp-tool-shop-org.github.io/claude-guardian/",
+  "bugs": {
+    "url": "https://github.com/mcp-tool-shop-org/claude-guardian/issues"
+  }
 }

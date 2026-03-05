@@ -15,7 +15,7 @@ export const config: SiteConfig = {
     headlineAccent: 'flight computer.',
     description: 'Detects hangs, captures evidence, enforces concurrency budgets, and exposes 8 MCP tools so Claude can self-monitor mid-session. Local-only, no network, no telemetry.',
     primaryCta: { href: '#usage', label: 'Get started' },
-    secondaryCta: { href: '#features', label: 'How it works' },
+    secondaryCta: { href: 'handbook/', label: 'Read the Handbook' },
     previews: [
       { label: 'Install', code: 'npm install -g claude-guardian' },
       { label: 'Status', code: 'claude-guardian status --banner\n# [guardian] disk=607GB | logs=150MB | risk=ok' },

@@ -1,5 +1,5 @@
 import { mkdir, writeFile, readFile } from 'fs/promises';
-import { join, basename } from 'path';
+import { join, basename, resolve, normalize } from 'path';
 import { existsSync, createWriteStream } from 'fs';
 import archiver from 'archiver';
 import { homedir, platform, release, totalmem, freemem, cpus } from 'os';
@@ -90,6 +90,16 @@ export function collectSystemInfo(diskFreeGB: number): SystemInfo {
   };
 }
 
+/** Validate that a path is within the user's home directory. */
+export function validateOutputPath(outputPath: string): string {
+  const resolved = resolve(normalize(outputPath));
+  const home = homedir();
+  if (!resolved.startsWith(home)) {
+    throw new Error(`outputPath must be within the user home directory (${home})`);
+  }
+  return resolved;
+}
+
 /** Generate a full diagnostics bundle. */
 export async function generateBundle(outputPath?: string): Promise<DoctorBundle> {
   const dataDir = getGuardianDataPath();
@@ -98,7 +108,7 @@ export async function generateBundle(outputPath?: string): Promise<DoctorBundle>
   }
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const zipPath = outputPath || join(dataDir, `bundle-${timestamp}.zip`);
+  const zipPath = outputPath ? validateOutputPath(outputPath) : join(dataDir, `bundle-${timestamp}.zip`);
 
   // Collect preflight scan
   const claudeProjects = await scanLogs();

@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { collectSystemInfo, formatDoctorReport } from '../src/doctor.js';
+import { homedir } from 'os';
+import { join } from 'path';
+import { collectSystemInfo, formatDoctorReport, validateOutputPath } from '../src/doctor.js';
 import type { DoctorSummary } from '../src/doctor.js';
 import type { PreflightResult } from '../src/types.js';
 
@@ -113,6 +115,31 @@ describe('doctor', () => {
       expect(report).toContain('Total size: 0MB');
       expect(report).toContain('Issues: 0');
       expect(report).toContain('0 entries');
+    });
+  });
+
+  describe('validateOutputPath', () => {
+    it('accepts paths within home directory', () => {
+      const home = homedir();
+      const validPath = join(home, '.claude-guardian', 'bundle.zip');
+      expect(validateOutputPath(validPath)).toBe(validPath);
+    });
+
+    it('rejects paths outside home directory', () => {
+      expect(() => validateOutputPath('/etc/passwd')).toThrow('must be within the user home directory');
+    });
+
+    it('rejects path traversal attempts', () => {
+      const home = homedir();
+      const traversal = join(home, '..', '..', 'etc', 'passwd');
+      expect(() => validateOutputPath(traversal)).toThrow('must be within the user home directory');
+    });
+
+    it('normalizes paths before validation', () => {
+      const home = homedir();
+      const withDots = join(home, 'subdir', '..', '.claude-guardian', 'bundle.zip');
+      const result = validateOutputPath(withDots);
+      expect(result).not.toContain('..');
     });
   });
 });

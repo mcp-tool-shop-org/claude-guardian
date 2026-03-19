@@ -17,9 +17,18 @@ describe('generateRecoveryPlan', () => {
     const state = makeState();
     const plan = generateRecoveryPlan(state);
     expect(plan.status).toBe('healthy');
-    expect(plan.steps).toHaveLength(1);
+    expect(plan.steps.length).toBeGreaterThanOrEqual(2);
     expect(plan.steps[0].action).toBe('No action needed');
     expect(plan.steps[0].tool).toBeNull();
+  });
+
+  it('includes preview readiness guidance in healthy plan', () => {
+    const state = makeState();
+    const plan = generateRecoveryPlan(state);
+    const previewStep = plan.steps.find(s => s.tool === 'guardian_preview_ready');
+    expect(previewStep).toBeDefined();
+    expect(previewStep!.detail).toContain('preview_start');
+    expect(previewStep!.detail).toContain('guardian_preview_recover');
   });
 
   it('returns action_needed when risk is warn', () => {

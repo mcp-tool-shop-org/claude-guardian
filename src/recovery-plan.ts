@@ -152,13 +152,25 @@ export function generateRecoveryPlan(state: GuardianState): RecoveryPlan {
     });
   }
 
-  if (steps.length === 0) {
-    steps.push({
+  // Preview guidance (always included at ok level as helpful context)
+  steps.push({
+    order: order++,
+    action: 'Preview readiness',
+    tool: 'guardian_preview_ready',
+    detail: 'If working with a dev server, call guardian_preview_ready after preview_start to avoid race conditions. ' +
+      'For non-web projects (desktop, CLI), call guardian_preview_recover to skip preview verification.',
+  });
+
+  if (steps.length === 1 && steps[0].action === 'Preview readiness') {
+    // Only preview step — prepend the healthy message
+    steps.unshift({
       order: 1,
       action: 'No action needed',
       tool: null,
       detail: 'All systems healthy. Continue normal operations.',
     });
+    // Renumber
+    steps.forEach((s, i) => { s.order = i + 1; });
   }
 
   return {

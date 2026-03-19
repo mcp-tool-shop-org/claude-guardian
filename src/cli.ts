@@ -187,7 +187,7 @@ program
         claudeLogSizeMB = bytesToMB(await dirSize(claudePath));
       }
 
-      const processes = await findClaudeProcesses();
+      const { processes } = await findClaudeProcesses();
       const activity = await checkActivitySignals(processes);
       const hangRisk = assessHangRisk(
         processes, activity, diskFreeGB,
@@ -212,6 +212,8 @@ program
         compositeQuietSeconds: 0,
         budgetSummary: null,
         attention: computeAttention(hangRisk, null, null),
+        daemonStartedAt: null,
+        pollCount: 0,
       };
 
       if (opts.banner) {

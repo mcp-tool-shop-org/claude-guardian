@@ -31,14 +31,14 @@ export class IncidentTracker {
    * Update the tracker with the current risk level.
    * Returns the incident if one is active (may be newly opened or existing).
    */
-  update(level: RiskLevel, reason: string): Incident | null {
+  async update(level: RiskLevel, reason: string): Promise<Incident | null> {
     if (level === 'ok') {
       // Close any active incident
       if (this.active) {
         this.active.closedAt = new Date().toISOString();
         const closed = { ...this.active };
         this.active = null;
-        appendIncidentLog(closed);
+        await appendIncidentLog(closed);
         return closed;
       }
       return null;
@@ -48,7 +48,7 @@ export class IncidentTracker {
       if (!this.active) {
         // Open new incident
         this.active = {
-          id: randomUUID().slice(0, 8),
+          id: randomUUID(),
           startedAt: new Date().toISOString(),
           closedAt: null,
           reason,
@@ -116,13 +116,20 @@ async function appendIncidentLog(incident: Incident): Promise<void> {
   await appendFile(logPath, line, 'utf-8');
 }
 
-/** Read incident history. */
+/** Read incident history. Tolerates corrupt lines. */
 export async function readIncidentLog(lastN?: number): Promise<Incident[]> {
   const logPath = join(getGuardianDataPath(), 'incidents.jsonl');
   try {
     const content = await readFile(logPath, 'utf-8');
     const lines = content.trim().split('\n').filter(Boolean);
-    const entries = lines.map(l => JSON.parse(l) as Incident);
+    const entries: Incident[] = [];
+    for (const line of lines) {
+      try {
+        entries.push(JSON.parse(line) as Incident);
+      } catch {
+        // Skip corrupt line — don't lose the rest of the incident history
+      }
+    }
     if (lastN) return entries.slice(-lastN);
     return entries;
   } catch {

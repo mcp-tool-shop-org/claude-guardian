@@ -141,7 +141,7 @@ export async function generateBundle(outputPath?: string): Promise<DoctorBundle>
   }));
 
   // Collect handle counts for running Claude processes
-  const processes = await findClaudeProcesses();
+  const { processes } = await findClaudeProcesses();
   const handleCounts = processes.length > 0
     ? await getHandleCounts(processes.map(p => p.pid))
     : [];

@@ -163,6 +163,19 @@ Claude Guardian is **local-only**. It has no network listener, no telemetry, and
 
 If process killing or auto-restart is ever added, it will be behind an explicit opt-in flag, documented here, and off by default.
 
+## Reliability
+
+Guardian is hardened for continuous daily use:
+
+- **Async mutexes** — `withStateLock` and `withBudgetLock` serialize concurrent file I/O, preventing TOCTOU races between the daemon and MCP tools
+- **Overlap guard** — daemon polls are protected by a `pollInProgress` flag so slow polls can't stack
+- **Clock skew protection** — all time deltas clamped with `Math.max(0, ...)` to handle system clock adjustments
+- **Reverse-seek tail** — large log files (>1MB) are tailed by reading chunks from the end, avoiding OOM on 500MB+ logs
+- **Corruption recovery** — corrupt `state.json` or `budget.json` files are backed up and reset with a journal entry for forensics
+- **Process enumeration tracking** — enumeration failures are captured in `lastEnumerationError` instead of silently swallowed
+- **Full UUID lease IDs** — budget leases use full UUIDs for reliable identification
+- **Lease expiration journaling** — expired leases are logged to the action journal for auditability
+
 ## Design principles
 
 - **Evidence over vibes** — every action writes a journal entry; crash bundles capture state, not guesses
@@ -185,7 +198,7 @@ npm test
 | A. Security | 10/10 | SECURITY.md, local-only, no telemetry, no cloud |
 | B. Error Handling | 10/10 | GuardianError (code+hint+cause), structured MCP errors, exit codes |
 | C. Operator Docs | 10/10 | README, CHANGELOG, HANDBOOK, SHIP_GATE, walkthrough |
-| D. Shipping Hygiene | 10/10 | CI + tests (152), dep-audit, npm published |
+| D. Shipping Hygiene | 10/10 | CI + tests (174), dep-audit, npm published |
 | E. Identity | 10/10 | Logo, translations, landing page, npm listing |
 | **Total** | **50/50** | |
 

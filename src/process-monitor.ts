@@ -1,9 +1,8 @@
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import pidusage from 'pidusage';
-import { stat } from 'fs/promises';
 import { getClaudeProjectsPath, THRESHOLDS } from './defaults.js';
-import { listFilesRecursive, pathExists } from './fs-utils.js';
+import { listFilesWithStats, pathExists } from './fs-utils.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -25,6 +24,8 @@ export interface ActivitySignals {
   cpuActive: boolean;
   /** Which signal sources detected activity. */
   sources: string[];
+  /** Last process enumeration error (null/undefined if none). */
+  lastEnumerationError?: string | null;
 }
 
 export type RiskLevel = 'ok' | 'warn' | 'critical';
@@ -43,9 +44,16 @@ export interface HangRisk {
   reasons: string[];
 }
 
+export interface FindProcessesResult {
+  processes: ClaudeProcess[];
+  /** Non-null if the top-level enumeration command failed. */
+  enumerationError: string | null;
+}
+
 /** Find PIDs that look like Claude Code processes. */
-export async function findClaudeProcesses(): Promise<ClaudeProcess[]> {
+export async function findClaudeProcesses(): Promise<FindProcessesResult> {
   const processes: ClaudeProcess[] = [];
+  let enumerationError: string | null = null;
 
   try {
     if (process.platform === 'win32') {
@@ -81,7 +89,8 @@ export async function findClaudeProcesses(): Promise<ClaudeProcess[]> {
       }
     } else {
       try {
-        const { stdout } = await execFileAsync('pgrep', ['-f', 'claude'], { timeout: 5000 });
+        // Match executables starting with "claude" — excludes editors/scripts with "claude" in args
+        const { stdout } = await execFileAsync('pgrep', ['-x', 'claude'], { timeout: 5000 });
         const pids = stdout.trim().split('\n').filter(Boolean).map(Number);
 
         for (const pid of pids) {
@@ -104,31 +113,26 @@ export async function findClaudeProcesses(): Promise<ClaudeProcess[]> {
         }
       } catch { /* pgrep found nothing */ }
     }
-  } catch { /* can't enumerate */ }
+  } catch (err) {
+    enumerationError = err instanceof Error ? err.message : String(err);
+  }
 
-  return processes;
+  return { processes, enumerationError };
 }
 
 /** Check activity signals from Claude's log directory + process CPU. */
-export async function checkActivitySignals(processes: ClaudeProcess[]): Promise<ActivitySignals> {
+export async function checkActivitySignals(processes: ClaudeProcess[], enumerationError?: string | null): Promise<ActivitySignals> {
   const claudePath = getClaudeProjectsPath();
   const sources: string[] = [];
   let mostRecentMtime = 0;
 
   if (await pathExists(claudePath)) {
-    const files = await listFilesRecursive(claudePath);
-
-    const recentFiles: Array<{ path: string; mtime: number }> = [];
-    for (const f of files.slice(-200)) {
-      try {
-        const s = await stat(f);
-        recentFiles.push({ path: f, mtime: s.mtimeMs });
-      } catch { /* skip */ }
-    }
-
-    recentFiles.sort((a, b) => b.mtime - a.mtime);
-    if (recentFiles.length > 0) {
-      mostRecentMtime = recentFiles[0].mtime;
+    // Single traversal with pre-fetched stats — no redundant stat calls
+    const files = await listFilesWithStats(claudePath);
+    for (const f of files) {
+      if (f.mtimeMs > mostRecentMtime) {
+        mostRecentMtime = f.mtimeMs;
+      }
     }
   }
 
@@ -150,6 +154,7 @@ export async function checkActivitySignals(processes: ClaudeProcess[]): Promise<
     logLastModifiedSecondsAgo: logAge,
     cpuActive,
     sources,
+    lastEnumerationError: enumerationError ?? null,
   };
 }
 

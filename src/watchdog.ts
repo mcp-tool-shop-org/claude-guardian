@@ -23,6 +23,7 @@ export class Watchdog {
   private state: WatchdogState;
   private child: ChildProcess | null = null;
   private pollTimer: ReturnType<typeof setInterval> | null = null;
+  private restartTimer: ReturnType<typeof setTimeout> | null = null;
   private onEvent: WatchdogEventHandler;
   private command: string;
   private args: string[];
@@ -59,6 +60,10 @@ export class Watchdog {
   stop(): void {
     this.stopped = true;
     this.stopPolling();
+    if (this.restartTimer) {
+      clearTimeout(this.restartTimer);
+      this.restartTimer = null;
+    }
     if (this.child && !this.child.killed) {
       this.child.kill('SIGTERM');
     }
@@ -201,7 +206,8 @@ export class Watchdog {
 
       this.onEvent('restarting', `Restart #${this.state.restartCount + 1} in ${delay}ms`);
 
-      setTimeout(() => {
+      this.restartTimer = setTimeout(() => {
+        this.restartTimer = null;
         if (!this.stopped) {
           this.state.restartCount++;
           this.spawnChild();

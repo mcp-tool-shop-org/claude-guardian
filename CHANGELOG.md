@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.4] - 2026-03-19
+
+### Added
+- Async mutex locks (`withStateLock`, `withBudgetLock`) to serialize concurrent state/budget file I/O
+- `pollInProgress` overlap guard in watch daemon to prevent poll stacking
+- Clock skew protection with `Math.max(0, ...)` on all time delta calculations
+- Reverse-seek `tailFile` for large files (>1MB) — reads 64KB chunks from EOF instead of loading entire file
+- Corruption recovery journaling — corrupt `state.json`/`budget.json` files log a `corruption-recovery` event to the action journal
+- Process enumeration error tracking — `findClaudeProcesses()` returns `{ processes, enumerationError }` and propagates to `ActivitySignals.lastEnumerationError`
+- Daemon uptime and poll count tracking in `GuardianState` (`daemonStartedAt`, `pollCount`)
+- Lease expiration journal entries with lease ID, slot count, and reason
+- `listFilesWithStats()` single-traversal utility replacing separate `listFilesRecursive` + per-file `stat()` calls
+- 7 new tests for enhancements (174 total, up from 167)
+
+### Changed
+- `findClaudeProcesses()` returns `FindProcessesResult` object instead of bare array (all 7 call sites updated)
+- `expireLeases()` returns `BudgetLease[]` instead of `number` for journal logging
+- `IncidentTracker.update()` is now async to properly await incident log writes
+- Budget lease IDs use full UUIDs instead of truncated 8-char hex
+- Process matching uses `pgrep -x 'claude'` (exact match) instead of `-f` (pattern match)
+- Status banner shows daemon uptime and poll count
+
+### Fixed
+- TOCTOU race in budget acquire/release between daemon and MCP tools
+- Potential unhandled promise rejection in incident log writes
+- Redundant file traversals in log scanning and activity signal checking
+- UNC path handling in `getDiskFreeGB()` (returns -1 instead of executing with garbage args)
+- JSONL readers (`readJournal`, `readIncidentLog`) now skip corrupt lines instead of failing entirely
+
 ## [1.1.2] - 2026-02-27
 
 ### Added

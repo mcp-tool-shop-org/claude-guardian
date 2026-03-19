@@ -12,9 +12,11 @@ import {
 describe('process-monitor', () => {
   describe('findClaudeProcesses', () => {
     it('returns an array (may be empty if no Claude running)', async () => {
-      const procs = await findClaudeProcesses();
-      expect(Array.isArray(procs)).toBe(true);
-      for (const p of procs) {
+      const result = await findClaudeProcesses();
+      expect(result).toHaveProperty('processes');
+      expect(result).toHaveProperty('enumerationError');
+      expect(Array.isArray(result.processes)).toBe(true);
+      for (const p of result.processes) {
         expect(p).toHaveProperty('pid');
         expect(p).toHaveProperty('name');
         expect(p).toHaveProperty('cpuPercent');

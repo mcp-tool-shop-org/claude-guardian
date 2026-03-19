@@ -2,6 +2,7 @@ import { readFile, writeFile, mkdir, rename, copyFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join } from 'path';
 import { getGuardianDataPath } from './defaults.js';
+import { writeJournalEntry } from './fs-utils.js';
 import { GuardianError, wrapError } from './errors.js';
 import type { ClaudeProcess, ActivitySignals, HangRisk } from './process-monitor.js';
 import type { Incident } from './incident.js';
@@ -53,10 +54,33 @@ export interface GuardianState {
   budgetSummary: BudgetSummary | null;
   /** Top-level attention signal for the agent. */
   attention: Attention;
+  /** When the daemon was started (ISO string, null if no daemon). */
+  daemonStartedAt: string | null;
+  /** Number of polls completed since daemon started. */
+  pollCount: number;
 }
 
 function getStatePath(): string {
   return join(getGuardianDataPath(), 'state.json');
+}
+
+/**
+ * Async mutex to serialize state file writes.
+ * Prevents partial reads when daemon writes overlap with MCP reads.
+ */
+let stateLockQueue: Promise<void> = Promise.resolve();
+
+export async function withStateLock<T>(fn: () => Promise<T>): Promise<T> {
+  let release: () => void;
+  const next = new Promise<void>(resolve => { release = resolve; });
+  const prev = stateLockQueue;
+  stateLockQueue = next;
+  await prev;
+  try {
+    return await fn();
+  } finally {
+    release!();
+  }
 }
 
 /** Write state atomically (write to .tmp, then rename). */
@@ -102,6 +126,12 @@ export async function readState(): Promise<GuardianState | null> {
       // Best-effort backup
     }
     console.error(`[guardian] WARNING: state.json is corrupt. Backed up to ${backupPath} and resetting.`);
+    // Best-effort journal entry for corruption recovery
+    writeJournalEntry({
+      timestamp: new Date().toISOString(),
+      action: 'corruption-recovery',
+      detail: `state.json was corrupt. Backed up to ${backupPath} and reset.`,
+    }).catch(() => {});
     return null;
   }
 }
@@ -119,7 +149,7 @@ export function emptyState(): GuardianState {
     daemonRunning: false,
     daemonPid: null,
     claudeProcesses: [],
-    activity: { logLastModifiedSecondsAgo: -1, cpuActive: false, sources: [] },
+    activity: { logLastModifiedSecondsAgo: -1, cpuActive: false, sources: [], lastEnumerationError: null },
     hangRisk: {
       level: 'ok', noActivitySeconds: 0, cpuLowSeconds: 0,
       cpuHot: false, memoryHigh: false, diskLow: false,
@@ -133,6 +163,8 @@ export function emptyState(): GuardianState {
     compositeQuietSeconds: 0,
     budgetSummary: null,
     attention: { level: 'none', since: new Date().toISOString(), reason: 'All systems healthy', recommendedActions: [], incidentId: null },
+    daemonStartedAt: null,
+    pollCount: 0,
   };
 }
 

@@ -116,7 +116,7 @@ export class Budget {
 
     const now = new Date();
     const lease: BudgetLease = {
-      id: randomUUID().slice(0, 8),
+      id: randomUUID(),
       slots: n,
       reason,
       grantedAt: now.toISOString(),
@@ -143,11 +143,11 @@ export class Budget {
     return true;
   }
 
-  /** Expire any leases past their TTL. Returns count of expired leases. */
-  expireLeases(now: number = Date.now()): number {
-    const before = this.data.leases.length;
+  /** Expire any leases past their TTL. Returns expired lease details. */
+  expireLeases(now: number = Date.now()): BudgetLease[] {
+    const expired = this.data.leases.filter(l => new Date(l.expiresAt).getTime() <= now);
     this.data.leases = this.data.leases.filter(l => new Date(l.expiresAt).getTime() > now);
-    return before - this.data.leases.length;
+    return expired;
   }
 
   /** Summary for display. */

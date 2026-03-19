@@ -98,7 +98,7 @@ describe('budget MCP tools', () => {
       expect(acquireText).toContain('Granted');
 
       // Extract lease ID
-      const match = acquireText.match(/lease=([a-f0-9]+)/);
+      const match = acquireText.match(/lease=([a-f0-9-]+)/);
       expect(match).not.toBeNull();
       const leaseId = match![1];
 

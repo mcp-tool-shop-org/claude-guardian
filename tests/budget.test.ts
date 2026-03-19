@@ -134,7 +134,8 @@ describe('Budget', () => {
       expect(b2.slotsInUse).toBe(2);
 
       const expired = b2.expireLeases(now);
-      expect(expired).toBe(1);
+      expect(expired).toHaveLength(1);
+      expect(expired[0].id).toBe('expired1');
       expect(b2.slotsInUse).toBe(0);
     });
 

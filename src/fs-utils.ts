@@ -1,4 +1,4 @@
-import { stat, readdir, readFile, writeFile, appendFile, mkdir, rename } from 'fs/promises';
+import { stat, readdir, readFile, writeFile, appendFile, mkdir, rename, open } from 'fs/promises';
 import { join } from 'path';
 import { createReadStream, createWriteStream, existsSync } from 'fs';
 import { createGzip } from 'zlib';
@@ -54,6 +54,37 @@ export async function listFilesRecursive(dirPath: string): Promise<string[]> {
   return results;
 }
 
+/** File entry with pre-fetched stats to avoid redundant stat calls. */
+export interface FileWithStats {
+  path: string;
+  size: number;
+  mtimeMs: number;
+}
+
+/** List all files in a directory recursively with stats (single traversal). */
+export async function listFilesWithStats(dirPath: string): Promise<FileWithStats[]> {
+  const results: FileWithStats[] = [];
+  try {
+    const entries = await readdir(dirPath, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = join(dirPath, entry.name);
+      if (entry.isDirectory()) {
+        results.push(...await listFilesWithStats(fullPath));
+      } else {
+        try {
+          const s = await stat(fullPath);
+          results.push({ path: fullPath, size: s.size, mtimeMs: s.mtimeMs });
+        } catch {
+          // file disappeared between readdir and stat
+        }
+      }
+    }
+  } catch {
+    // dir doesn't exist or unreadable
+  }
+  return results;
+}
+
 /** Get disk free space in GB for the drive containing a given path. */
 export async function getDiskFreeGB(targetPath: string): Promise<number> {
   try {
@@ -62,39 +93,42 @@ export async function getDiskFreeGB(targetPath: string): Promise<number> {
     const execFileAsync = promisify(execFile);
 
     if (process.platform === 'win32') {
-      // Normalize path: convert /f/AI → F:, F:\AI → F:
-      let drive: string;
+      // Normalize path: convert /f/AI → F:, F:\AI → F:, \\server\share → unsupported
+      let drive: string | null = null;
       if (targetPath.match(/^\/[a-zA-Z]\//)) {
         // Git Bash style: /c/Users → C:
         drive = targetPath[1].toUpperCase() + ':';
-      } else {
+      } else if (targetPath.match(/^[a-zA-Z]:/)) {
         drive = targetPath.substring(0, 2).toUpperCase();
       }
+      // UNC paths (\\server\share) and other formats: fall through to return -1
 
-      // Try PowerShell first (wmic is deprecated on newer Windows)
-      try {
-        const { stdout } = await execFileAsync('powershell', [
-          '-NoProfile', '-Command',
-          `(Get-PSDrive ${drive[0]}).Free`
-        ]);
-        const freeBytes = parseInt(stdout.trim(), 10);
-        if (!isNaN(freeBytes)) {
-          return freeBytes / (1024 ** 3);
+      if (drive) {
+        // Try PowerShell first (wmic is deprecated on newer Windows)
+        try {
+          const { stdout } = await execFileAsync('powershell', [
+            '-NoProfile', '-Command',
+            `(Get-PSDrive ${drive[0]}).Free`
+          ]);
+          const freeBytes = parseInt(stdout.trim(), 10);
+          if (!isNaN(freeBytes)) {
+            return freeBytes / (1024 ** 3);
+          }
+        } catch {
+          // Fall back to wmic
         }
-      } catch {
-        // Fall back to wmic
-      }
 
-      try {
-        const { stdout } = await execFileAsync('wmic', [
-          'logicaldisk', 'where', `DeviceID='${drive}'`, 'get', 'FreeSpace', '/value'
-        ]);
-        const match = stdout.match(/FreeSpace=(\d+)/);
-        if (match) {
-          return parseInt(match[1], 10) / (1024 ** 3);
+        try {
+          const { stdout } = await execFileAsync('wmic', [
+            'logicaldisk', 'where', `DeviceID='${drive}'`, 'get', 'FreeSpace', '/value'
+          ]);
+          const match = stdout.match(/FreeSpace=(\d+)/);
+          if (match) {
+            return parseInt(match[1], 10) / (1024 ** 3);
+          }
+        } catch {
+          // wmic not available
         }
-      } catch {
-        // wmic not available
       }
     } else {
       // Use df on Unix
@@ -125,12 +159,48 @@ export async function gzipFile(filePath: string): Promise<string> {
   return gzPath;
 }
 
-/** Read the last N lines of a file. */
+/**
+ * Read the last N lines of a file.
+ * Uses reverse-seek for files > 1MB to avoid reading the entire file into memory.
+ */
 export async function tailFile(filePath: string, lines: number): Promise<string> {
   try {
-    const content = await readFile(filePath, 'utf-8');
-    const allLines = content.split('\n');
-    return allLines.slice(-lines).join('\n');
+    const info = await stat(filePath);
+    const SMALL_FILE_THRESHOLD = 1024 * 1024; // 1MB
+
+    if (info.size <= SMALL_FILE_THRESHOLD) {
+      // Small file: read all at once (fast path)
+      const content = await readFile(filePath, 'utf-8');
+      const allLines = content.split('\n');
+      return allLines.slice(-lines).join('\n');
+    }
+
+    // Large file: read from the end in chunks
+    const CHUNK_SIZE = 64 * 1024; // 64KB chunks
+    const fh = await open(filePath, 'r');
+    try {
+      let position = info.size;
+      let collected = '';
+      let lineCount = 0;
+
+      while (position > 0 && lineCount <= lines) {
+        const readSize = Math.min(CHUNK_SIZE, position);
+        position -= readSize;
+        const buf = Buffer.alloc(readSize);
+        await fh.read(buf, 0, readSize, position);
+        const chunk = buf.toString('utf-8');
+        collected = chunk + collected;
+        // Count newlines in the chunk (approximate — final count done after loop)
+        for (let i = 0; i < chunk.length; i++) {
+          if (chunk.charCodeAt(i) === 10) lineCount++;
+        }
+      }
+
+      const allLines = collected.split('\n');
+      return allLines.slice(-lines).join('\n');
+    } finally {
+      await fh.close();
+    }
   } catch {
     return '';
   }
@@ -158,12 +228,19 @@ export async function writeJournalEntry(entry: JournalEntry): Promise<void> {
   await appendFile(getJournalPath(), line, 'utf-8');
 }
 
-/** Read the journal (last N entries). */
+/** Read the journal (last N entries). Tolerates corrupt lines. */
 export async function readJournal(lastN?: number): Promise<JournalEntry[]> {
   try {
     const content = await readFile(getJournalPath(), 'utf-8');
     const lines = content.trim().split('\n').filter(Boolean);
-    const entries = lines.map(l => JSON.parse(l) as JournalEntry);
+    const entries: JournalEntry[] = [];
+    for (const line of lines) {
+      try {
+        entries.push(JSON.parse(line) as JournalEntry);
+      } catch {
+        // Skip corrupt line — don't lose the rest of the journal
+      }
+    }
     if (lastN) {
       return entries.slice(-lastN);
     }

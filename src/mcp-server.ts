@@ -7,7 +7,7 @@ import { getDiskFreeGB, dirSize, bytesToMB, pathExists } from './fs-utils.js';
 import { getClaudeProjectsPath, DEFAULT_CONFIG, THRESHOLDS } from './defaults.js';
 import { findClaudeProcesses, checkActivitySignals, assessHangRisk, recommendActions } from './process-monitor.js';
 import { readState, isStateFresh, computeAttention, type GuardianState } from './state.js';
-import { readBudget, writeBudget, emptyBudget } from './budget-store.js';
+import { readBudget, writeBudget, emptyBudget, withBudgetLock } from './budget-store.js';
 import { Budget } from './budget.js';
 import { generateRecoveryPlan, formatRecoveryPlan } from './recovery-plan.js';
 import { GuardianError, wrapError } from './errors.js';
@@ -61,7 +61,7 @@ export function createMcpServer(): McpServer {
         claudeLogSizeMB = bytesToMB(await dirSize(claudePath));
       }
 
-      const processes = await findClaudeProcesses();
+      const { processes } = await findClaudeProcesses();
       const activity = await checkActivitySignals(processes);
 
       // Without the daemon we can't track process age or composite quiet duration,
@@ -91,6 +91,8 @@ export function createMcpServer(): McpServer {
         compositeQuietSeconds: 0,
         budgetSummary: null,
         attention: computeAttention(hangRisk, null, null),
+        daemonStartedAt: null,
+        pollCount: 0,
       };
 
       return mcpResult(formatStatus(liveState) + '\n\n' + formatPreflightReport(scan));
@@ -172,7 +174,7 @@ export function createMcpServer(): McpServer {
         if (await pathExists(claudePath)) {
           claudeLogSizeMB = bytesToMB(await dirSize(claudePath));
         }
-        const processes = await findClaudeProcesses();
+        const { processes } = await findClaudeProcesses();
         const activity = await checkActivitySignals(processes);
         const hangRisk = assessHangRisk(
           processes, activity, diskFreeGB,
@@ -193,6 +195,8 @@ export function createMcpServer(): McpServer {
           compositeQuietSeconds: 0,
           budgetSummary: null,
           attention: computeAttention(hangRisk, null, null),
+          daemonStartedAt: null,
+          pollCount: 0,
         };
       }
 
@@ -282,17 +286,19 @@ export function createMcpServer(): McpServer {
     },
   }, async ({ slots, ttlSeconds, reason }) => {
     try {
-      const data = await readBudget() ?? emptyBudget();
-      const budget = new Budget(data);
-      budget.expireLeases();
-      const result = budget.acquire(slots, ttlSeconds, reason);
-      await writeBudget(budget.getData());
+      return await withBudgetLock(async () => {
+        const data = await readBudget() ?? emptyBudget();
+        const budget = new Budget(data);
+        budget.expireLeases();
+        const result = budget.acquire(slots, ttlSeconds, reason);
+        await writeBudget(budget.getData());
 
-      if (result.granted) {
-        return mcpResult(`Granted: lease=${result.lease!.id} | slots=${result.lease!.slots} | ttl=${ttlSeconds}s\nBudget: ${result.slotsInUse}/${result.currentCap} in use | ${result.slotsAvailable} available`);
-      }
+        if (result.granted) {
+          return mcpResult(`Granted: lease=${result.lease!.id} | slots=${result.lease!.slots} | ttl=${ttlSeconds}s\nBudget: ${result.slotsInUse}/${result.currentCap} in use | ${result.slotsAvailable} available`);
+        }
 
-      return mcpResult(`Denied: ${result.reason}\nBudget: ${result.slotsInUse}/${result.currentCap} in use | ${result.slotsAvailable} available`);
+        return mcpResult(`Denied: ${result.reason}\nBudget: ${result.slotsInUse}/${result.currentCap} in use | ${result.slotsAvailable} available`);
+      });
     } catch (err) {
       return mcpError(err, 'Budget acquire failed. Check disk space and permissions.');
     }
@@ -308,20 +314,22 @@ export function createMcpServer(): McpServer {
     },
   }, async ({ leaseId }) => {
     try {
-      const data = await readBudget();
-      if (!data) {
-        return mcpResult('Budget not initialized. Nothing to release.');
-      }
-      const budget = new Budget(data);
-      const released = budget.release(leaseId);
-      await writeBudget(budget.getData());
+      return await withBudgetLock(async () => {
+        const data = await readBudget();
+        if (!data) {
+          return mcpResult('Budget not initialized. Nothing to release.');
+        }
+        const budget = new Budget(data);
+        const released = budget.release(leaseId);
+        await writeBudget(budget.getData());
 
-      if (released) {
-        const s = budget.summarize();
-        return mcpResult(`Released: lease=${leaseId}\nBudget: ${s.slotsInUse}/${s.currentCap} in use | ${s.slotsAvailable} available`);
-      }
+        if (released) {
+          const s = budget.summarize();
+          return mcpResult(`Released: lease=${leaseId}\nBudget: ${s.slotsInUse}/${s.currentCap} in use | ${s.slotsAvailable} available`);
+        }
 
-      return mcpResult(`Lease ${leaseId} not found. It may have already expired or been released.`);
+        return mcpResult(`Lease ${leaseId} not found. It may have already expired or been released.`);
+      });
     } catch (err) {
       return mcpError(err, 'Budget release failed. Check disk space and permissions.');
     }
@@ -348,7 +356,7 @@ export function createMcpServer(): McpServer {
         if (await pathExists(claudePath)) {
           claudeLogSizeMB = bytesToMB(await dirSize(claudePath));
         }
-        const processes = await findClaudeProcesses();
+        const { processes } = await findClaudeProcesses();
         const activity = await checkActivitySignals(processes);
         const hangRisk = assessHangRisk(
           processes, activity, diskFreeGB,
@@ -369,6 +377,8 @@ export function createMcpServer(): McpServer {
           compositeQuietSeconds: 0,
           budgetSummary: null,
           attention: computeAttention(hangRisk, null, null),
+          daemonStartedAt: null,
+          pollCount: 0,
         };
       }
 
@@ -420,7 +430,15 @@ function formatStatus(state: GuardianState): string {
 
   // Daemon status
   if (state.daemonRunning) {
-    lines.push(`Daemon: active (PID ${state.daemonPid})`);
+    const parts = [`active (PID ${state.daemonPid})`];
+    if (state.daemonStartedAt) {
+      const uptimeS = Math.round((Date.now() - new Date(state.daemonStartedAt).getTime()) / 1000);
+      parts.push(`uptime ${fmtUptime(uptimeS)}`);
+    }
+    if (state.pollCount > 0) {
+      parts.push(`polls=${state.pollCount}`);
+    }
+    lines.push(`Daemon: ${parts.join(' | ')}`);
   } else {
     lines.push('Daemon: inactive (run `claude-guardian watch` for continuous monitoring)');
   }
@@ -539,7 +557,12 @@ export function formatBanner(state: GuardianState): string {
   }
 
   if (state.daemonRunning) {
-    parts.push('daemon=on');
+    if (state.daemonStartedAt) {
+      const uptimeS = Math.max(0, Math.round((Date.now() - new Date(state.daemonStartedAt).getTime()) / 1000));
+      parts.push(`daemon=${fmtUptime(uptimeS)}`);
+    } else {
+      parts.push('daemon=on');
+    }
   }
 
   return `[guardian] ${parts.join(' | ')}`;

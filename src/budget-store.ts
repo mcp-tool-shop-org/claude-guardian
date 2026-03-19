@@ -1,8 +1,28 @@
 import { readFile, writeFile, mkdir, rename, copyFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { getBudgetPath, getGuardianDataPath, BUDGET_THRESHOLDS } from './defaults.js';
+import { writeJournalEntry } from './fs-utils.js';
 import { wrapError } from './errors.js';
 import type { RiskLevel } from './process-monitor.js';
+
+/**
+ * Simple async mutex to serialize budget file read-modify-write cycles.
+ * Prevents TOCTOU races when daemon and MCP tools both access budget.json.
+ */
+let budgetLockQueue: Promise<void> = Promise.resolve();
+
+export async function withBudgetLock<T>(fn: () => Promise<T>): Promise<T> {
+  let release: () => void;
+  const next = new Promise<void>(resolve => { release = resolve; });
+  const prev = budgetLockQueue;
+  budgetLockQueue = next;
+  await prev;
+  try {
+    return await fn();
+  } finally {
+    release!();
+  }
+}
 
 /** A single concurrency lease. */
 export interface BudgetLease {
@@ -72,6 +92,11 @@ export async function readBudget(): Promise<BudgetData | null> {
       // Best-effort backup
     }
     console.error(`[guardian] WARNING: budget.json is corrupt. Backed up to ${backupPath} and resetting.`);
+    writeJournalEntry({
+      timestamp: new Date().toISOString(),
+      action: 'corruption-recovery',
+      detail: `budget.json was corrupt. Backed up to ${backupPath} and reset.`,
+    }).catch(() => {});
     return null;
   }
 }

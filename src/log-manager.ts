@@ -4,7 +4,7 @@ import { existsSync } from 'fs';
 import type { GuardianConfig, PreflightResult, PreflightAction, ScanEntry } from './types.js';
 import { DEFAULT_CONFIG, THRESHOLDS, getClaudeProjectsPath, getArchivePath } from './defaults.js';
 import {
-  dirSize, fileSize, listFilesRecursive, getDiskFreeGB,
+  dirSize, fileSize, listFilesRecursive, listFilesWithStats, getDiskFreeGB,
   gzipFile, trimFileToLines, bytesToMB, pathExists, writeJournalEntry,
 } from './fs-utils.js';
 
@@ -137,28 +137,29 @@ export async function fixLogs(
   const diskFreeGB = await getDiskFreeGB(claudePath);
   const effectiveAggressive = aggressive || (diskFreeGB >= 0 && diskFreeGB < THRESHOLDS.diskFreeWarningGB);
 
-  const allFiles = await listFilesRecursive(claudePath);
+  // Single traversal: collect all files with stats (avoids redundant stat calls)
+  const allFiles = await listFilesWithStats(claudePath);
+  const now = Date.now();
 
-  for (const filePath of allFiles) {
+  for (const file of allFiles) {
     // Skip already compressed files
-    if (filePath.endsWith('.gz')) continue;
+    if (file.path.endsWith('.gz')) continue;
 
-    const size = await fileSize(filePath);
+    const size = file.size;
     const sizeMB = bytesToMB(size);
 
     // Check file age
-    const fileStat = await stat(filePath);
-    const ageDays = (Date.now() - fileStat.mtimeMs) / (1000 * 60 * 60 * 24);
+    const ageDays = (now - file.mtimeMs) / (1000 * 60 * 60 * 24);
     const retainDays = effectiveAggressive ? Math.floor(THRESHOLDS.retainDays / 2) : THRESHOLDS.retainDays;
 
     // Rotate old files (gzip them)
     if (ageDays > retainDays && sizeMB > 1) {
       try {
-        const gzPath = await gzipFile(filePath);
+        const gzPath = await gzipFile(file.path);
         const newSize = await fileSize(gzPath);
         const action: PreflightAction = {
           type: 'rotated',
-          target: filePath,
+          target: file.path,
           detail: `Compressed ${sizeMB}MB → ${bytesToMB(newSize)}MB (${Math.round(ageDays)}d old)`,
           sizeBefore: size,
           sizeAfter: newSize,
@@ -167,7 +168,7 @@ export async function fixLogs(
         await writeJournalEntry({
           timestamp: new Date().toISOString(),
           action: 'rotated',
-          target: filePath,
+          target: file.path,
           detail: action.detail,
           sizeBefore: size,
           sizeAfter: newSize,
@@ -181,13 +182,13 @@ export async function fixLogs(
     // Trim oversized files (keep last N lines)
     if (sizeMB > THRESHOLDS.maxFileMB || (effectiveAggressive && sizeMB > THRESHOLDS.maxFileMB / 2)) {
       // Only trim text-ish files
-      if (isTextFile(filePath)) {
+      if (isTextFile(file.path)) {
         try {
           const keepLines = effectiveAggressive ? 5000 : 10000;
-          const newSize = await trimFileToLines(filePath, keepLines);
+          const newSize = await trimFileToLines(file.path, keepLines);
           const action: PreflightAction = {
             type: 'trimmed',
-            target: filePath,
+            target: file.path,
             detail: `Trimmed ${sizeMB}MB → ${bytesToMB(newSize)}MB (kept last ${keepLines} lines)`,
             sizeBefore: size,
             sizeAfter: newSize,
@@ -196,7 +197,7 @@ export async function fixLogs(
           await writeJournalEntry({
             timestamp: new Date().toISOString(),
             action: 'trimmed',
-            target: filePath,
+            target: file.path,
             detail: action.detail,
             sizeBefore: size,
             sizeAfter: newSize,

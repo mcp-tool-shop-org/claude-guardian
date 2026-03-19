@@ -28,7 +28,7 @@ Claude Guardian is a local reliability layer that keeps Claude Code sessions hea
 | `status` | One-shot health check: disk free, log sizes, warnings |
 | `watch` | Background daemon: continuous monitoring, incident tracking, budget enforcement |
 | `budget` | View and manage the concurrency budget (show/acquire/release) |
-| `mcp` | Start MCP server (8 tools) for Claude Code self-monitoring |
+| `mcp` | Start MCP server (10 tools) for Claude Code self-monitoring |
 
 ## Install
 
@@ -128,8 +128,18 @@ Then Claude can call:
 | `guardian_budget_acquire` | Request concurrency slots (returns lease ID) |
 | `guardian_budget_release` | Release a lease when done with heavy work |
 | `guardian_recovery_plan` | Step-by-step recovery plan naming exact tools to call |
+| `guardian_preview_ready` | Poll a port until the dev server responds (use after `preview_start`) |
+| `guardian_preview_recover` | Diagnose stuck preview sessions, classify project type, guide recovery |
 
 This lets Claude say: *"Attention is WARN. Running `guardian_nudge`, then reducing concurrency."*
+
+### Preview reliability
+
+The `guardian_preview_ready` and `guardian_preview_recover` tools solve the race condition where `preview_start` returns success before the dev server is actually listening — which causes the browser to land on `chrome-error://` and get stuck.
+
+**Workflow:** `preview_start` → `guardian_preview_ready` (wait gate) → `preview_snapshot`
+
+For non-web projects (Tauri, .NET MAUI, CLI tools), `guardian_preview_recover` detects the project type and returns "skip preview" guidance, avoiding false positives from the built-in preview verification hook.
 
 ## Configuration
 
@@ -198,7 +208,7 @@ npm test
 | A. Security | 10/10 | SECURITY.md, local-only, no telemetry, no cloud |
 | B. Error Handling | 10/10 | GuardianError (code+hint+cause), structured MCP errors, exit codes |
 | C. Operator Docs | 10/10 | README, CHANGELOG, HANDBOOK, SHIP_GATE, walkthrough |
-| D. Shipping Hygiene | 10/10 | CI + tests (174), dep-audit, npm published |
+| D. Shipping Hygiene | 10/10 | CI + tests (203), dep-audit, npm published |
 | E. Identity | 10/10 | Logo, translations, landing page, npm listing |
 | **Total** | **50/50** | |
 

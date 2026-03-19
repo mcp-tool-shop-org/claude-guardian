@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-03-19
+
+### Added
+- `guardian_preview_ready` MCP tool — polls a localhost port until the dev server responds, preventing `chrome-error://` race conditions
+- `guardian_preview_recover` MCP tool — diagnoses stuck preview sessions, classifies project type (web vs desktop vs CLI), and returns step-by-step recovery guidance
+- TCP/HTTP port readiness probe (`src/port-probe.ts`) — zero-dependency polling with configurable interval, timeout, and optional HTTP health check
+- Project type classifier (`src/project-classify.ts`) — detects web-node, web-python, web-static, desktop (Tauri/MAUI/Electron/WPF), and CLI projects from marker files
+- Preview readiness step in recovery plan — guides agents to use `guardian_preview_ready` after `preview_start`
+- Error codes `PORT_PROBE_FAILED` and `PROJECT_CLASSIFY_FAILED`
+- 29 new tests (203 total, up from 174): 6 port probe, 19 project classify, 3 MCP integration, 1 recovery plan
+
+### Changed
+- MCP server version bumped to 1.2.0
+- Tool count 8 → 10
+
 ## [1.1.4] - 2026-03-19
 
 ### Added

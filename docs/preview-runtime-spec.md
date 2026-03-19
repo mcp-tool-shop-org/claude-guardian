@@ -1,6 +1,6 @@
 # Preview Runtime Specification
 
-> Status: **Proposal** | Author: mcp-tool-shop | Date: 2026-03-06
+> Status: **Partially Implemented (Phases 1, 5, 6)** | Author: mcp-tool-shop | Date: 2026-03-06 | Updated: 2026-03-19
 
 ## Overview
 

@@ -14,6 +14,8 @@ export type GuardianErrorCode =
   | 'FIX_FAILED'
   | 'PROCESS_SCAN_FAILED'
   | 'DISK_CHECK_FAILED'
+  | 'PORT_PROBE_FAILED'
+  | 'PROJECT_CLASSIFY_FAILED'
   | 'UNKNOWN';
 
 export class GuardianError extends Error {

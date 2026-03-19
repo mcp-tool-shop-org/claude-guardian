@@ -1,8 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import { createMcpServer, formatBanner } from '../src/mcp-server.js';
 import { emptyState } from '../src/state.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { createServer, type Server } from 'http';
 
 describe('MCP Server', () => {
   async function setupClientServer() {
@@ -18,7 +19,7 @@ describe('MCP Server', () => {
   }
 
   describe('tool registration', () => {
-    it('exposes all 8 guardian tools', async () => {
+    it('exposes all 10 guardian tools', async () => {
       const { client, server } = await setupClientServer();
 
       const tools = await client.listTools();
@@ -32,7 +33,9 @@ describe('MCP Server', () => {
       expect(toolNames).toContain('guardian_budget_acquire');
       expect(toolNames).toContain('guardian_budget_release');
       expect(toolNames).toContain('guardian_recovery_plan');
-      expect(tools.tools.length).toBe(8);
+      expect(toolNames).toContain('guardian_preview_ready');
+      expect(toolNames).toContain('guardian_preview_recover');
+      expect(tools.tools.length).toBe(10);
 
       await server.close();
     });
@@ -95,6 +98,68 @@ describe('MCP Server', () => {
       expect(textContent[0].text).toContain('Attention:');
 
       await server.close();
+    });
+
+    it('guardian_preview_ready detects a running server', { timeout: 15000 }, async () => {
+      const { client, server } = await setupClientServer();
+
+      // Start a local HTTP server on an ephemeral port
+      const httpServer = createServer((_, res) => { res.writeHead(200); res.end('ok'); });
+      await new Promise<void>((resolve) => httpServer.listen(0, '127.0.0.1', () => resolve()));
+      const httpPort = (httpServer.address() as { port: number }).port;
+
+      try {
+        const result = await client.callTool({
+          name: 'guardian_preview_ready',
+          arguments: { port: httpPort, timeoutMs: 5000 },
+        });
+
+        const text = (result.content as Array<{ type: string; text: string }>)[0].text;
+        expect(text).toContain('Server is ready');
+        expect(text).toContain(String(httpPort));
+      } finally {
+        await new Promise<void>((resolve) => httpServer.close(() => resolve()));
+        await server.close();
+      }
+    });
+
+    it('guardian_preview_ready reports timeout on closed port', { timeout: 15000 }, async () => {
+      const { client, server } = await setupClientServer();
+
+      const result = await client.callTool({
+        name: 'guardian_preview_ready',
+        arguments: { port: 19998, timeoutMs: 2000 },
+      });
+
+      const text = (result.content as Array<{ type: string; text: string }>)[0].text;
+      expect(text).toContain('did not respond');
+      expect(text).toContain('preview_logs');
+
+      await server.close();
+    });
+
+    it('guardian_preview_recover returns skip guidance for non-web project', { timeout: 15000 }, async () => {
+      const { client, server } = await setupClientServer();
+      const { mkdtemp, writeFile, rm } = await import('fs/promises');
+      const { join } = await import('path');
+      const { tmpdir } = await import('os');
+
+      const dir = await mkdtemp(join(tmpdir(), 'guardian-test-'));
+      await writeFile(join(dir, 'tauri.conf.json'), '{}');
+
+      try {
+        const result = await client.callTool({
+          name: 'guardian_preview_recover',
+          arguments: { port: 3000, projectDir: dir },
+        });
+
+        const text = (result.content as Array<{ type: string; text: string }>)[0].text;
+        expect(text).toContain('NOT a web project');
+        expect(text).toContain('Skip preview_start');
+      } finally {
+        await rm(dir, { recursive: true, force: true });
+        await server.close();
+      }
     });
 
     it('guardian_preflight_fix runs without error', { timeout: 30000 }, async () => {

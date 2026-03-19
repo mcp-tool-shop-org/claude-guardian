@@ -11,6 +11,8 @@ import { readBudget, writeBudget, emptyBudget, withBudgetLock } from './budget-s
 import { Budget } from './budget.js';
 import { generateRecoveryPlan, formatRecoveryPlan } from './recovery-plan.js';
 import { GuardianError, wrapError } from './errors.js';
+import { probePort, PROBE_DEFAULTS } from './port-probe.js';
+import { classifyProject } from './project-classify.js';
 import { homedir } from 'os';
 
 /** Wrap an MCP tool handler so thrown errors become structured text, never stack traces. */
@@ -30,7 +32,7 @@ export function createMcpServer(): McpServer {
   const server = new McpServer(
     {
       name: 'claude-guardian',
-      version: '1.1.2',
+      version: '1.2.0',
     },
     {
       capabilities: {
@@ -386,6 +388,130 @@ export function createMcpServer(): McpServer {
       return mcpResult(formatRecoveryPlan(plan));
     } catch (err) {
       return mcpError(err, 'Recovery plan generation failed. Try `guardian_status` first.');
+    }
+  });
+
+  // === guardian_preview_ready ===
+  server.registerTool('guardian_preview_ready', {
+    title: 'Guardian Preview Ready',
+    description:
+      'Polls a localhost port until the dev server responds, then confirms readiness. ' +
+      'Call this AFTER preview_start and BEFORE preview_snapshot to avoid chrome-error:// ' +
+      'race conditions. Returns when the server is reachable or after timeout.',
+    inputSchema: {
+      port: z.number().int().min(1).max(65535).describe('Port to check'),
+      timeoutMs: z.number().int().min(1000).max(120000).default(PROBE_DEFAULTS.timeoutMs)
+        .describe('Max wait time in ms (default: 30000)'),
+      httpPath: z.string().optional()
+        .describe('Optional HTTP path to GET after TCP connects (e.g., "/")'),
+    },
+  }, async ({ port, timeoutMs, httpPath }) => {
+    try {
+      const result = await probePort({ port, timeoutMs, httpPath });
+      if (result.reachable) {
+        const lines = [
+          `Server is ready on port ${port} (${result.elapsedMs}ms, ${result.attempts} attempt${result.attempts > 1 ? 's' : ''}).`,
+          'Safe to proceed with preview_snapshot or preview_screenshot.',
+        ];
+        if (result.httpStatus) {
+          lines.push(`HTTP status: ${result.httpStatus}`);
+        }
+        return mcpResult(lines.join('\n'));
+      }
+      return mcpResult(
+        `Server did not respond on port ${port} within ${timeoutMs}ms (${result.attempts} attempts).\n` +
+        `${result.error ?? 'Unknown error'}\n\n` +
+        'Suggestions:\n' +
+        '  1. Check preview_logs for startup errors\n' +
+        '  2. The dev server may need more time — try a longer timeout\n' +
+        '  3. Consider preview_stop and restarting the dev server',
+      );
+    } catch (err) {
+      return mcpError(err, 'Port probe failed. Check that the port number is correct.');
+    }
+  });
+
+  // === guardian_preview_recover ===
+  server.registerTool('guardian_preview_recover', {
+    title: 'Guardian Preview Recover',
+    description:
+      'Diagnoses a stuck preview session and returns step-by-step recovery guidance. ' +
+      'Checks if the server port is actually listening, classifies the project type, ' +
+      'and recommends specific tool calls to recover. Use when preview is stuck or unresponsive.',
+    inputSchema: {
+      port: z.number().int().min(1).max(65535).describe('The preview port to check'),
+      projectDir: z.string().optional()
+        .describe('Project directory to classify (helps skip preview for non-web projects)'),
+    },
+  }, async ({ port, projectDir }) => {
+    try {
+      const lines: string[] = [];
+
+      // 1. Classify the project if a directory is provided
+      if (projectDir) {
+        const classification = await classifyProject(projectDir);
+        lines.push(`Project type: ${classification.kind} (confidence: ${classification.confidence})`);
+        lines.push(`Markers: ${classification.markers.join(', ') || 'none'}`);
+        lines.push('');
+
+        if (!classification.isWeb) {
+          lines.push('This is NOT a web project. Preview verification is not applicable.');
+          lines.push('');
+          lines.push('For this project type, verify with:');
+          if (classification.kind === 'desktop') {
+            lines.push('  - Build check: dotnet build / cargo check / npm run build');
+            lines.push('  - Test suite: dotnet test / cargo test / npm test');
+          } else if (classification.kind === 'cli') {
+            lines.push('  - Test suite: npm test / pytest / cargo test');
+            lines.push('  - Type check: tsc --noEmit / mypy / cargo check');
+          } else {
+            lines.push('  - Run the project-specific build and test commands');
+          }
+          lines.push('');
+          lines.push('Skip preview_start, preview_snapshot, and the verification workflow.');
+          return mcpResult(lines.join('\n'));
+        }
+
+        if (classification.devPort && classification.devPort !== port) {
+          lines.push(`Note: detected dev port is ${classification.devPort} but you're checking port ${port}.`);
+          lines.push('');
+        }
+      }
+
+      // 2. Quick port probe (3s timeout — just checking current state)
+      const probeResult = await probePort({
+        port,
+        timeoutMs: PROBE_DEFAULTS.quickTimeoutMs,
+        httpPath: '/',
+      });
+
+      if (probeResult.reachable) {
+        lines.push(`Server IS running on port ${port} (HTTP ${probeResult.httpStatus}).`);
+        lines.push('The browser is likely stuck on chrome-error:// from a previous failed navigation.');
+        lines.push('');
+        lines.push('Recovery steps:');
+        lines.push('  1. Call preview_stop to tear down the stuck session');
+        lines.push('  2. Call preview_start to launch a fresh session');
+        lines.push('  3. Call guardian_preview_ready to wait for readiness');
+        lines.push('  4. Then proceed with preview_snapshot');
+      } else {
+        lines.push(`No server detected on port ${port}.`);
+        lines.push('');
+        lines.push('Possible causes:');
+        lines.push('  - Dev server crashed or was never started');
+        lines.push('  - Server is still booting (try guardian_preview_ready with longer timeout)');
+        lines.push('  - Wrong port number');
+        lines.push('');
+        lines.push('Recovery steps:');
+        lines.push('  1. Check preview_logs for error output');
+        lines.push('  2. Call preview_stop to clean up');
+        lines.push('  3. Restart the dev server with preview_start');
+        lines.push('  4. Call guardian_preview_ready with timeoutMs=60000 for slow servers');
+      }
+
+      return mcpResult(lines.join('\n'));
+    } catch (err) {
+      return mcpError(err, 'Preview recovery check failed. Try guardian_status for general health.');
     }
   });
 

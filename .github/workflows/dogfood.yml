@@ -34,7 +34,7 @@ jobs:
           # Create a mock Claude project dir so guardian has something to scan
           mkdir -p /tmp/claude-test/.claude/projects
           echo "test log content" > /tmp/claude-test/.claude/projects/test.jsonl
-          node src/cli.js status 2>&1 | tee /tmp/status.log
+          node dist/cli.js status 2>&1 | tee /tmp/status.log
           if [ $? -eq 0 ]; then
             echo "status=pass" >> "$GITHUB_OUTPUT"
           else
@@ -44,7 +44,7 @@ jobs:
       - name: "Step: run-preflight"
         id: preflight
         run: |
-          node src/cli.js preflight --dry-run 2>&1 | tee /tmp/preflight.log
+          node dist/cli.js preflight --dry-run 2>&1 | tee /tmp/preflight.log
           if [ $? -eq 0 ]; then
             echo "status=pass" >> "$GITHUB_OUTPUT"
           else
@@ -108,7 +108,7 @@ jobs:
                 "scenario_id": "status-preflight-roundtrip",
                 "scenario_name": "Run status + preflight on mock project",
                 "scenario_version": "1.0.0",
-                "product_surface": "mcp",
+                "product_surface": "mcp-server",
                 "execution_mode": "bot",
                 "verdict": "VERDICT_PLACEHOLDER",
                 "step_results": [

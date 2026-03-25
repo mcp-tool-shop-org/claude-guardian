@@ -14,8 +14,12 @@ import { Budget } from './budget.js';
 import { readBudget, writeBudget, emptyBudget } from './budget-store.js';
 import { GuardianError } from './errors.js';
 import { homedir } from 'os';
+import { createRequire } from 'node:module';
 import type { GuardianConfig } from './types.js';
 import type { GuardianState } from './state.js';
+
+const require = createRequire(import.meta.url);
+const pkg = require('../package.json') as { version: string };
 
 /**
  * Exit codes:
@@ -30,7 +34,7 @@ const program = new Command();
 program
   .name('claude-guardian')
   .description('Flight computer for Claude Code — log rotation, watchdog, crash bundles, and MCP self-awareness')
-  .version('1.1.2')
+  .version(pkg.version)
   .option('--debug', 'Print full stack traces on error', false);
 
 // ─── preflight ───

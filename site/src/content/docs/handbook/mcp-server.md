@@ -1,6 +1,6 @@
 ---
 title: MCP Server
-description: The 8 tools Claude can call mid-session for self-monitoring.
+description: The 10 tools Claude can call mid-session for self-monitoring.
 sidebar:
   order: 3
 ---
@@ -16,7 +16,7 @@ Add to your `~/.claude.json`:
   "mcpServers": {
     "guardian": {
       "command": "npx",
-      "args": ["claude-guardian", "mcp"]
+      "args": ["@mcptoolshop/claude-guardian", "mcp"]
     }
   }
 }
@@ -34,6 +34,8 @@ Add to your `~/.claude.json`:
 | `guardian_budget_acquire` | Request concurrency slots (returns lease ID) |
 | `guardian_budget_release` | Release a lease when done with heavy work |
 | `guardian_recovery_plan` | Step-by-step recovery plan naming exact tools to call |
+| `guardian_preview_ready` | Poll a port until the dev server responds (use after `preview_start`) |
+| `guardian_preview_recover` | Diagnose stuck preview sessions, classify project type, guide recovery |
 
 ## How Claude uses it
 
@@ -55,3 +57,13 @@ The `guardian_recovery_plan` tool returns a deterministic step-by-step plan nami
 - If warn/critical with no bundle yet → captures diagnostics
 - Returns what changed and what to do next
 - Never kills processes or restarts anything
+
+## Preview reliability
+
+The `guardian_preview_ready` and `guardian_preview_recover` tools solve a common race condition where `preview_start` returns success before the dev server is actually listening, causing the browser to land on `chrome-error://`.
+
+**Workflow:** `preview_start` → `guardian_preview_ready` (wait gate) → `preview_snapshot`
+
+`guardian_preview_ready` accepts a port number, an optional timeout (default 30 seconds), and an optional HTTP path for health checks. It polls every 500ms using TCP connect followed by an optional HTTP GET.
+
+For non-web projects (Tauri, .NET MAUI, CLI tools), `guardian_preview_recover` detects the project type by scanning marker files (tauri.conf.json, .csproj, package.json) and returns "skip preview" guidance with project-appropriate verification commands.

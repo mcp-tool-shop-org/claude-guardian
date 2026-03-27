@@ -11,10 +11,11 @@ Welcome to the claude-guardian handbook. This is the complete guide to keeping y
 
 - **[Getting Started](/claude-guardian/handbook/getting-started/)** — Install and first health check
 - **[Commands](/claude-guardian/handbook/commands/)** — Full CLI reference
-- **[MCP Server](/claude-guardian/handbook/mcp-server/)** — The 8 tools Claude can call mid-session
+- **[MCP Server](/claude-guardian/handbook/mcp-server/)** — The 10 tools Claude can call mid-session
 - **[Configuration](/claude-guardian/handbook/configuration/)** — Knobs, thresholds, and aggressive mode
 - **[Architecture](/claude-guardian/handbook/architecture/)** — Design principles and how the watchdog works
 - **[Security](/claude-guardian/handbook/security/)** — Trust model and data scope
+- **[Beginners](/claude-guardian/handbook/beginners/)** — New to claude-guardian? Start here
 
 ## What is claude-guardian?
 

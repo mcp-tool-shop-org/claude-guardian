@@ -35,7 +35,7 @@ The budget system uses deterministic cap transitions:
 | WARN | 2 |
 | CRITICAL | 1 |
 
-Leases are time-limited (TTL in seconds) and automatically expire. The budget prevents multiple heavy operations from dogpiling when the system is already under pressure.
+Leases are time-limited (TTL in seconds) and automatically expire. After risk returns to OK, the cap stays reduced for 60 seconds (hysteresis) before restoring to the base cap. This prevents flapping. The budget prevents multiple heavy operations from dogpiling when the system is already under pressure.
 
 ## Data locations
 
@@ -43,7 +43,9 @@ All guardian state lives under `~/.claude-guardian/`:
 
 | File | Purpose |
 |------|---------|
-| `state.json` | Current attention level and incident state |
+| `state.json` | Current daemon state, attention level, and incident tracking |
 | `budget.json` | Concurrency leases and cap |
 | `journal.jsonl` | Append-only log of every guardian action |
-| `bundles/` | Doctor diagnostics bundles (zip files) |
+| `incidents.jsonl` | Incident open/close history |
+| `bundle-*.zip` | Doctor diagnostics bundles |
+| `archive/` | Archived log directories |

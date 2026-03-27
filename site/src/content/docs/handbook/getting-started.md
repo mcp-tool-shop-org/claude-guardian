@@ -10,13 +10,13 @@ sidebar:
 Install globally via npm:
 
 ```bash
-npm install -g claude-guardian
+npm install -g @mcptoolshop/claude-guardian
 ```
 
 Or run directly without installing:
 
 ```bash
-npx claude-guardian preflight
+npx @mcptoolshop/claude-guardian preflight
 ```
 
 ## First health check

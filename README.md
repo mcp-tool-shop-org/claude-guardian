@@ -33,13 +33,13 @@ Claude Guardian is a local reliability layer that keeps Claude Code sessions hea
 ## Install
 
 ```bash
-npm install -g claude-guardian
+npm install -g @mcptoolshop/claude-guardian
 ```
 
 Or run directly:
 
 ```bash
-npx claude-guardian preflight
+npx @mcptoolshop/claude-guardian preflight
 ```
 
 ## Quick start
@@ -85,6 +85,10 @@ Creates a zip containing:
 - `summary.json` — system info, file size report, preflight results
 - `log-tails/` — last 500 lines of each log file
 - `journal.jsonl` — every action the guardian has ever taken
+- `process.json` — snapshot of running Claude processes at bundle time
+- `timeline.json` — reconstructed chronological event timeline
+- `state.json` — current daemon state (if daemon was running)
+- `incidents.jsonl` — incident history (if any)
 
 ### Run with watchdog
 
@@ -110,7 +114,7 @@ Add to `~/.claude.json`:
   "mcpServers": {
     "guardian": {
       "command": "npx",
-      "args": ["claude-guardian", "mcp"]
+      "args": ["@mcptoolshop/claude-guardian", "mcp"]
     }
   }
 }

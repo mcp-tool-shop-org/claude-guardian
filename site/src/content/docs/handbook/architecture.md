@@ -19,28 +19,43 @@ Claude Guardian follows four core principles:
 
 ## Hang detection
 
-The watchdog uses composite hang detection with three independent signals:
+The daemon uses composite hang detection with three independent signals:
 
-1. **Log mtime** — when was the last write to stdout/stderr?
-2. **CPU activity** — is the child process actually doing work?
-3. **Grace window** — short buffer to avoid false positives during legitimate pauses
+1. **Log mtime** — when was the last write to any file in `~/.claude/projects/`?
+2. **CPU activity** — is any Claude process above the 5% CPU threshold?
+3. **Grace window** — 60-second buffer after first discovering a process, during which risk stays at OK regardless of other signals
 
-All three signals must agree before a hang is declared. No single false positive can trigger the alarm.
+Both log mtime and CPU must be quiet beyond the hang threshold (default 300 seconds) before risk escalates to WARN. After an additional 600 seconds at WARN, risk escalates to CRITICAL. No single false positive can trigger the alarm.
+
+The `run` command watchdog monitors stdout/stderr of its child process specifically, while the `watch` daemon monitors all Claude processes system-wide.
 
 ## Incident state machine
 
-The guardian tracks system health through a state machine:
+The daemon tracks system health through a state machine:
 
 ```
-ok → warn → critical
+ok → warn → critical → ok (closes incident)
 ```
 
-Transitions are based on disk pressure, log sizes, and process health. Each transition:
+Transitions are based on composite hang detection signals, disk pressure, and resource usage. Each transition:
 
-- Logs the event to the journal
-- May trigger automatic bundle capture
-- Adjusts the concurrency budget cap
-- Deduplicates repeated incidents
+- Logs the event to the journal and to `incidents.jsonl`
+- May trigger automatic bundle capture (once per incident, on first critical, with per-PID rate limiting at 300-second cooldown)
+- Adjusts the concurrency budget cap (4 → 2 → 1 slots)
+- Deduplicates repeated incidents (an incident stays open until risk returns to OK)
+
+The attention system layers on top: it combines hang risk, budget state, and active incidents into a single urgency level (none/info/warn/critical) with concrete recommended MCP tool calls.
+
+## Reliability hardening
+
+Guardian is built for continuous daily use:
+
+- **Async mutexes** -- `withStateLock` and `withBudgetLock` serialize concurrent file I/O, preventing TOCTOU races between the daemon and MCP tools
+- **Overlap guard** -- daemon polls are protected by a `pollInProgress` flag so slow polls cannot stack
+- **Clock skew protection** -- all time deltas clamped with `Math.max(0, ...)` to handle system clock adjustments
+- **Reverse-seek tail** -- large log files (>1MB) are tailed by reading chunks from the end, avoiding OOM on 500MB+ logs
+- **Corruption recovery** -- corrupt `state.json` or `budget.json` files are backed up and reset with a journal entry for forensics
+- **Atomic writes** -- state and budget files are written to `.tmp` then renamed, preventing partial reads
 
 ## Preflight cleaning
 

@@ -15,7 +15,7 @@ sidebar:
 | `status` | One-shot health check: disk free, log sizes, warnings |
 | `watch` | Background daemon: continuous monitoring, incident tracking, budget enforcement |
 | `budget` | View and manage the concurrency budget (show/acquire/release) |
-| `mcp` | Start MCP server (8 tools) for Claude Code self-monitoring |
+| `mcp` | Start MCP server (10 tools) for Claude Code self-monitoring |
 
 ## preflight
 
@@ -41,6 +41,10 @@ Creates a zip bundle containing:
 - `summary.json` — system info, file size report, preflight results
 - `log-tails/` — last 500 lines of each log file
 - `journal.jsonl` — every action the guardian has ever taken
+- `process.json` — snapshot of running Claude processes at bundle time
+- `timeline.json` — reconstructed chronological event timeline
+- `state.json` — current daemon state (if daemon was running)
+- `incidents.jsonl` — incident history (if any)
 
 ```bash
 claude-guardian doctor
@@ -77,9 +81,18 @@ Background daemon for continuous monitoring.
 ```bash
 claude-guardian watch
 claude-guardian watch --verbose
+claude-guardian watch --auto-fix --hang-timeout 120
 ```
 
-Tracks incidents through an ok → warn → critical lifecycle with automatic bundle capture and deduplication.
+Options:
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--hang-timeout <seconds>` | `300` | Seconds of inactivity before warning |
+| `--auto-fix` | `false` | Auto-run preflight fixes when disk is low |
+| `--verbose` | `false` | Print every poll cycle |
+
+Tracks incidents through an ok → warn → critical lifecycle with automatic bundle capture and deduplication. The daemon persists state to `~/.claude-guardian/state.json` every 2 seconds so the MCP server can read it.
 
 ## budget
 
@@ -87,8 +100,8 @@ Manage the concurrency budget.
 
 ```bash
 claude-guardian budget show
-claude-guardian budget acquire --slots 2 --reason "build"
-claude-guardian budget release --lease <id>
+claude-guardian budget acquire 2 --reason "build" --ttl 60
+claude-guardian budget release <lease-id>
 ```
 
 Deterministic cap transitions (4 → 2 → 1 slots) prevent dogpiling when under pressure.

@@ -54,7 +54,7 @@ claude-guardian status
 === Claude Guardian Preflight ===
 
 Disk free: 607.13GB [OK]
-Claude projects: C:\Users\you\.claude\projects
+Claude projects: C:\Users\<you>\.claude\projects
 Total size: 1057.14MB
 
 Project directories (by size):

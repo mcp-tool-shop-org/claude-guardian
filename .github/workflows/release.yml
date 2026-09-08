@@ -1,0 +1,143 @@
+name: Release
+
+# Publishes @mcptoolshop/claude-guardian to npm via OIDC trusted publishing (NO
+# token) and creates the GitHub Release. The npm Trusted Publisher must be bound
+# to THIS file name (release.yml) — renaming it breaks the binding.
+#
+# Added 2026-09-07: v1.2.1 was version-bumped and its CHANGELOG entry written on
+# 2026-03-25, but the repo had no release path at all, so the tag was never cut
+# and npm stayed on 1.2.0 for six months. This file is that missing path.
+#
+# Compensators (org workflow standard NAMED_COMPENSATORS — the two steps below
+# are irreversible; this table is mandatory and not skippable):
+#
+#   Action: npm publish --provenance --access public
+#   Undo:   Within npm's ~72-hour window, and only if nothing depends on it yet:
+#             npm unpublish @mcptoolshop/claude-guardian@<version>
+#           Outside it — the realistic case — npm disallows removing a version
+#           others may depend on. The real remedy:
+#             npm deprecate @mcptoolshop/claude-guardian@<version> "<reason> -- use <next> instead"
+#           Post-rollback state: the tarball persists and existing installs keep
+#           resolving it, but new installs surface the deprecation warning and it
+#           stops being offered as latest. Nothing undoes an install already made.
+#           Owner: mcp-tool-shop (npm account holder + GitHub org owner).
+#
+#   Action: gh release create <tag> --verify-tag
+#   Undo:   Preferred — keep tag and Release (npm provenance is bound to that
+#           exact tag/commit; deleting the tag breaks provenance verification)
+#           and mark it instead:
+#             gh release edit <tag> --notes "Superseded by vX.Y.Z -- do not use"
+#           If the Release object must go: gh release delete <tag> --yes
+#           Add --cleanup-tag ONLY if the tag was a mistake and nothing was
+#           published against it, since that is what breaks provenance.
+#           Post-rollback state: edit leaves tag/Release/provenance intact with
+#           notes warning users off; delete removes the Release object but does
+#           not touch the npm package.
+#           Owner: mcp-tool-shop (GitHub org owner).
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (e.g. v1.2.1) — must already be pushed'
+        required: true
+
+permissions:
+  contents: write   # for GitHub Release creation
+  id-token: write   # for npm provenance + OIDC trusted-publishing auth
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false   # never cancel a publish mid-flight
+
+jobs:
+  release:
+    name: Publish to npm + GitHub Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install npm >=11.5 in a sandbox for OIDC trusted-publishing auth
+        run: |
+          # Node 22 ships npm 10.9, which signs provenance but cannot negotiate
+          # the OIDC auth path (PUT returns a misleading 404). An in-place
+          # `npm i -g npm@latest` races the bundled arborist and breaks — install
+          # npm@latest into a sandbox dir and shadow the system npm via PATH.
+          SANDBOX="$HOME/.npm-cli-sandbox"
+          mkdir -p "$SANDBOX"
+          pushd "$SANDBOX" >/dev/null
+          echo '{"name":"npm-cli-sandbox","version":"0.0.0","private":true}' > package.json
+          npm install --no-save --no-audit --no-fund --silent npm@latest
+          popd >/dev/null
+          echo "$SANDBOX/node_modules/.bin" >> "$GITHUB_PATH"
+          "$SANDBOX/node_modules/.bin/npm" --version
+
+      - name: Resolve tag
+        id: tag
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify tag matches package.json version
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          TAG_VERSION="${{ steps.tag.outputs.version }}"
+          echo "Tag: ${{ steps.tag.outputs.tag }} -> ${TAG_VERSION} | package.json: ${PKG_VERSION}"
+          if [ "${PKG_VERSION}" != "${TAG_VERSION}" ]; then
+            echo "::error::Tag ${TAG_VERSION} does not match package.json version ${PKG_VERSION}"
+            exit 1
+          fi
+
+      - run: npm ci
+
+      - name: Verify (repo's own contract — test + build + pack shape)
+        run: npm run verify
+
+      - name: Publish to npm with provenance (OIDC trusted publisher, no token)
+        run: npm publish --provenance --access public
+
+      - name: Extract CHANGELOG section for the release notes
+        id: notes
+        run: |
+          # This CHANGELOG uses Keep-a-Changelog bracketed headings
+          # ("## [1.2.1] - 2026-03-25"); the optional brackets keep this working
+          # if the style is ever unbracketed.
+          VERSION="${{ steps.tag.outputs.version }}"
+          awk -v ver="$VERSION" '
+            /^## / {
+              if (inSection) exit
+              h = $0
+              gsub(/[][]/, "", h)          # tolerate both "## 1.2.1" and "## [1.2.1]"
+              if (h ~ ("^## " ver "( |$)")) inSection = 1
+              next
+            }
+            inSection { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ -s release-notes.md ]; then
+            echo "have_notes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "have_notes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          if [ "${{ steps.notes.outputs.have_notes }}" = "true" ]; then
+            gh release create "$TAG" --title "claude-guardian $TAG" --notes-file release-notes.md --verify-tag
+          else
+            gh release create "$TAG" --title "claude-guardian $TAG" --generate-notes --verify-tag
+          fi

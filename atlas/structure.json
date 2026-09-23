@@ -1,0 +1,1548 @@
+{
+  "boundaries": [
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "d373b6d41d6cde16ca4f0306636ee194e13ac5726b4face758b6bf08472fe842",
+          "path": ".claude/README.md"
+        },
+        {
+          "hash": "2d964babba705c0b9f6a7296577979efc40775ad06c4112434d5ffa27c4312db",
+          "path": ".claude/agents/core/critic-reviewer.md"
+        },
+        {
+          "hash": "687b2dc77ea8bda372bd00993eab1520abaf0ef656c6580d3a0138a4924eb4c9",
+          "path": ".claude/agents/core/orchestrator.md"
+        },
+        {
+          "hash": "b4b72041103488d8562f24d4e0f41231c1634450df78c138b540336b2447207a",
+          "path": ".claude/agents/core/product-strategist.md"
+        },
+        {
+          "hash": "fb7369b4435914f8878f120c7a08121d443a500f12259a948e0d98f0091ff421",
+          "path": ".claude/agents/design/brand-guardian.md"
+        },
+        {
+          "hash": "48b8ba1cf8093e4559d15046e90abbf3b98c0383590dd4e506e6d21276bfdc09",
+          "path": ".claude/agents/design/ui-designer.md"
+        },
+        {
+          "hash": "62c975ded0f9763ad0b1b6608f11adc9a5107137006dd76a7dae81a2cf21e689",
+          "path": ".claude/agents/engineering/backend-engineer.md"
+        },
+        {
+          "hash": "1e464576cbfc8ba95c7865cc07a9eeba61e88ef5f4950baf665eea515b363be7",
+          "path": ".claude/agents/engineering/dependency-auditor.md"
+        },
+        {
+          "hash": "ef3833837a334baf524bb4df15dbd586d3664376521e98b87d87c412cb0187d9",
+          "path": ".claude/agents/engineering/frontend-developer.md"
+        },
+        {
+          "hash": "d8ea5372bd030768d59d4417d5889937003b59a872ef3c89b44bc31f9f333a03",
+          "path": ".claude/agents/engineering/performance-engineer.md"
+        },
+        {
+          "hash": "a1a23a9789640d78b136a0c249ee3aacbafb6ef0c774ea50c14bd89a25b6943e",
+          "path": ".claude/agents/engineering/refactor-engineer.md"
+        },
+        {
+          "hash": "d1cfc922932b9686ea3ba9263c9cf3a0e26f783f60eef12c86119d0f05b91999",
+          "path": ".claude/agents/engineering/security-reviewer.md"
+        },
+        {
+          "hash": "911d2c78ed9be3c5a831927c8c2a5acbddd6945f206aeecdb435b10ff5f8bda6",
+          "path": ".claude/agents/engineering/test-engineer.md"
+        },
+        {
+          "hash": "dc08071b0a3322f50ee5fa3049c465cd760289f67bcf497e11020e15a8415465",
+          "path": ".claude/agents/growth/community-manager.md"
+        },
+        {
+          "hash": "ad1d9ba7f5d1e634e9225681077cd384585ef1856a1e9b9f59b0608132ef8d1f",
+          "path": ".claude/agents/growth/content-strategist.md"
+        },
+        {
+          "hash": "05db0c02db9b053890f163dfa2a950f12b5be185ba61c24cd5a0168a5e41177b",
+          "path": ".claude/agents/growth/launch-strategist.md"
+        },
+        {
+          "hash": "337f439266a055588e2a0af068b0461b0ec8259932341a19d1cf15044c028a67",
+          "path": ".claude/agents/growth/support-triage-lead.md"
+        },
+        {
+          "hash": "22201daefd5b99ab0992dc432ba7e015771353ccde467e11e35ccf9fcb23ced1",
+          "path": ".claude/agents/marketing/launch-copywriter.md"
+        },
+        {
+          "hash": "f66c80446da64b3ccf16d50f354bbc73ebff1022b273974f0a95472be643d6c7",
+          "path": ".claude/agents/product/feedback-synthesizer.md"
+        },
+        {
+          "hash": "19b1d905b39ff4e2992fb755cda6f597fd615057052b0b38ad7c38d4858312c5",
+          "path": ".claude/agents/product/information-architect.md"
+        },
+        {
+          "hash": "d3e7bc0b3b8c45b8c704cd9d4829fe50e1043c18b672854313ff807c2cbb4e42",
+          "path": ".claude/agents/product/roadmap-prioritizer.md"
+        },
+        {
+          "hash": "b2c1626e9c18a1adf09d629234cf56bc18bbd5e13498246da35f86cc22463548",
+          "path": ".claude/agents/product/spec-writer.md"
+        },
+        {
+          "hash": "ea0a9b1e28dff6fca5c558e3323954a2dd6505d1213145e98fe6322bf47ea580",
+          "path": ".claude/agents/research/competitive-analyst.md"
+        },
+        {
+          "hash": "329fcca3c43be4f1d4458184a927029b8e136dc62b810653c0e132a2c1abdd23",
+          "path": ".claude/agents/research/trend-researcher.md"
+        },
+        {
+          "hash": "429c7b361c36d610b30b1acc5793fa24cc1997bd9841297e6a753760f981351a",
+          "path": ".claude/agents/research/user-interview-synthesizer.md"
+        },
+        {
+          "hash": "b7b2a5657a521807bb3c0b953066aea0ac6fd864305cb5bcff6f7dddc992d6d8",
+          "path": ".claude/agents/research/ux-researcher.md"
+        },
+        {
+          "hash": "7a22beaad309c64e6ea14d3107025fa06a5b10bcd2e772c76fdeb6d3b252cdfe",
+          "path": ".claude/agents/treatment/coverage-auditor.md"
+        },
+        {
+          "hash": "0d73f921bcc9a2fb49933af9551d9dbee85675d71a900627ed6eb2d636bccf2c",
+          "path": ".claude/agents/treatment/deployment-verifier.md"
+        },
+        {
+          "hash": "1a9a9ff9ea1095aab4688b19cb9e0ec48db2ca59d9f5f5e51e1f858d8d1dff7b",
+          "path": ".claude/agents/treatment/docs-architect.md"
+        },
+        {
+          "hash": "bb7a05aec44d58dcac5b36e28b8eb6b4640775eec6e9ebf069c6415e70a44b5a",
+          "path": ".claude/agents/treatment/metadata-curator.md"
+        },
+        {
+          "hash": "4cc9d0a2b158a057c6c3fc39763f57c2192f9da62e2a811d68fd839f57eaf598",
+          "path": ".claude/agents/treatment/release-engineer.md"
+        },
+        {
+          "hash": "d481658d5d6ff403aa4ddc87ab901adfbc3462d0a66935fa1009d15ae983583f",
+          "path": ".claude/agents/treatment/repo-researcher.md"
+        },
+        {
+          "hash": "8cfe4f057b3c99e101689729054a6a2a8970cd0a64cace28eb5e1defbf602dde",
+          "path": ".claude/agents/treatment/repo-translator.md"
+        },
+        {
+          "hash": "64fcf907285b53f8a39c8cded2fc2c374c400172c0ef29450dc99bdbc4da5a44",
+          "path": ".claude/context/brand-rules.md"
+        },
+        {
+          "hash": "a8e3b5fcf58bd59ba9234871c6f442f6a75a472c718fbf69ff7c2f40298b07da",
+          "path": ".claude/context/current-priorities.md"
+        },
+        {
+          "hash": "0fb14555b9471baceeff20d4823a291dd92947ba5e660396223c387d885a3387",
+          "path": ".claude/context/product-brief.md"
+        },
+        {
+          "hash": "610f09d823f2443b1250bf0201fbc3ae72b666f8ccc0fd053c71ce05ecdde412",
+          "path": ".claude/context/repo-map.md"
+        },
+        {
+          "hash": "4ca89e52e89026648cddd1dcebae0ce9cd12290972323e751ca4785fdb78b7a6",
+          "path": ".claude/examples/feature-packet.md"
+        },
+        {
+          "hash": "ed14e6a5dc1d77b0ccf88428f90e5ebcf604f9c14e0fa805a6dacf2adb396c2a",
+          "path": ".claude/examples/identity-packet.md"
+        },
+        {
+          "hash": "5b1b7ead1a83ed6fb13e8342f64bae5eda5ebdf007516ff176d9fe582def19f7",
+          "path": ".claude/examples/integration-packet.md"
+        },
+        {
+          "hash": "bc22ae44f568aacc8648cc306afa88bf49ef6883c7fa12cccf811ae66986dbe9",
+          "path": ".claude/handbook.md"
+        },
+        {
+          "hash": "fa39ec3464d39e01b4f5f2dd15c69d47c8bf6d93b75daa1694eed3cd12be04dc",
+          "path": ".claude/policy/done-definition.md"
+        },
+        {
+          "hash": "682c931d8ac0745b5b8d9300370775f5d7a43be83a9397b363d560f7329701de",
+          "path": ".claude/policy/escalation-rules.md"
+        },
+        {
+          "hash": "8fe24f7551d6caa66713c98f32effcdc86a6cb4223707e25a7c5772988f83b55",
+          "path": ".claude/policy/routing-rules.md"
+        },
+        {
+          "hash": "5d55e6a21f589f1e05117ce7a0c60891a1d2bd0c3ba9f4c5a80c50e5544e7d3e",
+          "path": ".claude/policy/tool-permissions.md"
+        },
+        {
+          "hash": "16f96f8b2fe34b2167ad1a1bd65a90a8f715d170c724545a54e4e2a808f34fe9",
+          "path": ".claude/schemas/handoff.md"
+        },
+        {
+          "hash": "34ee30f440135cb3c979f036f050faa6f12afe99528db9daafe01d1ac1f434ee",
+          "path": ".claude/schemas/review-verdict.md"
+        },
+        {
+          "hash": "94fb28a919784c36612906f846800fd5def23da4807c93c45aca2c957baa9c41",
+          "path": ".claude/schemas/task-packet.md"
+        },
+        {
+          "hash": "f85e5c9f734c54c2673e0053e4b2eef8be79ac10b1ec742462af9f18782d82c7",
+          "path": ".claude/workflows/fix-bug.md"
+        },
+        {
+          "hash": "df359c5ab2c72dafcf89dc7667749c18b7a273c4bdfcfa842cfd402a4adde6e6",
+          "path": ".claude/workflows/full-treatment.md"
+        },
+        {
+          "hash": "d0da445a5980afb0e596bb7fbdf2e38e94af4a2a3b69c541a4a75dccd8b1420d",
+          "path": ".claude/workflows/launch-update.md"
+        },
+        {
+          "hash": "63e96b0fdc47641829eab72029d5b0df51f34196c70ec043bfbfbd14dc698b90",
+          "path": ".claude/workflows/protect-health-budget-truth.md"
+        },
+        {
+          "hash": "77e6ad26462b2237ea062b63d9f242fae459b6c0ea51ee83888873235a048fa4",
+          "path": ".claude/workflows/ship-feature.md"
+        }
+      ],
+      "globs": [
+        ".claude/**"
+      ],
+      "importConfidence": "full",
+      "name": ".claude",
+      "origin": "authored",
+      "role": "docs",
+      "testedBy": 0,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "661d4bf267f8972d070894d738e9cb34c92c835856e449bf834e5d58d29f76dc",
+          "path": ".github/dependabot.yml"
+        },
+        {
+          "hash": "5f37639d1eca4c2b5bf01a7d75114e7e1ad20720c790cd098c32b9d9dd49a149",
+          "path": ".github/workflows/ci.yml"
+        },
+        {
+          "hash": "fbaf7dcaf8b0217f5560be93e3633926955bb3d28fea7e5c375c22d18cfe4eb6",
+          "path": ".github/workflows/dogfood.yml"
+        },
+        {
+          "hash": "a17b2760e93b910aaf07f24cd44d1d72f42ae387568cb9234c0cac639669b5f9",
+          "path": ".github/workflows/pages.yml"
+        },
+        {
+          "hash": "ad74ff5161e73bf9ccee26f00e4b778e15b877413decf48d16ec082166e593ac",
+          "path": ".github/workflows/release.yml"
+        }
+      ],
+      "globs": [
+        ".github/**"
+      ],
+      "importConfidence": "full",
+      "name": ".github",
+      "origin": "authored",
+      "role": "config",
+      "testedBy": 0,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "e6f04730119be57d1899811c1386240f8db50b77d86dc1f6948e14f3b729a40c",
+          "path": "docs/preview-runtime-spec.md"
+        }
+      ],
+      "globs": [
+        "docs/**"
+      ],
+      "importConfidence": "full",
+      "name": "docs",
+      "origin": "authored",
+      "role": "docs",
+      "testedBy": 0,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "ae482d9c8e1d25675669edfbc00c9a9b866af806a7e94f7a11c60208c2b06678",
+          "path": ".gitignore"
+        },
+        {
+          "hash": "f4f937db7035eda92354bc5b64ce3d124df5e88e1feed22eb8c21b42756e49e1",
+          "path": "CHANGELOG.md"
+        },
+        {
+          "hash": "2659e02cdfc8566e835b66ab6d89f1aeae93ea6d05bed1fdbce038fd85a462c4",
+          "path": "HANDBOOK.md"
+        },
+        {
+          "hash": "5ae6b3c8f446f0a7cb95176e4dadb91b68aaffb16b3be09f64f5de248b6a973a",
+          "path": "LICENSE"
+        },
+        {
+          "hash": "b6464a12843058e7b72952f923e5332760d446a0d85f1b1941fbf58e4186d762",
+          "path": "README.es.md"
+        },
+        {
+          "hash": "7c8be2174a4e5b85c62a1564f5eb91bb1c3cce28125abdada5a0095cc870efaa",
+          "path": "README.fr.md"
+        },
+        {
+          "hash": "75d283a6937b490cbf99096a88c4f10332a36c84d61fecbc6d29158bcd467b03",
+          "path": "README.hi.md"
+        },
+        {
+          "hash": "35f1ddf626f190cb024ef65b43f7a52f5c33d9d872ec0cd846144fd9e34e7358",
+          "path": "README.it.md"
+        },
+        {
+          "hash": "1f8463e67bf0b8edd16b1c61108b46fa440f222c446b75b7fc8707e46c4198bb",
+          "path": "README.ja.md"
+        },
+        {
+          "hash": "efb9dba6d88c4b3499523c530822832842a15a57cf8b985c625b55d132a8f711",
+          "path": "README.md"
+        },
+        {
+          "hash": "c9f197bddec014f182da700da14ddc6ed3cc246982d62d29e04cf349598dc2cf",
+          "path": "README.pt-BR.md"
+        },
+        {
+          "hash": "7824f0bff4a731c1494b04db786620fc6bd1999b09d053c33e79c88913dc722c",
+          "path": "README.zh.md"
+        },
+        {
+          "hash": "e5350fcb78a571b8c93adf8c4d45d558f1635f3e5483b198e31d0fc492310d0c",
+          "path": "SCORECARD.md"
+        },
+        {
+          "hash": "722d96dcf43cb62f41e00e95a2bdbdca94e1c6774204261255c73e371beaf3ee",
+          "path": "SECURITY.md"
+        },
+        {
+          "hash": "2fb4426644e3cf9e2339c1acff75a02859a5ff572fc0dc31f0804891165e5e8b",
+          "path": "SHIP_GATE.md"
+        },
+        {
+          "hash": "986d6acae3fb523810115468dbdb0ad7ad8bd02405afa58d201be2bba3bff76b",
+          "path": "package-lock.json"
+        },
+        {
+          "hash": "8f3760cfdf803b200afe0455355b51f701cab0ba3cb780be4f25e791e62238c1",
+          "path": "package.json"
+        },
+        {
+          "hash": "fb0f1d7b5c70247aee2e6bd12243cf3879bcf9da822257a3d52e2308609d3739",
+          "path": "tsconfig.json"
+        },
+        {
+          "hash": "8b32d91619dfa91295022bfe3b364b8952dfbc9e499680a02544677f9f051aca",
+          "path": "vitest.config.ts"
+        }
+      ],
+      "globs": [
+        "*"
+      ],
+      "importConfidence": "full",
+      "name": "root",
+      "origin": "authored",
+      "role": "config",
+      "testedBy": 0,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "81cb1309bb87212f9e75e539f9f62e5fd8bffccc7793322bef65cc8987a6fb0f",
+          "path": "site/astro.config.mjs"
+        },
+        {
+          "hash": "b5578baf42cab82e5e7b451b6992cb929aeb6ff8d02d8e11ab690e6f67fea144",
+          "path": "site/package-lock.json"
+        },
+        {
+          "hash": "cff923d88f356795747a843362ca300b43d09c5715e6356f904b4d5fa06a7fae",
+          "path": "site/package.json"
+        },
+        {
+          "hash": "ec030f2e4bf6dc57eaca075d390c228b3212cf29db267e32ef92e110de1acdcc",
+          "path": "site/src/content.config.ts"
+        },
+        {
+          "hash": "c78393719761841c8fa0bd49ca08f90319ecc7a902b43184836cb3dbcaa87023",
+          "path": "site/src/content/docs/handbook/architecture.md"
+        },
+        {
+          "hash": "e84e14bf7e0edc582ea76e01204ad290512dfda09c7eed4bc5f9f360ba06efd2",
+          "path": "site/src/content/docs/handbook/beginners.md"
+        },
+        {
+          "hash": "08742888e0805fde8aa8bcbe7bfe783ddfb31760868d0c33202e2b17faa6b01a",
+          "path": "site/src/content/docs/handbook/commands.md"
+        },
+        {
+          "hash": "0b176593ad463d037449bedc2757c5926e8f6a75060bf3c3f0353acada0c97dc",
+          "path": "site/src/content/docs/handbook/configuration.md"
+        },
+        {
+          "hash": "b7eff19b4b61588bb6e91e1d4c829ee65f79e04e6961871cdb8e7844f30048a2",
+          "path": "site/src/content/docs/handbook/getting-started.md"
+        },
+        {
+          "hash": "fde92b86c85be16fad89497cc88b5186bad07384ded0f8877e0e977f6d085044",
+          "path": "site/src/content/docs/handbook/index.md"
+        },
+        {
+          "hash": "6d31f3c6bc0861ce22e3e0e0366d892e47a29a8416abf063de3a3a8726d177fe",
+          "path": "site/src/content/docs/handbook/mcp-server.md"
+        },
+        {
+          "hash": "970888becc675c159e9611c4238d7b6230f193cd3a9758b1169708fa6918bf8a",
+          "path": "site/src/content/docs/handbook/security.md"
+        },
+        {
+          "hash": "a699ad78a6d27d6864ccfe4c3a4a01993aca28ecb4a3d20893f37db9f9b1a522",
+          "path": "site/src/pages/index.astro"
+        },
+        {
+          "hash": "8cfbbb1a3a1e9dd7756fd4d499db725f9be214125dd980e35d9695496eabee2e",
+          "path": "site/src/site-config.ts"
+        },
+        {
+          "hash": "5995279a40a9a63426a93feec129006b261cc7200426a398914d0317722ef19b",
+          "path": "site/src/styles/global.css"
+        },
+        {
+          "hash": "22ab5fb7496132222fbbdf8fb2d43be3652ff585a4ace4b0d29bb76d2877e617",
+          "path": "site/src/styles/starlight-custom.css"
+        },
+        {
+          "hash": "61fc24492db9aef7ec38eb91cfeebaef96155014bb5f22648fd8ed2327c6cae2",
+          "path": "site/tsconfig.json"
+        }
+      ],
+      "globs": [
+        "site/**"
+      ],
+      "importConfidence": "full",
+      "name": "site",
+      "origin": "authored",
+      "role": "site",
+      "testedBy": 0,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 24,
+      "dynamicSpawns": 1,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 15,
+      "entryPoints": [
+        "src/cli.ts"
+      ],
+      "externals": 0,
+      "files": [
+        {
+          "exports": [
+            "emptyBudget",
+            "readBudget",
+            "withBudgetLock",
+            "writeBudget"
+          ],
+          "hash": "0120fc3adc22e868b2de2bf5963f59a41bfe35a6d79b39411d3a25acf8fe4d04",
+          "importsFiles": [
+            "src/defaults.ts",
+            "src/errors.ts",
+            "src/fs-utils.ts",
+            "src/process-monitor.ts"
+          ],
+          "path": "src/budget-store.ts"
+        },
+        {
+          "hash": "d81049c17992667872d03309990dcf8f6631f3ffa59c5af3a177aa0d08979747",
+          "importsFiles": [
+            "src/budget-store.ts",
+            "src/defaults.ts",
+            "src/process-monitor.ts"
+          ],
+          "path": "src/budget.ts"
+        },
+        {
+          "entry": "printFullStatus",
+          "entryRule": 1,
+          "hash": "991033c462bcf56dc8639af00664d167a167c0418eb6ba04a2ac9437142c58ca",
+          "importsFiles": [
+            "package.json",
+            "src/budget-store.ts",
+            "src/budget.ts",
+            "src/defaults.ts",
+            "src/doctor.ts",
+            "src/errors.ts",
+            "src/fs-utils.ts",
+            "src/log-manager.ts",
+            "src/mcp-server.ts",
+            "src/process-monitor.ts",
+            "src/state.ts",
+            "src/types.ts",
+            "src/watch-daemon.ts",
+            "src/watchdog.ts"
+          ],
+          "path": "src/cli.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 410,
+                  "name": "toCliText",
+                  "target": null
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "handleFatalError"
+            }
+          ]
+        },
+        {
+          "exports": [
+            "getArchivePath",
+            "getBudgetPath",
+            "getClaudeProjectsPath",
+            "getGuardianDataPath",
+            "getJournalPath"
+          ],
+          "hash": "7aa3542e9be4eff08aea899aca1eeb4a1b3e7d89f67934be8ae3878fd0c77a45",
+          "importsFiles": [
+            "src/types.ts"
+          ],
+          "path": "src/defaults.ts"
+        },
+        {
+          "exports": [
+            "collectSystemInfo",
+            "formatDoctorReport",
+            "generateBundle",
+            "validateOutputPath"
+          ],
+          "hash": "7cd643dfab4e7caed29c2f5e0bee8682fd3c43d64fdb24c1df17b1f50afaf0b9",
+          "importsFiles": [
+            "src/defaults.ts",
+            "src/fs-utils.ts",
+            "src/handle-count.ts",
+            "src/incident.ts",
+            "src/log-manager.ts",
+            "src/process-monitor.ts",
+            "src/state.ts",
+            "src/types.ts"
+          ],
+          "path": "src/doctor.ts"
+        },
+        {
+          "exports": [
+            "wrapError"
+          ],
+          "hash": "43fff288673046ccca011d709552b6f5ee3d86d73d032bb9d5c9a17b3ddb82be",
+          "path": "src/errors.ts"
+        },
+        {
+          "exports": [
+            "bytesToMB",
+            "dirSize",
+            "fileSize",
+            "getDiskFreeGB",
+            "gzipFile",
+            "listFilesRecursive",
+            "listFilesWithStats",
+            "pathExists",
+            "readJournal",
+            "tailFile",
+            "trimFileToLines",
+            "writeJournalEntry"
+          ],
+          "hash": "7b468993585da4dbdcbcb51d053764b8813741e563f7e9c7a2a284328869f3ca",
+          "importsFiles": [
+            "src/defaults.ts",
+            "src/types.ts"
+          ],
+          "path": "src/fs-utils.ts"
+        },
+        {
+          "exports": [
+            "getHandleCount",
+            "getHandleCounts"
+          ],
+          "hash": "9e6f55783a347e62275a55bfc110e0200a1c06b98e5f203d84296277f94806d4",
+          "path": "src/handle-count.ts"
+        },
+        {
+          "exports": [
+            "readIncidentLog"
+          ],
+          "hash": "88c4cc045855a4a0a3d1e8e58bd86fc94c321723049c943dafa4abb0e6dfa99f",
+          "importsFiles": [
+            "src/defaults.ts",
+            "src/process-monitor.ts"
+          ],
+          "path": "src/incident.ts"
+        },
+        {
+          "exports": [
+            "cleanStaleSessions",
+            "fixLogs",
+            "formatFixReport",
+            "formatPreflightReport",
+            "healthBanner",
+            "scanLogs"
+          ],
+          "hash": "5c05764419292754a96b1fe69bc2cca6b97a5abf23d224b340bca3f9ae4ba5ff",
+          "importsFiles": [
+            "src/defaults.ts",
+            "src/fs-utils.ts",
+            "src/types.ts"
+          ],
+          "path": "src/log-manager.ts"
+        },
+        {
+          "exports": [
+            "createMcpServer",
+            "formatBanner",
+            "startMcpServer"
+          ],
+          "hash": "ba1ac7f38405a6f4cd482873e05c9d0fcc28310e43e1b569b78d04836c778bc0",
+          "importsFiles": [
+            "src/budget-store.ts",
+            "src/budget.ts",
+            "src/defaults.ts",
+            "src/doctor.ts",
+            "src/errors.ts",
+            "src/fs-utils.ts",
+            "src/log-manager.ts",
+            "src/port-probe.ts",
+            "src/process-monitor.ts",
+            "src/project-classify.ts",
+            "src/recovery-plan.ts",
+            "src/state.ts"
+          ],
+          "path": "src/mcp-server.ts"
+        },
+        {
+          "exports": [
+            "probePort"
+          ],
+          "hash": "126a0563f6639cb4d43bad8d353883896a507b39aa730603efbcf08d6e56802c",
+          "path": "src/port-probe.ts"
+        },
+        {
+          "exports": [
+            "assessHangRisk",
+            "checkActivitySignals",
+            "findClaudeProcesses",
+            "recommendActions"
+          ],
+          "hash": "403beb63ede307307cdd9f62a1a06c901531e824ad9842358f1c40b15272b0e9",
+          "importsFiles": [
+            "src/defaults.ts",
+            "src/fs-utils.ts"
+          ],
+          "path": "src/process-monitor.ts"
+        },
+        {
+          "exports": [
+            "classifyProject",
+            "extractPort"
+          ],
+          "hash": "b3de79766671fa3828137dc8e0009b09080e2010585d8a290cb00511639d85c5",
+          "path": "src/project-classify.ts"
+        },
+        {
+          "exports": [
+            "formatRecoveryPlan",
+            "generateRecoveryPlan"
+          ],
+          "hash": "953ed9694f1ab1c2d1f1b161600c543765f8bda7d76ad41df03ee8763a97cab8",
+          "importsFiles": [
+            "src/state.ts"
+          ],
+          "path": "src/recovery-plan.ts"
+        },
+        {
+          "exports": [
+            "computeAttention",
+            "emptyState",
+            "isStateFresh",
+            "readState",
+            "withStateLock",
+            "writeState"
+          ],
+          "hash": "64ee41c8c92716ef8b86d2b8926a78637902e98f11e435ce6883e3aca15faf62",
+          "importsFiles": [
+            "src/budget.ts",
+            "src/defaults.ts",
+            "src/errors.ts",
+            "src/fs-utils.ts",
+            "src/incident.ts",
+            "src/process-monitor.ts"
+          ],
+          "path": "src/state.ts"
+        },
+        {
+          "hash": "b8c6343008f56af61e3c2d5bac4dc015abf6feff9199073ca0f06cc9c13d36d3",
+          "path": "src/types.ts"
+        },
+        {
+          "exports": [
+            "startWatchDaemon"
+          ],
+          "hash": "5c856aedd2c1af75c337cf92c5b078a6b4c532e4c3e42b232306442d4620d2e1",
+          "importsFiles": [
+            "src/budget-store.ts",
+            "src/budget.ts",
+            "src/defaults.ts",
+            "src/doctor.ts",
+            "src/fs-utils.ts",
+            "src/handle-count.ts",
+            "src/incident.ts",
+            "src/log-manager.ts",
+            "src/process-monitor.ts",
+            "src/state.ts"
+          ],
+          "path": "src/watch-daemon.ts"
+        },
+        {
+          "exports": [
+            "formatHealthStatus"
+          ],
+          "hash": "fe7a80f3ff9ff3b4b049ea7edc24c72b074d7b81d611cd5cf367193a26efeb2a",
+          "importsFiles": [
+            "src/defaults.ts",
+            "src/doctor.ts",
+            "src/fs-utils.ts",
+            "src/log-manager.ts",
+            "src/types.ts"
+          ],
+          "path": "src/watchdog.ts"
+        }
+      ],
+      "globs": [
+        "src/**"
+      ],
+      "importConfidence": "full",
+      "name": "src",
+      "origin": "authored",
+      "role": "code",
+      "testedBy": 16,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "9e4d8d5597b749bdc4042a84de363a01cacfef7a0aeee9a93ee93ab689fbaf13",
+          "importsFiles": [
+            "src/budget-store.ts",
+            "src/mcp-server.ts"
+          ],
+          "path": "tests/budget-mcp.test.ts"
+        },
+        {
+          "hash": "14cb3638ad3e48502c347816f5ba13527fc3268d1456d1274572b1817b883ed3",
+          "importsFiles": [
+            "src/budget-store.ts",
+            "src/budget.ts",
+            "src/defaults.ts"
+          ],
+          "path": "tests/budget.test.ts"
+        },
+        {
+          "hash": "63d99acbaa3a3f18b26184873e960b510914aba4332e7c33c71ea4b2caca0e33",
+          "importsFiles": [
+            "src/doctor.ts",
+            "src/types.ts"
+          ],
+          "path": "tests/doctor.test.ts"
+        },
+        {
+          "hash": "832a9d0b3d2c20821efb20dad7f2d727798aa1aa26bef08a449591c04d99124a",
+          "importsFiles": [
+            "src/errors.ts"
+          ],
+          "path": "tests/errors.test.ts"
+        },
+        {
+          "hash": "714c147b736540dbcdd9b648a616b71da0f5ec1d568e57015b2617b4d3c43b43",
+          "importsFiles": [
+            "src/handle-count.ts"
+          ],
+          "path": "tests/handle-count.test.ts"
+        },
+        {
+          "hash": "7496e95fdd3dc00612e22ac13634ada200e188e23eb7bc68d5017d5ed685f67b",
+          "importsFiles": [
+            "src/incident.ts"
+          ],
+          "path": "tests/incident.test.ts"
+        },
+        {
+          "hash": "1e02913c6fd969e4b371d402d7163fc577456212079a533c17d158201539e75b",
+          "importsFiles": [
+            "src/fs-utils.ts",
+            "src/log-manager.ts",
+            "src/types.ts"
+          ],
+          "path": "tests/log-manager.test.ts"
+        },
+        {
+          "hash": "91983268433d954ba7b9bf83c452a8af2cf6b2a8524c760944f1a1c9964e9b31",
+          "importsFiles": [
+            "src/mcp-server.ts",
+            "src/state.ts"
+          ],
+          "path": "tests/mcp-server.test.ts"
+        },
+        {
+          "hash": "602fe4c51c4857b374e252b1f9adbe745f26e919db5b2470f706e5edb6caa948",
+          "importsFiles": [
+            "src/mcp-server.ts"
+          ],
+          "path": "tests/nudge.test.ts"
+        },
+        {
+          "hash": "b4d662f0d38e0f71c116edb4f4425efa6ae45b6870aba5ca59fb4a2c6618b538",
+          "importsFiles": [
+            "src/port-probe.ts"
+          ],
+          "path": "tests/port-probe.test.ts"
+        },
+        {
+          "hash": "78bc35dd24f2594f4239a118dad5c4c8fce0406746906cf0f489d3a229af0c0b",
+          "importsFiles": [
+            "src/process-monitor.ts"
+          ],
+          "path": "tests/process-monitor.test.ts"
+        },
+        {
+          "hash": "76c9ba387e7a1280ed37a1e4317cb11d832ad3bb6fc0c4f71e8d88ab21dfc62d",
+          "importsFiles": [
+            "src/project-classify.ts"
+          ],
+          "path": "tests/project-classify.test.ts"
+        },
+        {
+          "hash": "1536ad12d83a9191725ddc3ec422ff0963e88417d7f4260e10f3f6885be0c462",
+          "importsFiles": [
+            "src/recovery-plan.ts",
+            "src/state.ts"
+          ],
+          "path": "tests/recovery-plan.test.ts"
+        },
+        {
+          "hash": "0f7973b7029770d01e8d46fe21bac4d3ef6b11c3782a3ac0eedd15c339882bc2",
+          "importsFiles": [
+            "src/state.ts"
+          ],
+          "path": "tests/state.test.ts"
+        },
+        {
+          "hash": "a78002138eb8d1177dd41f88cf7e4e4b1630a2fa9fe385699e86317708ec0fc1",
+          "importsFiles": [
+            "src/budget-store.ts",
+            "src/budget.ts",
+            "src/fs-utils.ts",
+            "src/incident.ts",
+            "src/process-monitor.ts"
+          ],
+          "path": "tests/watch-daemon.test.ts"
+        },
+        {
+          "hash": "f499b71e8728744460a6de523251e6f185ed66fd53c519a0d3e011baad28a285",
+          "importsFiles": [
+            "src/defaults.ts",
+            "src/types.ts",
+            "src/watchdog.ts"
+          ],
+          "path": "tests/watchdog.test.ts"
+        }
+      ],
+      "globs": [
+        "tests/**"
+      ],
+      "importConfidence": "full",
+      "name": "tests",
+      "origin": "authored",
+      "role": "test",
+      "testedBy": 0,
+      "unresolvedSites": 0
+    }
+  ],
+  "doors": [
+    {
+      "checksCount": 1,
+      "commands": [
+        {
+          "job": "build",
+          "step": "2",
+          "text": "npm ci"
+        },
+        {
+          "job": "build",
+          "step": "3",
+          "text": "npm run build"
+        },
+        {
+          "job": "build",
+          "step": "4",
+          "text": "npm test -- --coverage"
+        },
+        {
+          "job": "dep-audit",
+          "step": "2",
+          "text": "npm audit --omit=dev || true"
+        }
+      ],
+      "elsewhere": [],
+      "file": ".github/workflows/ci.yml",
+      "landings": [],
+      "mentions": [],
+      "name": "CI",
+      "permissions": [],
+      "pushes": false,
+      "reach": [
+        {
+          "boundary": "src",
+          "depth": 0,
+          "files": 19
+        },
+        {
+          "boundary": "tests",
+          "depth": 0,
+          "files": 16
+        },
+        {
+          "boundary": "root",
+          "depth": 1,
+          "enters": {
+            "file": "package.json",
+            "from": "src/cli.ts"
+          },
+          "files": 1
+        }
+      ],
+      "readers": [],
+      "runs": [
+        {
+          "directory": true,
+          "job": "build",
+          "matched": true,
+          "path": "src/",
+          "runKind": "checks",
+          "via": "tsc tsconfig.json"
+        },
+        {
+          "directory": true,
+          "job": "build",
+          "matched": true,
+          "path": "tests/",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        }
+      ],
+      "runsCount": 2,
+      "secrets": [
+        "CODECOV_TOKEN"
+      ],
+      "sends": {
+        "deploysPages": false,
+        "dispatchesTo": [],
+        "opensIssues": false,
+        "opensIssuesOnFailure": false,
+        "opensPullRequests": false,
+        "publishes": false,
+        "publishesTo": [],
+        "releases": false
+      },
+      "stages": [],
+      "triggers": [
+        {
+          "event": "pull_request",
+          "paths": [
+            ".github/workflows/**",
+            "package-lock.json",
+            "package.json",
+            "site/astro.config.mjs",
+            "site/package-lock.json",
+            "site/package.json",
+            "src/**",
+            "tests/**",
+            "tsconfig.json"
+          ]
+        },
+        {
+          "branches": [
+            "main"
+          ],
+          "event": "push",
+          "paths": [
+            ".github/workflows/**",
+            "package-lock.json",
+            "package.json",
+            "site/astro.config.mjs",
+            "site/package-lock.json",
+            "site/package.json",
+            "src/**",
+            "tests/**",
+            "tsconfig.json"
+          ]
+        },
+        {
+          "event": "workflow_dispatch"
+        }
+      ],
+      "uses": [
+        "actions/checkout",
+        "actions/setup-node",
+        "codecov/codecov-action"
+      ],
+      "usesWorkflowToken": false
+    },
+    {
+      "checksCount": 1,
+      "commands": [
+        {
+          "job": "dogfood",
+          "step": "2",
+          "text": "npm ci"
+        },
+        {
+          "job": "dogfood",
+          "step": "3",
+          "text": "npm run build"
+        },
+        {
+          "job": "dogfood",
+          "step": "Step: run-status",
+          "text": "# Create a mock Claude project dir so guardian has something to scan\nmkdir -p /tmp/claude-test/.claude/projects\necho \"test log content\" > /tmp/claude-test/.claude/projects/test.jsonl\nnode dist/cli.js status 2>&1 | tee /tmp/status.log\nif [ $? -eq 0 ]; then\n  echo \"status=pass\" >> \"$GITHUB_OUTPUT\"\nelse\n  echo \"status=fail\" >> \"$GITHUB_OUTPUT\"\nfi\n"
+        },
+        {
+          "job": "dogfood",
+          "step": "Step: run-preflight",
+          "text": "node dist/cli.js preflight --dry-run 2>&1 | tee /tmp/preflight.log\nif [ $? -eq 0 ]; then\n  echo \"status=pass\" >> \"$GITHUB_OUTPUT\"\nelse\n  echo \"status=fail\" >> \"$GITHUB_OUTPUT\"\nfi\n"
+        },
+        {
+          "job": "dogfood",
+          "step": "Step: verify-output",
+          "text": "# Confirm both commands produced meaningful output\nif [ -s /tmp/status.log ] && [ -s /tmp/preflight.log ]; then\n  echo \"status=pass\" >> \"$GITHUB_OUTPUT\"\nelse\n  echo \"status=fail\" >> \"$GITHUB_OUTPUT\"\nfi\n"
+        },
+        {
+          "job": "dogfood",
+          "step": "Determine overall verdict",
+          "text": "S=\"${{ steps.status.outputs.status }}\"\nP=\"${{ steps.preflight.outputs.status }}\"\nV=\"${{ steps.verify_output.outputs.status }}\"\nif [ \"$S\" = \"pass\" ] && [ \"$P\" = \"pass\" ] && [ \"$V\" = \"pass\" ]; then\n  echo \"verdict=pass\" >> \"$GITHUB_OUTPUT\"\nelse\n  echo \"verdict=fail\" >> \"$GITHUB_OUTPUT\"\nfi\n"
+        },
+        {
+          "job": "dogfood",
+          "step": "Build submission",
+          "text": "FINISHED_AT=$(date -u +\"%Y-%m-%dT%H:%M:%SZ\")\ncat > /tmp/submission.json << 'INNER_EOF'\n{\n  \"schema_version\": \"1.0.0\",\n  \"run_id\": \"claude-guardian-RUN_ID-ATTEMPT\",\n  \"repo\": \"REPO_SLUG\",\n  \"ref\": {\n    \"branch\": \"REF_NAME\",\n    \"commit_sha\": \"COMMIT_SHA\"\n  },\n  \"source\": {\n    \"provider\": \"github\",\n    \"workflow\": \"dogfood.yml\",\n    \"provider_run_id\": \"PROVIDER_RUN_ID\",\n    \"attempt\": ATTEMPT_NUM,\n    \"run_url\": \"RUN_URL_PLACEHOLDER\",\n    \"actor\": \"ACTOR_NAME\"\n  },\n  \"timing\": {\n    \"started_at\": \"STARTED_PLACEHOLDER\",\n    \"finished_at\": \"FINISHED_PLACEHOLDER\",\n    \"duration_ms\": 0\n  },\n  \"ci_checks\": [],\n  \"scenario_results\": [\n    {\n      \"scenario_id\": \"status-preflight-roundtrip\",\n      \"scenario_name\": \"Run status + preflight on mock project\",\n      \"scenario_version\": \"1.0.0\",\n      \"product_surface\": \"mcp-server\",\n      \"execution_mode\": \"bot\",\n      \"verdict\": \"VERDICT_PLACEHOLDER\",\n      \"step_results\": [\n        { \"step_id\": \"run-status\", \"status\": \"STATUS_STATUS\" },\n        { \"step_id\": \"run-preflight\", \"status\": \"PREFLIGHT_STATUS\" },\n        { \"step_id\": \"verify-output\", \"status\": \"VERIFY_STATUS\" }\n      ],\n      \"evidence\": [\n        {\n          \"kind\": \"log\",\n          \"url\": \"RUN_URL_PLACEHOLDER\",\n          \"description\": \"CI run log with status + preflight output\"\n        }\n      ],\n      \"notes\": \"Bot-driven status + preflight roundtrip\"\n    }\n  ],\n  \"overall_verdict\": \"VERDICT_PLACEHOLDER\",\n  \"notes\": \"Phase 2 rollout: claude-guardian MCP dogfood.\"\n}\nINNER_EOF\n\nsed -i \"s|REPO_SLUG|${GITHUB_REPOSITORY}|g\" /tmp/submission.json\nsed -i \"s|REF_NAME|${GITHUB_REF_NAME}|g\" /tmp/submission.json\nsed -i \"s|COMMIT_SHA|${GITHUB_SHA}|g\" /tmp/submission.json\nsed -i \"s|PROVIDER_RUN_ID|${GITHUB_RUN_ID}|g\" /tmp/submission.json\nsed -i \"s|ATTEMPT_NUM|${GITHUB_RUN_ATTEMPT}|g\" /tmp/submission.json\nsed -i \"s|RUN_URL_PLACEHOLDER|https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}|g\" /tmp/submission.json\nsed -i \"s|ACTOR_NAME|${GITHUB_ACTOR}|g\" /tmp/submission.json\nsed -i \"s|STARTED_PLACEHOLDER|${{ github.event.head_commit.timestamp || github.event.repository.pushed_at }}|g\" /tmp/submission.json\nsed -i \"s|FINISHED_PLACEHOLDER|${FINISHED_AT}|g\" /tmp/submission.json\nsed -i \"s|claude-guardian-RUN_ID-ATTEMPT|claude-guardian-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}|g\" /tmp/submission.json\nsed -i \"s|VERDICT_PLACEHOLDER|${{ steps.verdict.outputs.verdict }}|g\" /tmp/submission.json\nsed -i \"s|STATUS_STATUS|${{ steps.status.outputs.status }}|g\" /tmp/submission.json\nsed -i \"s|PREFLIGHT_STATUS|${{ steps.preflight.outputs.status }}|g\" /tmp/submission.json\nsed -i \"s|VERIFY_STATUS|${{ steps.verify_output.outputs.status }}|g\" /tmp/submission.json\n\njq empty /tmp/submission.json\necho \"Submission built:\"\njq '.run_id, .overall_verdict' /tmp/submission.json\n"
+        },
+        {
+          "job": "dogfood",
+          "step": "Dispatch to testing-os",
+          "text": "SUBMISSION=$(cat /tmp/submission.json)\nRUN_ID=$(echo \"$SUBMISSION\" | jq -r '.run_id')\n\nif [ -z \"$GH_TOKEN\" ]; then\n  echo \"::warning::DOGFOOD_TOKEN not set — skipping dispatch\"\n  exit 0\nfi\n\njq -n --argjson sub \"$SUBMISSION\" \\\n  '{\"event_type\":\"dogfood_submission\",\"client_payload\":{\"submission\":$sub}}' \\\n  | gh api repos/dogfood-lab/testing-os/dispatches \\\n    --input - --silent\n\necho \"Dispatched $RUN_ID to testing-os\"\n"
+        }
+      ],
+      "elsewhere": [],
+      "file": ".github/workflows/dogfood.yml",
+      "gated": [
+        {
+          "jobs": [
+            "dogfood"
+          ],
+          "pushes": false,
+          "sends": [
+            "dispatchesTo:dogfood-lab/testing-os"
+          ],
+          "stages": [],
+          "when": {
+            "branches": [
+              "main"
+            ]
+          }
+        }
+      ],
+      "landings": [],
+      "mentions": [],
+      "name": "Dogfood",
+      "permissions": [],
+      "pushes": false,
+      "reach": [
+        {
+          "boundary": "src",
+          "depth": 0,
+          "files": 19
+        },
+        {
+          "boundary": "root",
+          "depth": 1,
+          "enters": {
+            "file": "package.json",
+            "from": "src/cli.ts"
+          },
+          "files": 1
+        }
+      ],
+      "readers": [],
+      "runs": [
+        {
+          "directory": true,
+          "job": "dogfood",
+          "matched": true,
+          "path": "src/",
+          "runKind": "checks",
+          "via": "tsc tsconfig.json"
+        }
+      ],
+      "runsCount": 1,
+      "secrets": [
+        "DOGFOOD_TOKEN"
+      ],
+      "sends": {
+        "deploysPages": false,
+        "dispatchesTo": [],
+        "opensIssues": false,
+        "opensIssuesOnFailure": false,
+        "opensPullRequests": false,
+        "publishes": false,
+        "publishesTo": [],
+        "releases": false
+      },
+      "stages": [],
+      "triggers": [
+        {
+          "branches": [
+            "main"
+          ],
+          "event": "push",
+          "paths": [
+            ".github/workflows/dogfood.yml",
+            "package.json",
+            "src/**"
+          ]
+        },
+        {
+          "event": "workflow_dispatch"
+        }
+      ],
+      "uses": [
+        "actions/checkout",
+        "actions/setup-node"
+      ],
+      "usesWorkflowToken": false
+    },
+    {
+      "checksCount": 0,
+      "commands": [
+        {
+          "job": "build",
+          "step": "Install site dependencies",
+          "text": "npm ci"
+        },
+        {
+          "job": "build",
+          "step": "Build site",
+          "text": "npm run build"
+        }
+      ],
+      "elsewhere": [],
+      "file": ".github/workflows/pages.yml",
+      "landings": [],
+      "mentions": [],
+      "name": "Deploy site to GitHub Pages",
+      "permissions": [
+        "contents:read",
+        "id-token:write",
+        "pages:write"
+      ],
+      "pushes": false,
+      "reach": [
+        {
+          "boundary": "site",
+          "depth": 0,
+          "files": 3
+        }
+      ],
+      "readers": [],
+      "runs": [
+        {
+          "job": "build",
+          "matched": true,
+          "path": "site/astro.config.mjs",
+          "runKind": "executes",
+          "via": "astro build"
+        },
+        {
+          "directory": true,
+          "job": "build",
+          "matched": true,
+          "path": "site/src/",
+          "runKind": "executes",
+          "via": "astro build"
+        }
+      ],
+      "runsCount": 2,
+      "secrets": [],
+      "sends": {
+        "deploysPages": true,
+        "dispatchesTo": [],
+        "opensIssues": false,
+        "opensIssuesOnFailure": false,
+        "opensPullRequests": false,
+        "publishes": false,
+        "publishesTo": [],
+        "releases": false
+      },
+      "stages": [],
+      "triggers": [
+        {
+          "branches": [
+            "main"
+          ],
+          "event": "push",
+          "paths": [
+            ".github/workflows/pages.yml",
+            "site/**"
+          ]
+        },
+        {
+          "event": "workflow_dispatch"
+        }
+      ],
+      "uses": [
+        "actions/checkout",
+        "actions/deploy-pages",
+        "actions/setup-node",
+        "actions/upload-pages-artifact"
+      ],
+      "usesWorkflowToken": false
+    },
+    {
+      "checksCount": 1,
+      "commands": [
+        {
+          "job": "release",
+          "step": "Install npm >=11.5 in a sandbox for OIDC trusted-publishing auth",
+          "text": "# Node 22 ships npm 10.9, which signs provenance but cannot negotiate\n# the OIDC auth path (PUT returns a misleading 404). An in-place\n# `npm i -g npm@latest` races the bundled arborist and breaks — install\n# npm@latest into a sandbox dir and shadow the system npm via PATH.\nSANDBOX=\"$HOME/.npm-cli-sandbox\"\nmkdir -p \"$SANDBOX\"\npushd \"$SANDBOX\" >/dev/null\necho '{\"name\":\"npm-cli-sandbox\",\"version\":\"0.0.0\",\"private\":true}' > package.json\nnpm install --no-save --no-audit --no-fund --silent npm@latest\npopd >/dev/null\necho \"$SANDBOX/node_modules/.bin\" >> \"$GITHUB_PATH\"\n\"$SANDBOX/node_modules/.bin/npm\" --version\n"
+        },
+        {
+          "job": "release",
+          "step": "Resolve tag",
+          "text": "TAG=\"${{ github.event.inputs.tag || github.ref_name }}\"\necho \"tag=${TAG}\" >> \"$GITHUB_OUTPUT\"\necho \"version=${TAG#v}\" >> \"$GITHUB_OUTPUT\"\n"
+        },
+        {
+          "job": "release",
+          "step": "Verify tag matches package.json version",
+          "text": "PKG_VERSION=$(node -p \"require('./package.json').version\")\nTAG_VERSION=\"${{ steps.tag.outputs.version }}\"\necho \"Tag: ${{ steps.tag.outputs.tag }} -> ${TAG_VERSION} | package.json: ${PKG_VERSION}\"\nif [ \"${PKG_VERSION}\" != \"${TAG_VERSION}\" ]; then\n  echo \"::error::Tag ${TAG_VERSION} does not match package.json version ${PKG_VERSION}\"\n  exit 1\nfi\n"
+        },
+        {
+          "job": "release",
+          "step": "5",
+          "text": "npm ci"
+        },
+        {
+          "job": "release",
+          "step": "Verify (repo's own contract — test + build + pack shape)",
+          "text": "npm run verify"
+        },
+        {
+          "job": "release",
+          "step": "Publish to npm with provenance (OIDC trusted publisher, no token)",
+          "text": "npm publish --provenance --access public"
+        },
+        {
+          "job": "release",
+          "step": "Extract CHANGELOG section for the release notes",
+          "text": "# This CHANGELOG uses Keep-a-Changelog bracketed headings\n# (\"## [1.2.1] - 2026-03-25\"); the optional brackets keep this working\n# if the style is ever unbracketed.\nVERSION=\"${{ steps.tag.outputs.version }}\"\nawk -v ver=\"$VERSION\" '\n  /^## / {\n    if (inSection) exit\n    h = $0\n    gsub(/[][]/, \"\", h)          # tolerate both \"## 1.2.1\" and \"## [1.2.1]\"\n    if (h ~ (\"^## \" ver \"( |$)\")) inSection = 1\n    next\n  }\n  inSection { print }\n' CHANGELOG.md > release-notes.md\nif [ -s release-notes.md ]; then\n  echo \"have_notes=true\" >> \"$GITHUB_OUTPUT\"\nelse\n  echo \"have_notes=false\" >> \"$GITHUB_OUTPUT\"\nfi\n"
+        },
+        {
+          "job": "release",
+          "step": "Create GitHub Release",
+          "text": "TAG=\"${{ steps.tag.outputs.tag }}\"\nif [ \"${{ steps.notes.outputs.have_notes }}\" = \"true\" ]; then\n  gh release create \"$TAG\" --title \"claude-guardian $TAG\" --notes-file release-notes.md --verify-tag\nelse\n  gh release create \"$TAG\" --title \"claude-guardian $TAG\" --generate-notes --verify-tag\nfi\n"
+        }
+      ],
+      "elsewhere": [],
+      "file": ".github/workflows/release.yml",
+      "landings": [],
+      "mentions": [
+        {
+          "job": "release",
+          "path": "CHANGELOG.md"
+        },
+        {
+          "job": "release",
+          "path": "package.json"
+        }
+      ],
+      "name": "Release",
+      "permissions": [
+        "contents:write",
+        "id-token:write"
+      ],
+      "pushes": false,
+      "reach": [
+        {
+          "boundary": "src",
+          "depth": 0,
+          "files": 19
+        },
+        {
+          "boundary": "tests",
+          "depth": 0,
+          "files": 16
+        },
+        {
+          "boundary": "root",
+          "depth": 1,
+          "enters": {
+            "file": "package.json",
+            "from": "src/cli.ts"
+          },
+          "files": 1
+        }
+      ],
+      "readers": [],
+      "runs": [
+        {
+          "directory": true,
+          "job": "release",
+          "matched": true,
+          "path": "src/",
+          "runKind": "checks",
+          "via": "tsc tsconfig.json"
+        },
+        {
+          "directory": true,
+          "job": "release",
+          "matched": true,
+          "path": "tests/",
+          "runKind": "executes",
+          "via": "vitest vitest.config.ts"
+        }
+      ],
+      "runsCount": 2,
+      "secrets": [
+        "GITHUB_TOKEN"
+      ],
+      "sends": {
+        "deploysPages": false,
+        "dispatchesTo": [],
+        "opensIssues": false,
+        "opensIssuesOnFailure": false,
+        "opensPullRequests": false,
+        "publishes": true,
+        "publishesTo": [
+          "npm"
+        ],
+        "releases": true
+      },
+      "stages": [],
+      "triggers": [
+        {
+          "event": "push",
+          "tags": [
+            "v*"
+          ]
+        },
+        {
+          "event": "workflow_dispatch"
+        }
+      ],
+      "uses": [
+        "actions/checkout",
+        "actions/setup-node"
+      ],
+      "usesWorkflowToken": true
+    },
+    {
+      "checksCount": 0,
+      "commands": [],
+      "elsewhere": [],
+      "file": "package.json",
+      "kind": "command",
+      "landings": [],
+      "mentions": [],
+      "name": "claude-guardian",
+      "permissions": [],
+      "pushes": false,
+      "reach": [
+        {
+          "boundary": "src",
+          "depth": 0,
+          "files": 19
+        },
+        {
+          "boundary": "root",
+          "depth": 1,
+          "enters": {
+            "file": "package.json",
+            "from": "src/cli.ts"
+          },
+          "files": 1
+        }
+      ],
+      "readers": [],
+      "runs": [
+        {
+          "path": "src/cli.ts",
+          "runKind": "executes"
+        }
+      ],
+      "runsCount": 1,
+      "secrets": [],
+      "sends": {
+        "deploysPages": false,
+        "dispatchesTo": [],
+        "opensIssues": false,
+        "opensIssuesOnFailure": false,
+        "opensPullRequests": false,
+        "publishes": false,
+        "publishesTo": [],
+        "releases": false
+      },
+      "stages": [],
+      "triggers": [],
+      "uses": [],
+      "usesWorkflowToken": false
+    }
+  ],
+  "edges": [
+    {
+      "from": "src",
+      "kind": "file",
+      "to": "root"
+    },
+    {
+      "from": "tests",
+      "fromTests": true,
+      "kind": "file",
+      "to": "src"
+    }
+  ],
+  "generatedFrom": {
+    "commit": "628c46f62bf3455a66bb8ac8d2b0bdc6b2b184ac",
+    "tracked": 130
+  },
+  "landings": [
+    {
+      "readers": [
+        {
+          "by": ".github/workflows/release.yml"
+        }
+      ],
+      "target": "CHANGELOG.md",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": ".github/workflows/release.yml"
+        },
+        {
+          "by": "src/project-classify.ts",
+          "call": "literal",
+          "confidence": "ast"
+        },
+        {
+          "by": "src/project-classify.ts",
+          "call": "literal",
+          "confidence": "weak"
+        }
+      ],
+      "target": "package.json",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "site/astro.config.mjs",
+          "call": "content-collection",
+          "confidence": "ast"
+        }
+      ],
+      "target": "site/src/content/docs",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "site/astro.config.mjs",
+          "call": "autogenerate",
+          "confidence": "ast"
+        }
+      ],
+      "target": "site/src/content/docs/handbook",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "src/project-classify.ts",
+          "call": "readdir",
+          "confidence": "ast"
+        }
+      ],
+      "target": "src",
+      "writers": []
+    }
+  ],
+  "overlaps": [],
+  "submodules": [],
+  "symlinks": [],
+  "testFiles": 16,
+  "unassigned": []
+}

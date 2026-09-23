@@ -10,6 +10,7 @@ on:
       - "package-lock.json"
       - "tsconfig.json"
       - ".github/workflows/**"
+      - "atlas/**"
       # site/ dependencies were outside every filter, so a PR that changed
       # only them triggered nothing while `build` and `dep-audit` stayed
       # REQUIRED -- unmergeable by construction. Found 2026-09-17 on the PR
@@ -27,6 +28,7 @@ on:
       - "package-lock.json"
       - "tsconfig.json"
       - ".github/workflows/**"
+      - "atlas/**"
       # site/ dependencies were outside every filter, so a PR that changed
       # only them triggered nothing while `build` and `dep-audit` stayed
       # REQUIRED -- unmergeable by construction. Found 2026-09-17 on the PR
@@ -51,6 +53,9 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
+
+      - name: Atlas check
+        run: npx --yes @dogfood-lab/atlas@1.15.0 check
 
       - run: npm ci
       - run: npm run build

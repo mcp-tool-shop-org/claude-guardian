@@ -9,16 +9,6 @@
   "breaks": [
     {
       "doors": 4,
-      "importedBy": [
-        "src"
-      ],
-      "importedByTests": [],
-      "kind": "part",
-      "name": "root",
-      "partLabel": "the repository root"
-    },
-    {
-      "doors": 4,
       "importedBy": [],
       "importedByTests": [
         "tests"
@@ -37,22 +27,80 @@
     }
   ],
   "changes": {
-    "first": true
+    "fileCounts": {
+      "added": 1,
+      "changed": 130,
+      "moved": 0,
+      "parts": 7,
+      "removed": 0
+    },
+    "items": [
+      {
+        "kind": "import-removed",
+        "sentence": "src no longer imports the repository root.",
+        "subjects": [
+          "src",
+          "root"
+        ]
+      },
+      {
+        "kind": "door",
+        "sentence": "CI's pull request trigger now also names `atlas/**` and `codecov.yml`.",
+        "subjects": [
+          ".github/workflows/ci.yml"
+        ]
+      },
+      {
+        "kind": "door",
+        "sentence": "CI's push trigger now also names `atlas/**` and `codecov.yml`.",
+        "subjects": [
+          ".github/workflows/ci.yml"
+        ]
+      },
+      {
+        "kind": "door",
+        "sentence": "Dogfood now also runs src/cli.ts.",
+        "subjects": [
+          ".github/workflows/dogfood.yml",
+          "src/cli.ts"
+        ]
+      },
+      {
+        "kind": "landing",
+        "sentence": "package.json is now also read by src/cli.ts.",
+        "subjects": [
+          "package.json",
+          "src/cli.ts"
+        ]
+      },
+      {
+        "kind": "counts",
+        "sentence": "1 file added and 130 changed content, across 7 parts.",
+        "subjects": []
+      }
+    ],
+    "since": {
+      "commit": "628c46f62bf3455a66bb8ac8d2b0bdc6b2b184ac",
+      "generatedAt": "2026-09-23T22:33:34.841Z"
+    },
+    "unchanged": false
   },
   "changesTogether": [],
   "changesTogetherNote": [
     "Window: 180 days; a pair counts from 3 shared commits, since the window holds fewer than 30 qualifying commits."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "628c46f62bf3455a66bb8ac8d2b0bdc6b2b184ac",
+  "commit": "b484cb2778b43f25a9541f0f1333947b5bec42e1",
   "defaultBranch": "main",
-  "derived": "7 parts, mostly TypeScript (38 files). Work enters through 5 doors; the busiest is CI, which reaches 3 parts. It publishes to npm. People run claude-guardian.",
+  "derived": "7 parts, mostly Markdown (75 files); code in TypeScript (38), CSS (2), Astro (1) and JavaScript (1). Work enters through 5 doors; CI and Release each reach 2 parts, and CI is followed because a pull request goes through it. It publishes to npm. It deploys a site to GitHub Pages. People run claude-guardian.",
   "doors": [
     {
-      "checks": [
+      "builds": [
         "src/"
       ],
-      "checksCount": 1,
+      "checks": [],
+      "checksCount": 0,
+      "checksMore": 0,
       "file": ".github/workflows/ci.yml",
       "id": ".github/workflows/ci.yml",
       "landings": [],
@@ -68,30 +116,30 @@
           "boundary": "tests",
           "depth": 0,
           "files": 16
-        },
-        {
-          "boundary": "root",
-          "depth": 1,
-          "files": 1
         }
       ],
       "runs": [
         "tests/"
       ],
       "runsCount": 1,
-      "sends": [],
+      "runsMore": 0,
+      "sends": [
+        "uploads coverage to Codecov"
+      ],
       "stages": [],
       "triggers": [
-        "on a pull request touching 9 paths",
-        "on a push to main touching 9 paths",
+        "on a pull request touching 11 paths",
+        "on a push to main touching 11 paths",
         "or by hand"
       ]
     },
     {
-      "checks": [
+      "builds": [
         "src/"
       ],
-      "checksCount": 1,
+      "checks": [],
+      "checksCount": 0,
+      "checksMore": 0,
       "file": ".github/workflows/release.yml",
       "id": ".github/workflows/release.yml",
       "landings": [],
@@ -107,17 +155,13 @@
           "boundary": "tests",
           "depth": 0,
           "files": 16
-        },
-        {
-          "boundary": "root",
-          "depth": 1,
-          "files": 1
         }
       ],
       "runs": [
         "tests/"
       ],
       "runsCount": 1,
+      "runsMore": 0,
       "sends": [
         "publishes to npm",
         "creates a GitHub release"
@@ -129,41 +173,9 @@
       ]
     },
     {
-      "checks": [
-        "src/"
-      ],
-      "checksCount": 1,
-      "file": ".github/workflows/dogfood.yml",
-      "id": ".github/workflows/dogfood.yml",
-      "landings": [],
-      "name": "Dogfood",
-      "pushes": false,
-      "reach": [
-        {
-          "boundary": "src",
-          "depth": 0,
-          "files": 19
-        },
-        {
-          "boundary": "root",
-          "depth": 1,
-          "files": 1
-        }
-      ],
-      "runs": [],
-      "runsCount": 0,
-      "sends": [
-        "sends a dispatch to dogfood-lab/testing-os on main"
-      ],
-      "stages": [],
-      "triggers": [
-        "on a push to main touching 3 paths",
-        "or by hand"
-      ]
-    },
-    {
       "checks": [],
       "checksCount": 0,
+      "checksMore": 0,
       "file": ".github/workflows/pages.yml",
       "id": ".github/workflows/pages.yml",
       "landings": [],
@@ -173,7 +185,7 @@
         {
           "boundary": "site",
           "depth": 0,
-          "files": 3
+          "files": 5
         }
       ],
       "runs": [
@@ -181,6 +193,7 @@
         "site/src/"
       ],
       "runsCount": 2,
+      "runsMore": 0,
       "sends": [
         "deploys the site"
       ],
@@ -193,6 +206,50 @@
     {
       "checks": [],
       "checksCount": 0,
+      "checksMore": 0,
+      "file": ".github/workflows/dogfood.yml",
+      "held": [
+        {
+          "builds": [
+            "src/"
+          ],
+          "checks": [],
+          "checksMore": 0,
+          "lead": "on main",
+          "runs": [
+            "src/cli.ts"
+          ],
+          "runsMore": 0,
+          "when": "on main"
+        }
+      ],
+      "id": ".github/workflows/dogfood.yml",
+      "landings": [],
+      "name": "Dogfood",
+      "pushes": false,
+      "reach": [
+        {
+          "boundary": "src",
+          "depth": 0,
+          "files": 19
+        }
+      ],
+      "runs": [],
+      "runsCount": 0,
+      "runsMore": 0,
+      "sends": [
+        "sends a dispatch to dogfood-lab/testing-os on main"
+      ],
+      "stages": [],
+      "triggers": [
+        "on a push to main touching 3 paths",
+        "or by hand"
+      ]
+    },
+    {
+      "checks": [],
+      "checksCount": 0,
+      "checksMore": 0,
       "file": "package.json",
       "id": "package.json#claude-guardian",
       "kind": "command",
@@ -204,17 +261,13 @@
           "boundary": "src",
           "depth": 0,
           "files": 19
-        },
-        {
-          "boundary": "root",
-          "depth": 1,
-          "files": 1
         }
       ],
       "runs": [
         "src/cli.ts"
       ],
       "runsCount": 1,
+      "runsMore": 0,
       "sends": [],
       "stages": [],
       "triggers": []
@@ -225,22 +278,23 @@
   "duplicatesNote": [],
   "edges": [
     {
-      "from": "src",
-      "fromTests": false,
-      "to": "root"
-    },
-    {
       "from": "tests",
       "fromTests": true,
       "to": "src"
     }
   ],
+  "engine": "1.24.0",
   "generated": [],
-  "generatedAt": "2026-09-23T22:33:34.841Z",
+  "generatedAt": "2026-09-30T20:08:49.880Z",
   "limits": [
-    "15 writes and 24 reads use paths built at run time and are not named here.",
-    "1 command is built at run time and not followed.",
-    "Statistics confidence is low: fewer than 30 qualifying commits in the window, and fewer than 20 source files reach 10 revisions."
+    "1 import could not be resolved: `src/mcp-server.ts` imports `zod`, which is not declared.",
+    "1 write and 3 reads use paths built at run time and are not named here.",
+    "14 writes and 17 reads go to the home directory (.claude-guardian/ and .claude/), not to this repository.",
+    "2 writes and 9 reads go to a path their caller passes, not to this repository.",
+    "1 write and 3 reads go to the home directory (.claude-guardian/ and .claude/) or a path their caller passes, not to this repository.",
+    "1 read goes to the directory the command is run in (package.json), not to this repository.",
+    "6 commands are built at run time and not followed.",
+    "Statistics confidence is low: fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions."
   ],
   "mainDoor": ".github/workflows/ci.yml",
   "partLabels": {
@@ -259,7 +313,10 @@
   "startDoor": ".github/workflows/ci.yml",
   "startHere": [
     ".github/workflows/ci.yml",
-    "tests/budget-mcp.test.ts"
+    "src/cli.ts",
+    "src/log-manager.ts",
+    "src/defaults.ts",
+    "src/types.ts"
   ],
   "summary": null,
   "summaryFrom": null,
@@ -267,8 +324,9 @@
   "testedBy": {
     "src": 16
   },
-  "unnamedWrites": 15,
+  "unnamedWrites": 1,
   "unread": [],
+  "unreadFiles": 0,
   "unreadNote": [],
   "untested": [],
   "untestedNote": [],

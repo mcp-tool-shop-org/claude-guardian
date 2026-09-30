@@ -9,215 +9,215 @@
       "externals": 0,
       "files": [
         {
-          "hash": "d373b6d41d6cde16ca4f0306636ee194e13ac5726b4face758b6bf08472fe842",
+          "hash": "158a6deefff6a3a4089cca4f97ea47273b15f8482efe18850a1e4c2b84fb56dc",
           "path": ".claude/README.md"
         },
         {
-          "hash": "2d964babba705c0b9f6a7296577979efc40775ad06c4112434d5ffa27c4312db",
+          "hash": "05e1f0a90a17d12f4729e50b2ace433c64945ec18ef20507464974411cbd5974",
           "path": ".claude/agents/core/critic-reviewer.md"
         },
         {
-          "hash": "687b2dc77ea8bda372bd00993eab1520abaf0ef656c6580d3a0138a4924eb4c9",
+          "hash": "b5d7b60df2ca77ef7a7908c542899468ac1614f4db3938f19a6ea52c3f24b9ff",
           "path": ".claude/agents/core/orchestrator.md"
         },
         {
-          "hash": "b4b72041103488d8562f24d4e0f41231c1634450df78c138b540336b2447207a",
+          "hash": "6b58823b4ae517cf6e4018ab30cc82c20628c840ebe26df98a059f6ad5c18466",
           "path": ".claude/agents/core/product-strategist.md"
         },
         {
-          "hash": "fb7369b4435914f8878f120c7a08121d443a500f12259a948e0d98f0091ff421",
+          "hash": "ef938c623398d1fbd0bfb9d7e8c80f99915a6122d7e041881a07f36229d41336",
           "path": ".claude/agents/design/brand-guardian.md"
         },
         {
-          "hash": "48b8ba1cf8093e4559d15046e90abbf3b98c0383590dd4e506e6d21276bfdc09",
+          "hash": "8a8682c7ba069c9eecc988dfb533f68d37a47e0df4ad35ceb276de6855b25af5",
           "path": ".claude/agents/design/ui-designer.md"
         },
         {
-          "hash": "62c975ded0f9763ad0b1b6608f11adc9a5107137006dd76a7dae81a2cf21e689",
+          "hash": "adfa35c595d1e24451932c8aa461f24e99ae0f99864b8925f9c599c7d0236a2c",
           "path": ".claude/agents/engineering/backend-engineer.md"
         },
         {
-          "hash": "1e464576cbfc8ba95c7865cc07a9eeba61e88ef5f4950baf665eea515b363be7",
+          "hash": "6a7dee87f0f23c2bdc365190044659828f72a11c759389e23d0f130918ca5d82",
           "path": ".claude/agents/engineering/dependency-auditor.md"
         },
         {
-          "hash": "ef3833837a334baf524bb4df15dbd586d3664376521e98b87d87c412cb0187d9",
+          "hash": "e5a448d0f63a7f4b4687e76522effb140a509d008e23b8343fc6fde802460076",
           "path": ".claude/agents/engineering/frontend-developer.md"
         },
         {
-          "hash": "d8ea5372bd030768d59d4417d5889937003b59a872ef3c89b44bc31f9f333a03",
+          "hash": "756a5ce28d3876bc7f3f2d5a4cb018efc00b9e00cf31f1387cfabd159488565c",
           "path": ".claude/agents/engineering/performance-engineer.md"
         },
         {
-          "hash": "a1a23a9789640d78b136a0c249ee3aacbafb6ef0c774ea50c14bd89a25b6943e",
+          "hash": "4934e5b788900047d041afe4a7df2efb297303991c4ad20191a2985d6bd7cf49",
           "path": ".claude/agents/engineering/refactor-engineer.md"
         },
         {
-          "hash": "d1cfc922932b9686ea3ba9263c9cf3a0e26f783f60eef12c86119d0f05b91999",
+          "hash": "b39c7f41260e17585d70b2030588af7592d71f6e856b52d8db26e766121c5fef",
           "path": ".claude/agents/engineering/security-reviewer.md"
         },
         {
-          "hash": "911d2c78ed9be3c5a831927c8c2a5acbddd6945f206aeecdb435b10ff5f8bda6",
+          "hash": "5654a22c5e4830bf0509f1c9fbe2ef5988369dc79263894df506e464209cd82b",
           "path": ".claude/agents/engineering/test-engineer.md"
         },
         {
-          "hash": "dc08071b0a3322f50ee5fa3049c465cd760289f67bcf497e11020e15a8415465",
+          "hash": "4ceadb3eeef43c85465b4fa8cebdbcbf9020d340dd14e27a78800f0a4c43c514",
           "path": ".claude/agents/growth/community-manager.md"
         },
         {
-          "hash": "ad1d9ba7f5d1e634e9225681077cd384585ef1856a1e9b9f59b0608132ef8d1f",
+          "hash": "9b8e8a756b088be95c3120b9c4b6af132ee2987e77e21cd42da7396a0f5e7509",
           "path": ".claude/agents/growth/content-strategist.md"
         },
         {
-          "hash": "05db0c02db9b053890f163dfa2a950f12b5be185ba61c24cd5a0168a5e41177b",
+          "hash": "c0888c37c4656c7f0ea888f45380462a9454c783718e36d37c6a7526fa1a031f",
           "path": ".claude/agents/growth/launch-strategist.md"
         },
         {
-          "hash": "337f439266a055588e2a0af068b0461b0ec8259932341a19d1cf15044c028a67",
+          "hash": "79dd9e3a6924141a8a36d61271194934dbfe96d091d9d640ff7d3d8737f7e805",
           "path": ".claude/agents/growth/support-triage-lead.md"
         },
         {
-          "hash": "22201daefd5b99ab0992dc432ba7e015771353ccde467e11e35ccf9fcb23ced1",
+          "hash": "f222d010a977088716b08f26953a0f3146781a8d1e89e4c05ddf83867730554c",
           "path": ".claude/agents/marketing/launch-copywriter.md"
         },
         {
-          "hash": "f66c80446da64b3ccf16d50f354bbc73ebff1022b273974f0a95472be643d6c7",
+          "hash": "daf51f6c64ee2d71eb0b1d139533a5a9ef5fc161c372dc0ab01cb67da527a872",
           "path": ".claude/agents/product/feedback-synthesizer.md"
         },
         {
-          "hash": "19b1d905b39ff4e2992fb755cda6f597fd615057052b0b38ad7c38d4858312c5",
+          "hash": "e14f75ef3ea0e04af8a2efd1fc1071740f42528b52345a61eb07c0f375738a3f",
           "path": ".claude/agents/product/information-architect.md"
         },
         {
-          "hash": "d3e7bc0b3b8c45b8c704cd9d4829fe50e1043c18b672854313ff807c2cbb4e42",
+          "hash": "5400c554716df37778f4c34a9a7fe9f369960382bd35daa9390ba0bc49cb9f6d",
           "path": ".claude/agents/product/roadmap-prioritizer.md"
         },
         {
-          "hash": "b2c1626e9c18a1adf09d629234cf56bc18bbd5e13498246da35f86cc22463548",
+          "hash": "f2c59b2402e5599d32a5a887e535c7c47dc243b585d31096ddcaaffcbb376859",
           "path": ".claude/agents/product/spec-writer.md"
         },
         {
-          "hash": "ea0a9b1e28dff6fca5c558e3323954a2dd6505d1213145e98fe6322bf47ea580",
+          "hash": "9b55d050caf98d078888c0c0630fcf14b10c2fbf8ed22328256948807e626763",
           "path": ".claude/agents/research/competitive-analyst.md"
         },
         {
-          "hash": "329fcca3c43be4f1d4458184a927029b8e136dc62b810653c0e132a2c1abdd23",
+          "hash": "1c1ae32dbfdcf09c94c36fce488875d7df268ea6dbe132fda2d2b9b81ae4c25c",
           "path": ".claude/agents/research/trend-researcher.md"
         },
         {
-          "hash": "429c7b361c36d610b30b1acc5793fa24cc1997bd9841297e6a753760f981351a",
+          "hash": "a125d21ad9fb1551850ba00119e6497d514e15ecfb98235dc07ed98cd8c036e8",
           "path": ".claude/agents/research/user-interview-synthesizer.md"
         },
         {
-          "hash": "b7b2a5657a521807bb3c0b953066aea0ac6fd864305cb5bcff6f7dddc992d6d8",
+          "hash": "865d237b66de59ec57c19605701cd9c7d4f3ac4df3e6ec731424ed62ef0d0ad4",
           "path": ".claude/agents/research/ux-researcher.md"
         },
         {
-          "hash": "7a22beaad309c64e6ea14d3107025fa06a5b10bcd2e772c76fdeb6d3b252cdfe",
+          "hash": "c7fa7f242310095eaa31288587f6077b40641254c8d463bc3a3f0a99d4cbeaa9",
           "path": ".claude/agents/treatment/coverage-auditor.md"
         },
         {
-          "hash": "0d73f921bcc9a2fb49933af9551d9dbee85675d71a900627ed6eb2d636bccf2c",
+          "hash": "ef14326ed0d7dd1cec25e19ec1f2f2e245e1db59907768ffaaedba78ff5a31a1",
           "path": ".claude/agents/treatment/deployment-verifier.md"
         },
         {
-          "hash": "1a9a9ff9ea1095aab4688b19cb9e0ec48db2ca59d9f5f5e51e1f858d8d1dff7b",
+          "hash": "366904341a80d44d761dcfc30e79157f6754f1f2fd70ca4c16518369773888b1",
           "path": ".claude/agents/treatment/docs-architect.md"
         },
         {
-          "hash": "bb7a05aec44d58dcac5b36e28b8eb6b4640775eec6e9ebf069c6415e70a44b5a",
+          "hash": "5b9c83dbcb24b984a372b3edd3aac6d65b6d14a7910bd149721bf6aaefaa56a0",
           "path": ".claude/agents/treatment/metadata-curator.md"
         },
         {
-          "hash": "4cc9d0a2b158a057c6c3fc39763f57c2192f9da62e2a811d68fd839f57eaf598",
+          "hash": "e1756416f5d0932f265c139e9cfb3621a18bb714d697dfee9347bb53e0bdab53",
           "path": ".claude/agents/treatment/release-engineer.md"
         },
         {
-          "hash": "d481658d5d6ff403aa4ddc87ab901adfbc3462d0a66935fa1009d15ae983583f",
+          "hash": "26ed181415209aa3e404334290683bb75d682d853512b5b07f0199463fc3b05a",
           "path": ".claude/agents/treatment/repo-researcher.md"
         },
         {
-          "hash": "8cfe4f057b3c99e101689729054a6a2a8970cd0a64cace28eb5e1defbf602dde",
+          "hash": "00428fc7e4c776815099c1160932383c39acc33b8a55f3cf09aaf0d636de7929",
           "path": ".claude/agents/treatment/repo-translator.md"
         },
         {
-          "hash": "64fcf907285b53f8a39c8cded2fc2c374c400172c0ef29450dc99bdbc4da5a44",
+          "hash": "c03fd112aa5ac22270c5d86049cdf934282688ef14e8c1f5e0d3c41927513473",
           "path": ".claude/context/brand-rules.md"
         },
         {
-          "hash": "a8e3b5fcf58bd59ba9234871c6f442f6a75a472c718fbf69ff7c2f40298b07da",
+          "hash": "1af4c55cfd480effe2b60f5ee75e337a4c2902192784a29dbe90a845ed350716",
           "path": ".claude/context/current-priorities.md"
         },
         {
-          "hash": "0fb14555b9471baceeff20d4823a291dd92947ba5e660396223c387d885a3387",
+          "hash": "702580d50957b6f12412f3a5112e37d6c7e9f63dd1c0848b85677d2665530361",
           "path": ".claude/context/product-brief.md"
         },
         {
-          "hash": "610f09d823f2443b1250bf0201fbc3ae72b666f8ccc0fd053c71ce05ecdde412",
+          "hash": "8912f6f65d91ac04ab046d1b84d2406c1c7da027ef9801e4704164c4be4f1e0f",
           "path": ".claude/context/repo-map.md"
         },
         {
-          "hash": "4ca89e52e89026648cddd1dcebae0ce9cd12290972323e751ca4785fdb78b7a6",
+          "hash": "4b11b65a09d8ac2915f85c8eab1630931ff01fe68eb751fa01e9971ca14b38ca",
           "path": ".claude/examples/feature-packet.md"
         },
         {
-          "hash": "ed14e6a5dc1d77b0ccf88428f90e5ebcf604f9c14e0fa805a6dacf2adb396c2a",
+          "hash": "0350e2bf29256b79863fab5ca28851edaf125c487d64059a26c8a1a6f2336ca4",
           "path": ".claude/examples/identity-packet.md"
         },
         {
-          "hash": "5b1b7ead1a83ed6fb13e8342f64bae5eda5ebdf007516ff176d9fe582def19f7",
+          "hash": "4b51704a87c3c0db31294ccdc992c256e9102c907a572340aac452e275561c29",
           "path": ".claude/examples/integration-packet.md"
         },
         {
-          "hash": "bc22ae44f568aacc8648cc306afa88bf49ef6883c7fa12cccf811ae66986dbe9",
+          "hash": "e82dc44673009b0ccb58721bd5c3e83d5fba5f4d7a05071dff5a8f30e8019625",
           "path": ".claude/handbook.md"
         },
         {
-          "hash": "fa39ec3464d39e01b4f5f2dd15c69d47c8bf6d93b75daa1694eed3cd12be04dc",
+          "hash": "1fd5df3c7ac78a9e816b4c6c89615882542ee0fd223b729303a3ab75604bcd81",
           "path": ".claude/policy/done-definition.md"
         },
         {
-          "hash": "682c931d8ac0745b5b8d9300370775f5d7a43be83a9397b363d560f7329701de",
+          "hash": "3f55fc37123f26446b7346f84e1c999fc7d9cc37c849ff7475f884867e6f9d58",
           "path": ".claude/policy/escalation-rules.md"
         },
         {
-          "hash": "8fe24f7551d6caa66713c98f32effcdc86a6cb4223707e25a7c5772988f83b55",
+          "hash": "2404f9505ed427f41a04df566f872af5b05232274c8b2d487a430e6e686fae1b",
           "path": ".claude/policy/routing-rules.md"
         },
         {
-          "hash": "5d55e6a21f589f1e05117ce7a0c60891a1d2bd0c3ba9f4c5a80c50e5544e7d3e",
+          "hash": "d3beccab15e5f6edb7e08a4a23223a7ae7b67a5fc42051bf56b683312fcbd34b",
           "path": ".claude/policy/tool-permissions.md"
         },
         {
-          "hash": "16f96f8b2fe34b2167ad1a1bd65a90a8f715d170c724545a54e4e2a808f34fe9",
+          "hash": "035499e31539c656b063078a84025b8c32d01d29177d0447e98a937350388d1f",
           "path": ".claude/schemas/handoff.md"
         },
         {
-          "hash": "34ee30f440135cb3c979f036f050faa6f12afe99528db9daafe01d1ac1f434ee",
+          "hash": "4d2320f4714f012170a85eb1d713cd45ee81d0cd820e44566b2e5bbfab236b3a",
           "path": ".claude/schemas/review-verdict.md"
         },
         {
-          "hash": "94fb28a919784c36612906f846800fd5def23da4807c93c45aca2c957baa9c41",
+          "hash": "4e005a5c28cf2afaf71644a8bb72e479af1078c4694dc8a1b17ff2bf95c7d854",
           "path": ".claude/schemas/task-packet.md"
         },
         {
-          "hash": "f85e5c9f734c54c2673e0053e4b2eef8be79ac10b1ec742462af9f18782d82c7",
+          "hash": "1eaec4e9122993393576658d12cd7c5ce23d14d8723c176344dbd35327a3ac59",
           "path": ".claude/workflows/fix-bug.md"
         },
         {
-          "hash": "df359c5ab2c72dafcf89dc7667749c18b7a273c4bdfcfa842cfd402a4adde6e6",
+          "hash": "18d187df95b192da63b71b6e25d6a04609a772b51c79a19ce22769b018fbc754",
           "path": ".claude/workflows/full-treatment.md"
         },
         {
-          "hash": "d0da445a5980afb0e596bb7fbdf2e38e94af4a2a3b69c541a4a75dccd8b1420d",
+          "hash": "24d942d7920f4afacdbf12a4d9c38bf5d0020ae78dd1abde4b3fc93ce6b26444",
           "path": ".claude/workflows/launch-update.md"
         },
         {
-          "hash": "63e96b0fdc47641829eab72029d5b0df51f34196c70ec043bfbfbd14dc698b90",
+          "hash": "850eceb2c0e76418017c2b446fd588e4194c79ab9e02fbbc4f6d7007d16bbf14",
           "path": ".claude/workflows/protect-health-budget-truth.md"
         },
         {
-          "hash": "77e6ad26462b2237ea062b63d9f242fae459b6c0ea51ee83888873235a048fa4",
+          "hash": "3077eb58698cbb81d3a998140a5b5b08d1eda2780f784841ce7d605c8d9de319",
           "path": ".claude/workflows/ship-feature.md"
         }
       ],
@@ -240,23 +240,23 @@
       "externals": 0,
       "files": [
         {
-          "hash": "661d4bf267f8972d070894d738e9cb34c92c835856e449bf834e5d58d29f76dc",
+          "hash": "ebb9f62cf3535469ba3424dada945f3ba4d99d5b5eb0321428fc1ef5edfe2414",
           "path": ".github/dependabot.yml"
         },
         {
-          "hash": "5f37639d1eca4c2b5bf01a7d75114e7e1ad20720c790cd098c32b9d9dd49a149",
+          "hash": "d881ebf058884da2470e8efa5fdf68b353441950e5e6c4e6bbfb7915efe5b3da",
           "path": ".github/workflows/ci.yml"
         },
         {
-          "hash": "fbaf7dcaf8b0217f5560be93e3633926955bb3d28fea7e5c375c22d18cfe4eb6",
+          "hash": "12ae02fdddabab770bfb968c2151824158ed8f6597c68d510469250365b14786",
           "path": ".github/workflows/dogfood.yml"
         },
         {
-          "hash": "a17b2760e93b910aaf07f24cd44d1d72f42ae387568cb9234c0cac639669b5f9",
+          "hash": "5c6b605dced7dbb45be26cae229bf1aa3ec0f4fd7c9e14df19618641f2beed57",
           "path": ".github/workflows/pages.yml"
         },
         {
-          "hash": "ad74ff5161e73bf9ccee26f00e4b778e15b877413decf48d16ec082166e593ac",
+          "hash": "4aaaf876a09fae0519b28cc5e426e75001857adfe87a603a3593643bd6da08d7",
           "path": ".github/workflows/release.yml"
         }
       ],
@@ -279,7 +279,7 @@
       "externals": 0,
       "files": [
         {
-          "hash": "e6f04730119be57d1899811c1386240f8db50b77d86dc1f6948e14f3b729a40c",
+          "hash": "6b931a24b77442284a05e7da982f065491acacfc5ce10d1ae3dc82beb3340cc1",
           "path": "docs/preview-runtime-spec.md"
         }
       ],
@@ -302,79 +302,83 @@
       "externals": 0,
       "files": [
         {
-          "hash": "ae482d9c8e1d25675669edfbc00c9a9b866af806a7e94f7a11c60208c2b06678",
+          "hash": "44e5fb90d6c1cf30360666dec330c0154844b0c56a18f96d8da55e0036d54be8",
           "path": ".gitignore"
         },
         {
-          "hash": "f4f937db7035eda92354bc5b64ce3d124df5e88e1feed22eb8c21b42756e49e1",
+          "hash": "0757471b8243b59eca8358f81fd27d1a47be16356014204b128a5e3f680a2209",
           "path": "CHANGELOG.md"
         },
         {
-          "hash": "2659e02cdfc8566e835b66ab6d89f1aeae93ea6d05bed1fdbce038fd85a462c4",
+          "hash": "600e3ff48b02c97d129ab5669ea4f074af55971a87623eea0539ef32ed4d7da2",
           "path": "HANDBOOK.md"
         },
         {
-          "hash": "5ae6b3c8f446f0a7cb95176e4dadb91b68aaffb16b3be09f64f5de248b6a973a",
+          "hash": "367e5141e4f5884e5791c4021f33a9faa958840a5decf44e1b273a87aad1c459",
           "path": "LICENSE"
         },
         {
-          "hash": "b6464a12843058e7b72952f923e5332760d446a0d85f1b1941fbf58e4186d762",
+          "hash": "73eaafb8bf25b3f3b924b76a7172db30549f205cd0cce58284b4f3158c5ce051",
           "path": "README.es.md"
         },
         {
-          "hash": "7c8be2174a4e5b85c62a1564f5eb91bb1c3cce28125abdada5a0095cc870efaa",
+          "hash": "f594ff352ed3749dd92488367283d898bfe8a504dae7a6d43410b7e9ca7ea085",
           "path": "README.fr.md"
         },
         {
-          "hash": "75d283a6937b490cbf99096a88c4f10332a36c84d61fecbc6d29158bcd467b03",
+          "hash": "e0082c3d3e84370b069dc5cd708ac3d9e44df58aa212440e78d24ab9f3a602c4",
           "path": "README.hi.md"
         },
         {
-          "hash": "35f1ddf626f190cb024ef65b43f7a52f5c33d9d872ec0cd846144fd9e34e7358",
+          "hash": "5f0b9b0c03ac7584ddcc28bd00eac55cf0015f8aab8177c0e80527c7b8e607dd",
           "path": "README.it.md"
         },
         {
-          "hash": "1f8463e67bf0b8edd16b1c61108b46fa440f222c446b75b7fc8707e46c4198bb",
+          "hash": "29a665f59b1bfe815d128294b57da130f689a58477290e244227630badb4e7ad",
           "path": "README.ja.md"
         },
         {
-          "hash": "efb9dba6d88c4b3499523c530822832842a15a57cf8b985c625b55d132a8f711",
+          "hash": "84663ccc6ffde8258625d71412e1d38e188dcfa0233e28cafc20d2173c28fd5a",
           "path": "README.md"
         },
         {
-          "hash": "c9f197bddec014f182da700da14ddc6ed3cc246982d62d29e04cf349598dc2cf",
+          "hash": "5c04cfec97a0e854527f018a46f8c3113389ea3d7b2ba6e28eaaf0f6bd96c516",
           "path": "README.pt-BR.md"
         },
         {
-          "hash": "7824f0bff4a731c1494b04db786620fc6bd1999b09d053c33e79c88913dc722c",
+          "hash": "4806b4fa5e0a22c11382c4ba91ff72889771e8900f82453be3a345d509883d2e",
           "path": "README.zh.md"
         },
         {
-          "hash": "e5350fcb78a571b8c93adf8c4d45d558f1635f3e5483b198e31d0fc492310d0c",
+          "hash": "da49253acb4611bd320c5e60d9a60219b7c181c17c82cfae313685a87061ac7d",
           "path": "SCORECARD.md"
         },
         {
-          "hash": "722d96dcf43cb62f41e00e95a2bdbdca94e1c6774204261255c73e371beaf3ee",
+          "hash": "667661af0d64dbf77d1206bc6ccd2dd42f9a8f24465accd93397ac1b3e3b197d",
           "path": "SECURITY.md"
         },
         {
-          "hash": "2fb4426644e3cf9e2339c1acff75a02859a5ff572fc0dc31f0804891165e5e8b",
+          "hash": "74cacc72155593495dcc8826e9a21a942df0b8ab5d34f0ff4a0c0a508ae10a4e",
           "path": "SHIP_GATE.md"
         },
         {
-          "hash": "986d6acae3fb523810115468dbdb0ad7ad8bd02405afa58d201be2bba3bff76b",
+          "hash": "59ca3f6a5be96b80fee73bebf2b778211208d17cd3fb82e2134608dff0729c76",
+          "path": "codecov.yml"
+        },
+        {
+          "hash": "2551146219038a0cea583bb0b96d8109d4c64d2f7492bb154e7f7a2fa6bf7f49",
           "path": "package-lock.json"
         },
         {
-          "hash": "8f3760cfdf803b200afe0455355b51f701cab0ba3cb780be4f25e791e62238c1",
+          "hash": "fa397be2860e998da0632153ca451f9a1abdfd4e36d6f866b1af6c298fe7c7d5",
           "path": "package.json"
         },
         {
-          "hash": "fb0f1d7b5c70247aee2e6bd12243cf3879bcf9da822257a3d52e2308609d3739",
+          "hash": "9ba5bb43adb43f4930963569d78f2f80acb847a991803ffd81cc00d1fae318c9",
           "path": "tsconfig.json"
         },
         {
-          "hash": "8b32d91619dfa91295022bfe3b364b8952dfbc9e499680a02544677f9f051aca",
+          "hash": "9ca4633fe2b50fdcefa6336231b8903b9a0b1b336f186f590f4c8f833dc8ba63",
           "path": "vitest.config.ts"
         }
       ],
@@ -385,7 +389,8 @@
       "name": "root",
       "origin": "authored",
       "role": "config",
-      "testedBy": 0,
+      "testedBy": 1,
+      "testedByScript": true,
       "unresolvedSites": 0
     },
     {
@@ -397,71 +402,81 @@
       "externals": 0,
       "files": [
         {
-          "hash": "81cb1309bb87212f9e75e539f9f62e5fd8bffccc7793322bef65cc8987a6fb0f",
+          "hash": "2055cae4e5decaec0948f84141d32870844cb8b209327571053fe2a0d61fbd02",
           "path": "site/astro.config.mjs"
         },
         {
-          "hash": "b5578baf42cab82e5e7b451b6992cb929aeb6ff8d02d8e11ab690e6f67fea144",
+          "hash": "af5d4f54dca60686724d306eb58759fb25b6f5ba4d66559ab84a968112a184e5",
           "path": "site/package-lock.json"
         },
         {
-          "hash": "cff923d88f356795747a843362ca300b43d09c5715e6356f904b4d5fa06a7fae",
+          "hash": "17ed487ab5049bb52f8c5e35f77f21be7da639f1fb6a3fa70e9b02ffabfe7be6",
           "path": "site/package.json"
         },
         {
-          "hash": "ec030f2e4bf6dc57eaca075d390c228b3212cf29db267e32ef92e110de1acdcc",
+          "constantOnly": true,
+          "hash": "ee756dfba4122d2acc94a39b2555d9f200fff56a87a8c0b10f9cd01df26a8b62",
           "path": "site/src/content.config.ts"
         },
         {
-          "hash": "c78393719761841c8fa0bd49ca08f90319ecc7a902b43184836cb3dbcaa87023",
+          "hash": "013d4d97b63e968762628f1d8bdefec6bfbe0e8ba909de9835f7c5706e70e7a1",
           "path": "site/src/content/docs/handbook/architecture.md"
         },
         {
-          "hash": "e84e14bf7e0edc582ea76e01204ad290512dfda09c7eed4bc5f9f360ba06efd2",
+          "hash": "86551ce8b791118004e933f544c4d5a56f46bfcb44616353c1f95b36d85561dd",
           "path": "site/src/content/docs/handbook/beginners.md"
         },
         {
-          "hash": "08742888e0805fde8aa8bcbe7bfe783ddfb31760868d0c33202e2b17faa6b01a",
+          "hash": "f74bc1b9fb402f0fe890fda4b4190a14a6a50aef95559e362e61e4daf5e2fe4d",
           "path": "site/src/content/docs/handbook/commands.md"
         },
         {
-          "hash": "0b176593ad463d037449bedc2757c5926e8f6a75060bf3c3f0353acada0c97dc",
+          "hash": "57acd3af994ef69e23d1dabb313b1bb39a1211fa3a2add7e882858393975861e",
           "path": "site/src/content/docs/handbook/configuration.md"
         },
         {
-          "hash": "b7eff19b4b61588bb6e91e1d4c829ee65f79e04e6961871cdb8e7844f30048a2",
+          "hash": "0542be9a31f9926c4510051562f608a3190f40b9b7e64df2305b03ff7b011f2f",
           "path": "site/src/content/docs/handbook/getting-started.md"
         },
         {
-          "hash": "fde92b86c85be16fad89497cc88b5186bad07384ded0f8877e0e977f6d085044",
+          "hash": "59b8d561e614ff1e5acbe06f036c93c6fea8e4480b9cfa955115aed91f401947",
           "path": "site/src/content/docs/handbook/index.md"
         },
         {
-          "hash": "6d31f3c6bc0861ce22e3e0e0366d892e47a29a8416abf063de3a3a8726d177fe",
+          "hash": "43c8934bc4461dd1b6a36b52b4644a8b9d3d70e117c7b0f71c3e12a286bc9216",
           "path": "site/src/content/docs/handbook/mcp-server.md"
         },
         {
-          "hash": "970888becc675c159e9611c4238d7b6230f193cd3a9758b1169708fa6918bf8a",
+          "hash": "78b7700ca40e8d60b4b27df0ff50ff49cb915f159f0e789201edfb4af1e35555",
           "path": "site/src/content/docs/handbook/security.md"
         },
         {
-          "hash": "a699ad78a6d27d6864ccfe4c3a4a01993aca28ecb4a3d20893f37db9f9b1a522",
+          "hash": "391533713539035d3c92282579d43de0f137067867fdb502d7eaea3c74601d2a",
+          "importOrder": [
+            "site/src/styles/global.css",
+            "site/src/site-config.ts"
+          ],
+          "importsFiles": [
+            "site/src/site-config.ts",
+            "site/src/styles/global.css"
+          ],
           "path": "site/src/pages/index.astro"
         },
         {
-          "hash": "8cfbbb1a3a1e9dd7756fd4d499db725f9be214125dd980e35d9695496eabee2e",
+          "constantOnly": true,
+          "hash": "c0ce6eaef0a60ac1fd5ed4dbea464d376bd558e48c390b88eea8779c9202fa43",
           "path": "site/src/site-config.ts"
         },
         {
-          "hash": "5995279a40a9a63426a93feec129006b261cc7200426a398914d0317722ef19b",
+          "hash": "29ee8df91833e694bdba973126b34a6177de4cf01dab6d9ef7d3126e8e2b67fb",
           "path": "site/src/styles/global.css"
         },
         {
-          "hash": "22ab5fb7496132222fbbdf8fb2d43be3652ff585a4ace4b0d29bb76d2877e617",
+          "hash": "0d11beabe574a2269bdaa467f06d03254f61512b287b43d6205d8d46d28f9270",
           "path": "site/src/styles/starlight-custom.css"
         },
         {
-          "hash": "61fc24492db9aef7ec38eb91cfeebaef96155014bb5f22648fd8ed2327c6cae2",
+          "hash": "b5b0a5b04a14cddd7713c5e1c82e86c79c17c2f86b170e26e9b170b3d5e01cd9",
           "path": "site/tsconfig.json"
         }
       ],
@@ -476,10 +491,10 @@
       "unresolvedSites": 0
     },
     {
-      "dynamicReads": 24,
-      "dynamicSpawns": 1,
+      "dynamicReads": 3,
+      "dynamicSpawns": 6,
       "dynamicSpawnsInTests": 0,
-      "dynamicWrites": 15,
+      "dynamicWrites": 1,
       "entryPoints": [
         "src/cli.ts"
       ],
@@ -492,7 +507,40 @@
             "withBudgetLock",
             "writeBudget"
           ],
-          "hash": "0120fc3adc22e868b2de2bf5963f59a41bfe35a6d79b39411d3a25acf8fe4d04",
+          "failurePaths": [
+            {
+              "in": "writeBudget",
+              "kind": "catch",
+              "line": 66
+            },
+            {
+              "in": "writeBudget",
+              "kind": "throw",
+              "line": 67
+            },
+            {
+              "in": "readBudget",
+              "kind": "catch",
+              "line": 80
+            },
+            {
+              "in": "readBudget",
+              "kind": "catch",
+              "line": 86
+            },
+            {
+              "in": "readBudget",
+              "kind": "catch",
+              "line": 91
+            }
+          ],
+          "hash": "56cf34464e711a4b49cfc7affff1c78d2ea3524e0eb717ba9e0810937be98f63",
+          "importOrder": [
+            "src/defaults.ts",
+            "src/fs-utils.ts",
+            "src/errors.ts",
+            "src/process-monitor.ts"
+          ],
           "importsFiles": [
             "src/defaults.ts",
             "src/errors.ts",
@@ -502,7 +550,12 @@
           "path": "src/budget-store.ts"
         },
         {
-          "hash": "d81049c17992667872d03309990dcf8f6631f3ffa59c5af3a177aa0d08979747",
+          "hash": "e7bc4c725926cb6e9b59a2478712c513b22ea1fdd29f261764d98f6a120e22d3",
+          "importOrder": [
+            "src/defaults.ts",
+            "src/process-monitor.ts",
+            "src/budget-store.ts"
+          ],
           "importsFiles": [
             "src/budget-store.ts",
             "src/defaults.ts",
@@ -511,11 +564,23 @@
           "path": "src/budget.ts"
         },
         {
-          "entry": "printFullStatus",
-          "entryRule": 1,
-          "hash": "991033c462bcf56dc8639af00664d167a167c0418eb6ba04a2ac9437142c58ca",
+          "hash": "603926050b2045bb67c9fff6af8d5118f5f89a84209709366d1fd624049a2129",
+          "importOrder": [
+            "src/log-manager.ts",
+            "src/doctor.ts",
+            "src/watchdog.ts",
+            "src/mcp-server.ts",
+            "src/watch-daemon.ts",
+            "src/process-monitor.ts",
+            "src/state.ts",
+            "src/fs-utils.ts",
+            "src/defaults.ts",
+            "src/budget.ts",
+            "src/budget-store.ts",
+            "src/errors.ts",
+            "src/types.ts"
+          ],
           "importsFiles": [
-            "package.json",
             "src/budget-store.ts",
             "src/budget.ts",
             "src/defaults.ts",
@@ -555,7 +620,7 @@
             "getGuardianDataPath",
             "getJournalPath"
           ],
-          "hash": "7aa3542e9be4eff08aea899aca1eeb4a1b3e7d89f67934be8ae3878fd0c77a45",
+          "hash": "a401b28e4c0f8168db7cec223348fa2cc7d52da804f6620eb29e8674314a239a",
           "importsFiles": [
             "src/types.ts"
           ],
@@ -568,7 +633,24 @@
             "generateBundle",
             "validateOutputPath"
           ],
-          "hash": "7cd643dfab4e7caed29c2f5e0bee8682fd3c43d64fdb24c1df17b1f50afaf0b9",
+          "failurePaths": [
+            {
+              "in": "validateOutputPath",
+              "kind": "throw",
+              "line": 98
+            }
+          ],
+          "hash": "9a86adb982f236dd534e94b264d08fa1cbe1fc1dfddc8eb21ca94fb46d27d510",
+          "importOrder": [
+            "src/types.ts",
+            "src/defaults.ts",
+            "src/fs-utils.ts",
+            "src/log-manager.ts",
+            "src/process-monitor.ts",
+            "src/handle-count.ts",
+            "src/state.ts",
+            "src/incident.ts"
+          ],
           "importsFiles": [
             "src/defaults.ts",
             "src/fs-utils.ts",
@@ -585,7 +667,7 @@
           "exports": [
             "wrapError"
           ],
-          "hash": "43fff288673046ccca011d709552b6f5ee3d86d73d032bb9d5c9a17b3ddb82be",
+          "hash": "dc51bd1cd911b6b0de57bc8ae4850027d6b6a97364fb2a2edc0084b897ad53ac",
           "path": "src/errors.ts"
         },
         {
@@ -603,7 +685,73 @@
             "trimFileToLines",
             "writeJournalEntry"
           ],
-          "hash": "7b468993585da4dbdcbcb51d053764b8813741e563f7e9c7a2a284328869f3ca",
+          "failurePaths": [
+            {
+              "in": "fileSize",
+              "kind": "catch",
+              "line": 14
+            },
+            {
+              "in": "dirSize",
+              "kind": "catch",
+              "line": 32
+            },
+            {
+              "in": "listFilesRecursive",
+              "kind": "catch",
+              "line": 51
+            },
+            {
+              "in": "listFilesWithStats",
+              "kind": "catch",
+              "line": 77
+            },
+            {
+              "in": "listFilesWithStats",
+              "kind": "catch",
+              "line": 82
+            },
+            {
+              "in": "getDiskFreeGB",
+              "kind": "catch",
+              "line": 117
+            },
+            {
+              "in": "getDiskFreeGB",
+              "kind": "catch",
+              "line": 129
+            },
+            {
+              "in": "getDiskFreeGB",
+              "kind": "catch",
+              "line": 143
+            },
+            {
+              "in": "tailFile",
+              "kind": "catch",
+              "line": 204
+            },
+            {
+              "in": "readJournal",
+              "kind": "catch",
+              "line": 240
+            },
+            {
+              "in": "readJournal",
+              "kind": "catch",
+              "line": 248
+            },
+            {
+              "in": "pathExists",
+              "kind": "catch",
+              "line": 263
+            }
+          ],
+          "hash": "25624060ad35351c56392674b0a86b6ef09c0f28e28de3f1c4d7a9d720518ccf",
+          "importOrder": [
+            "src/types.ts",
+            "src/defaults.ts"
+          ],
           "importsFiles": [
             "src/defaults.ts",
             "src/types.ts"
@@ -615,14 +763,48 @@
             "getHandleCount",
             "getHandleCounts"
           ],
-          "hash": "9e6f55783a347e62275a55bfc110e0200a1c06b98e5f203d84296277f94806d4",
+          "failurePaths": [
+            {
+              "in": "getHandleCount",
+              "kind": "catch",
+              "line": 26
+            },
+            {
+              "in": "getHandleCountWindows",
+              "kind": "catch",
+              "line": 48
+            },
+            {
+              "in": "getHandleCountLinux",
+              "kind": "catch",
+              "line": 58
+            },
+            {
+              "in": "getHandleCountMacOS",
+              "kind": "catch",
+              "line": 70
+            }
+          ],
+          "hash": "ea30dad8b2daf7222d87f3851c2de3533bbf1470b5842c225af76ce52f18dc25",
           "path": "src/handle-count.ts"
         },
         {
           "exports": [
             "readIncidentLog"
           ],
-          "hash": "88c4cc045855a4a0a3d1e8e58bd86fc94c321723049c943dafa4abb0e6dfa99f",
+          "failurePaths": [
+            {
+              "in": "readIncidentLog",
+              "kind": "catch",
+              "line": 129
+            },
+            {
+              "in": "readIncidentLog",
+              "kind": "catch",
+              "line": 135
+            }
+          ],
+          "hash": "199e5c0a889adeb8c3733baccc4d9b8998e56bc059f09caa9adf66d84beaae9d",
           "importsFiles": [
             "src/defaults.ts",
             "src/process-monitor.ts"
@@ -638,7 +820,64 @@
             "healthBanner",
             "scanLogs"
           ],
-          "hash": "5c05764419292754a96b1fe69bc2cca6b97a5abf23d224b340bca3f9ae4ba5ff",
+          "failurePaths": [
+            {
+              "in": "scanLogs",
+              "kind": "catch",
+              "line": 49
+            },
+            {
+              "in": "scanLogs",
+              "kind": "catch",
+              "line": 88
+            },
+            {
+              "in": "scanLogs",
+              "kind": "catch",
+              "line": 97
+            },
+            {
+              "in": "fixLogs",
+              "kind": "catch",
+              "line": 176
+            },
+            {
+              "in": "fixLogs",
+              "kind": "catch",
+              "line": 205
+            },
+            {
+              "in": "fixLogs",
+              "kind": "catch",
+              "line": 221
+            },
+            {
+              "in": "fixLogs",
+              "kind": "catch",
+              "line": 249
+            },
+            {
+              "in": "cleanStaleSessions",
+              "kind": "catch",
+              "line": 365
+            },
+            {
+              "in": "cleanStaleSessions",
+              "kind": "catch",
+              "line": 406
+            },
+            {
+              "in": "cleanStaleSessions",
+              "kind": "catch",
+              "line": 435
+            }
+          ],
+          "hash": "a0e1451309ddd335cda286a07d374b75278ea8fdd6dfd9bb4b92e9197119f7f6",
+          "importOrder": [
+            "src/types.ts",
+            "src/defaults.ts",
+            "src/fs-utils.ts"
+          ],
           "importsFiles": [
             "src/defaults.ts",
             "src/fs-utils.ts",
@@ -652,7 +891,78 @@
             "formatBanner",
             "startMcpServer"
           ],
-          "hash": "ba1ac7f38405a6f4cd482873e05c9d0fcc28310e43e1b569b78d04836c778bc0",
+          "failurePaths": [
+            {
+              "in": "createMcpServer",
+              "kind": "catch",
+              "line": 101
+            },
+            {
+              "in": "createMcpServer",
+              "kind": "catch",
+              "line": 129
+            },
+            {
+              "in": "createMcpServer",
+              "kind": "catch",
+              "line": 151
+            },
+            {
+              "in": "createMcpServer",
+              "kind": "catch",
+              "line": 222
+            },
+            {
+              "in": "createMcpServer",
+              "kind": "catch",
+              "line": 234
+            },
+            {
+              "in": "createMcpServer",
+              "kind": "catch",
+              "line": 273
+            },
+            {
+              "in": "createMcpServer",
+              "kind": "catch",
+              "line": 304
+            },
+            {
+              "in": "createMcpServer",
+              "kind": "catch",
+              "line": 335
+            },
+            {
+              "in": "createMcpServer",
+              "kind": "catch",
+              "line": 389
+            },
+            {
+              "in": "createMcpServer",
+              "kind": "catch",
+              "line": 429
+            },
+            {
+              "in": "createMcpServer",
+              "kind": "catch",
+              "line": 513
+            }
+          ],
+          "hash": "79fdda506a00d987a83b4093963d4344eac44a3fbebbbaf5edfe02970bb62577",
+          "importOrder": [
+            "src/log-manager.ts",
+            "src/doctor.ts",
+            "src/fs-utils.ts",
+            "src/defaults.ts",
+            "src/process-monitor.ts",
+            "src/state.ts",
+            "src/budget-store.ts",
+            "src/budget.ts",
+            "src/recovery-plan.ts",
+            "src/errors.ts",
+            "src/port-probe.ts",
+            "src/project-classify.ts"
+          ],
           "importsFiles": [
             "src/budget-store.ts",
             "src/budget.ts",
@@ -673,7 +983,7 @@
           "exports": [
             "probePort"
           ],
-          "hash": "126a0563f6639cb4d43bad8d353883896a507b39aa730603efbcf08d6e56802c",
+          "hash": "401b39fdcd98d587d75c48d66c005677fcaff7c550e19c29c54691a9e5c54453",
           "path": "src/port-probe.ts"
         },
         {
@@ -683,7 +993,34 @@
             "findClaudeProcesses",
             "recommendActions"
           ],
-          "hash": "403beb63ede307307cdd9f62a1a06c901531e824ad9842358f1c40b15272b0e9",
+          "failurePaths": [
+            {
+              "in": "findClaudeProcesses",
+              "kind": "catch",
+              "line": 79
+            },
+            {
+              "in": "findClaudeProcesses",
+              "kind": "catch",
+              "line": 103
+            },
+            {
+              "in": "findClaudeProcesses",
+              "kind": "catch",
+              "line": 112
+            },
+            {
+              "in": "findClaudeProcesses",
+              "kind": "catch",
+              "line": 114
+            },
+            {
+              "in": "findClaudeProcesses",
+              "kind": "catch",
+              "line": 116
+            }
+          ],
+          "hash": "b3d61b870054c40183bb0fb7f5bb4c6832bd7df224963757e5fb3c6f0cf47723",
           "importsFiles": [
             "src/defaults.ts",
             "src/fs-utils.ts"
@@ -695,7 +1032,29 @@
             "classifyProject",
             "extractPort"
           ],
-          "hash": "b3de79766671fa3828137dc8e0009b09080e2010585d8a290cb00511639d85c5",
+          "failurePaths": [
+            {
+              "in": "exists",
+              "kind": "catch",
+              "line": 36
+            },
+            {
+              "in": "readText",
+              "kind": "catch",
+              "line": 45
+            },
+            {
+              "in": "classifyProject",
+              "kind": "catch",
+              "line": 171
+            },
+            {
+              "in": "findCsprojFiles",
+              "kind": "catch",
+              "line": 239
+            }
+          ],
+          "hash": "9cef3787600d97c08365c56923de35b106fdbe7ba890ea6c77221ddcdc0b333d",
           "path": "src/project-classify.ts"
         },
         {
@@ -703,7 +1062,7 @@
             "formatRecoveryPlan",
             "generateRecoveryPlan"
           ],
-          "hash": "953ed9694f1ab1c2d1f1b161600c543765f8bda7d76ad41df03ee8763a97cab8",
+          "hash": "dfd83eeab2fbc9d9577adf769803cc6f44ea0f83f14ac7db960c1ddcf859a170",
           "importsFiles": [
             "src/state.ts"
           ],
@@ -718,7 +1077,42 @@
             "withStateLock",
             "writeState"
           ],
-          "hash": "64ee41c8c92716ef8b86d2b8926a78637902e98f11e435ce6883e3aca15faf62",
+          "failurePaths": [
+            {
+              "in": "writeState",
+              "kind": "catch",
+              "line": 100
+            },
+            {
+              "in": "writeState",
+              "kind": "throw",
+              "line": 101
+            },
+            {
+              "in": "readState",
+              "kind": "catch",
+              "line": 114
+            },
+            {
+              "in": "readState",
+              "kind": "catch",
+              "line": 120
+            },
+            {
+              "in": "readState",
+              "kind": "catch",
+              "line": 125
+            }
+          ],
+          "hash": "5554d6d08dc4fc6b780c5c20c51fed3208beb439221eb190ee328d53b4a4d111",
+          "importOrder": [
+            "src/defaults.ts",
+            "src/fs-utils.ts",
+            "src/errors.ts",
+            "src/process-monitor.ts",
+            "src/incident.ts",
+            "src/budget.ts"
+          ],
           "importsFiles": [
             "src/budget.ts",
             "src/defaults.ts",
@@ -730,14 +1124,38 @@
           "path": "src/state.ts"
         },
         {
-          "hash": "b8c6343008f56af61e3c2d5bac4dc015abf6feff9199073ca0f06cc9c13d36d3",
+          "hash": "b9435f42d145fd6acf5d94ffe330de50493798a90160ac8def72830897ecbcb1",
           "path": "src/types.ts"
         },
         {
           "exports": [
             "startWatchDaemon"
           ],
-          "hash": "5c856aedd2c1af75c337cf92c5b078a6b4c532e4c3e42b232306442d4620d2e1",
+          "failurePaths": [
+            {
+              "in": "startWatchDaemon",
+              "kind": "catch",
+              "line": 119
+            },
+            {
+              "in": "startWatchDaemon",
+              "kind": "catch",
+              "line": 197
+            }
+          ],
+          "hash": "525e8984b25ae4e1953567cd6248632e7e2a95d56aadb72b7b9ff4ca9a056d21",
+          "importOrder": [
+            "src/fs-utils.ts",
+            "src/defaults.ts",
+            "src/process-monitor.ts",
+            "src/state.ts",
+            "src/incident.ts",
+            "src/budget.ts",
+            "src/budget-store.ts",
+            "src/handle-count.ts",
+            "src/log-manager.ts",
+            "src/doctor.ts"
+          ],
           "importsFiles": [
             "src/budget-store.ts",
             "src/budget.ts",
@@ -756,7 +1174,26 @@
           "exports": [
             "formatHealthStatus"
           ],
-          "hash": "fe7a80f3ff9ff3b4b049ea7edc24c72b074d7b81d611cd5cf367193a26efeb2a",
+          "failurePaths": [
+            {
+              "in": "getHealth",
+              "kind": "catch",
+              "line": 90
+            },
+            {
+              "in": "captureBundle",
+              "kind": "catch",
+              "line": 234
+            }
+          ],
+          "hash": "201ea3adc71bd5d40fb8be15b34de1f6c5d30b720fb282891bb28165adbc637e",
+          "importOrder": [
+            "src/types.ts",
+            "src/defaults.ts",
+            "src/fs-utils.ts",
+            "src/doctor.ts",
+            "src/log-manager.ts"
+          ],
           "importsFiles": [
             "src/defaults.ts",
             "src/doctor.ts",
@@ -767,15 +1204,83 @@
           "path": "src/watchdog.ts"
         }
       ],
+      "frameworks": [
+        "mcp"
+      ],
       "globs": [
         "src/**"
       ],
       "importConfidence": "full",
       "name": "src",
       "origin": "authored",
+      "outsidePlaces": [
+        {
+          "reads": 9,
+          "where": [
+            "caller"
+          ],
+          "writes": 2
+        },
+        {
+          "reads": 0,
+          "where": [
+            "caller",
+            "home:.claude-guardian"
+          ],
+          "writes": 1
+        },
+        {
+          "reads": 3,
+          "where": [
+            "caller",
+            "home:.claude/"
+          ],
+          "writes": 0
+        },
+        {
+          "reads": 1,
+          "where": [
+            "cwd:package.json"
+          ],
+          "writes": 0
+        },
+        {
+          "reads": 10,
+          "where": [
+            "home:.claude-guardian"
+          ],
+          "writes": 9
+        },
+        {
+          "reads": 3,
+          "where": [
+            "home:.claude-guardian/"
+          ],
+          "writes": 5
+        },
+        {
+          "reads": 4,
+          "where": [
+            "home:.claude/"
+          ],
+          "writes": 0
+        }
+      ],
+      "outsideReads": 30,
+      "outsideWrites": 17,
       "role": "code",
+      "testRunners": [
+        "vitest"
+      ],
       "testedBy": 16,
-      "unresolvedSites": 0
+      "unresolvedNamed": [
+        {
+          "path": "src/mcp-server.ts",
+          "specifier": "zod",
+          "why": "undeclared"
+        }
+      ],
+      "unresolvedSites": 1
     },
     {
       "dynamicReads": 0,
@@ -786,113 +1291,148 @@
       "externals": 0,
       "files": [
         {
-          "hash": "9e4d8d5597b749bdc4042a84de363a01cacfef7a0aeee9a93ee93ab689fbaf13",
+          "hash": "0d6d0f02ae7e365a3f18d1d6ebdb15683299f146bdfa02bf673022239f2a9a1a",
+          "importOrder": [
+            "src/mcp-server.ts",
+            "src/budget-store.ts"
+          ],
           "importsFiles": [
             "src/budget-store.ts",
             "src/mcp-server.ts"
           ],
-          "path": "tests/budget-mcp.test.ts"
+          "path": "tests/budget-mcp.test.ts",
+          "testFramework": "vitest"
         },
         {
-          "hash": "14cb3638ad3e48502c347816f5ba13527fc3268d1456d1274572b1817b883ed3",
+          "hash": "8b66ca1d2e807b6a8d2419affa8e7086847e13a510c79ed7e5836acf03128c1b",
+          "importOrder": [
+            "src/budget.ts",
+            "src/budget-store.ts",
+            "src/defaults.ts"
+          ],
           "importsFiles": [
             "src/budget-store.ts",
             "src/budget.ts",
             "src/defaults.ts"
           ],
-          "path": "tests/budget.test.ts"
+          "path": "tests/budget.test.ts",
+          "testFramework": "vitest"
         },
         {
-          "hash": "63d99acbaa3a3f18b26184873e960b510914aba4332e7c33c71ea4b2caca0e33",
+          "hash": "b3f2f24bb78d7dac076e929a417cf26a016333fc4878ed41068318f57e83cdc6",
           "importsFiles": [
             "src/doctor.ts",
             "src/types.ts"
           ],
-          "path": "tests/doctor.test.ts"
+          "path": "tests/doctor.test.ts",
+          "testFramework": "vitest"
         },
         {
-          "hash": "832a9d0b3d2c20821efb20dad7f2d727798aa1aa26bef08a449591c04d99124a",
+          "hash": "f03b73da0844d06c88265b367db2e315d9834c6c5402ce83ea46da77ecc44f21",
           "importsFiles": [
             "src/errors.ts"
           ],
-          "path": "tests/errors.test.ts"
+          "path": "tests/errors.test.ts",
+          "testFramework": "vitest"
         },
         {
-          "hash": "714c147b736540dbcdd9b648a616b71da0f5ec1d568e57015b2617b4d3c43b43",
+          "hash": "9a5eba285d2d0c5900daf9a07f65ebeb856094ee19444ce34d1ae880fc0c8777",
           "importsFiles": [
             "src/handle-count.ts"
           ],
-          "path": "tests/handle-count.test.ts"
+          "path": "tests/handle-count.test.ts",
+          "testFramework": "vitest"
         },
         {
-          "hash": "7496e95fdd3dc00612e22ac13634ada200e188e23eb7bc68d5017d5ed685f67b",
+          "hash": "45d50b3feb6ebf14031a4a50e96e533be6e23c852da1555faf2b5629d703cdae",
           "importsFiles": [
             "src/incident.ts"
           ],
-          "path": "tests/incident.test.ts"
+          "path": "tests/incident.test.ts",
+          "testFramework": "vitest"
         },
         {
-          "hash": "1e02913c6fd969e4b371d402d7163fc577456212079a533c17d158201539e75b",
+          "hash": "489b30db0b591cd20cac105c2a5e3d900d7d3903a5c176b8af77fa9c5c400ca6",
+          "importOrder": [
+            "src/log-manager.ts",
+            "src/fs-utils.ts",
+            "src/types.ts"
+          ],
           "importsFiles": [
             "src/fs-utils.ts",
             "src/log-manager.ts",
             "src/types.ts"
           ],
-          "path": "tests/log-manager.test.ts"
+          "path": "tests/log-manager.test.ts",
+          "testFramework": "vitest"
         },
         {
-          "hash": "91983268433d954ba7b9bf83c452a8af2cf6b2a8524c760944f1a1c9964e9b31",
+          "hash": "acccdb5415188d9a81dca2290813953fb462ee69da2757601a7f053b12df60ce",
           "importsFiles": [
             "src/mcp-server.ts",
             "src/state.ts"
           ],
-          "path": "tests/mcp-server.test.ts"
+          "path": "tests/mcp-server.test.ts",
+          "testFramework": "vitest"
         },
         {
-          "hash": "602fe4c51c4857b374e252b1f9adbe745f26e919db5b2470f706e5edb6caa948",
+          "hash": "c0ea76fc02beb1284c0c7191c20ce4feafd1559f9c27c980360389a6d860fcdc",
           "importsFiles": [
             "src/mcp-server.ts"
           ],
-          "path": "tests/nudge.test.ts"
+          "path": "tests/nudge.test.ts",
+          "testFramework": "vitest"
         },
         {
-          "hash": "b4d662f0d38e0f71c116edb4f4425efa6ae45b6870aba5ca59fb4a2c6618b538",
+          "hash": "b152ac09ac8cb12818993e38f1966d0fce341c0fc09ee511cba48e547458f1ca",
           "importsFiles": [
             "src/port-probe.ts"
           ],
-          "path": "tests/port-probe.test.ts"
+          "path": "tests/port-probe.test.ts",
+          "testFramework": "vitest"
         },
         {
-          "hash": "78bc35dd24f2594f4239a118dad5c4c8fce0406746906cf0f489d3a229af0c0b",
+          "hash": "b1863749ecf771d15d23b40cb93ecfa44ae29a4bdb4c5f3817cbf4624c80febc",
           "importsFiles": [
             "src/process-monitor.ts"
           ],
-          "path": "tests/process-monitor.test.ts"
+          "path": "tests/process-monitor.test.ts",
+          "testFramework": "vitest"
         },
         {
-          "hash": "76c9ba387e7a1280ed37a1e4317cb11d832ad3bb6fc0c4f71e8d88ab21dfc62d",
+          "hash": "6124eb3be9d4f3fd16e6bcb284b344c3d049bfbce5bc6e0b0f2209ad2bc977c9",
           "importsFiles": [
             "src/project-classify.ts"
           ],
-          "path": "tests/project-classify.test.ts"
+          "path": "tests/project-classify.test.ts",
+          "testFramework": "vitest"
         },
         {
-          "hash": "1536ad12d83a9191725ddc3ec422ff0963e88417d7f4260e10f3f6885be0c462",
+          "hash": "483630907701bad9db34fff4e1deca806ec61c53d22027eb13074effe7e43778",
           "importsFiles": [
             "src/recovery-plan.ts",
             "src/state.ts"
           ],
-          "path": "tests/recovery-plan.test.ts"
+          "path": "tests/recovery-plan.test.ts",
+          "testFramework": "vitest"
         },
         {
-          "hash": "0f7973b7029770d01e8d46fe21bac4d3ef6b11c3782a3ac0eedd15c339882bc2",
+          "hash": "a33ac9994f173065cd7a4c1c172d71470e3fc492acb9057c6ccf27c33d6a7a2c",
           "importsFiles": [
             "src/state.ts"
           ],
-          "path": "tests/state.test.ts"
+          "path": "tests/state.test.ts",
+          "testFramework": "vitest"
         },
         {
-          "hash": "a78002138eb8d1177dd41f88cf7e4e4b1630a2fa9fe385699e86317708ec0fc1",
+          "hash": "e63639bfe606c1d3283e4952a60bb21dfd697b95d6c3a661e51f7478e0978213",
+          "importOrder": [
+            "src/budget-store.ts",
+            "src/budget.ts",
+            "src/incident.ts",
+            "src/fs-utils.ts",
+            "src/process-monitor.ts"
+          ],
           "importsFiles": [
             "src/budget-store.ts",
             "src/budget.ts",
@@ -900,16 +1440,23 @@
             "src/incident.ts",
             "src/process-monitor.ts"
           ],
-          "path": "tests/watch-daemon.test.ts"
+          "path": "tests/watch-daemon.test.ts",
+          "testFramework": "vitest"
         },
         {
-          "hash": "f499b71e8728744460a6de523251e6f185ed66fd53c519a0d3e011baad28a285",
+          "hash": "c50c51071d0846ba95d164296adc7d925b7540b0dc056d68d577bbf5a9c73d5d",
+          "importOrder": [
+            "src/watchdog.ts",
+            "src/types.ts",
+            "src/defaults.ts"
+          ],
           "importsFiles": [
             "src/defaults.ts",
             "src/types.ts",
             "src/watchdog.ts"
           ],
-          "path": "tests/watchdog.test.ts"
+          "path": "tests/watchdog.test.ts",
+          "testFramework": "vitest"
         }
       ],
       "globs": [
@@ -919,41 +1466,143 @@
       "name": "tests",
       "origin": "authored",
       "role": "test",
+      "testRunners": [
+        "vitest"
+      ],
       "testedBy": 0,
       "unresolvedSites": 0
     }
   ],
   "doors": [
     {
-      "checksCount": 1,
+      "checksCount": 0,
       "commands": [
         {
+          "dir": "",
           "job": "build",
-          "step": "2",
-          "text": "npm ci"
+          "programs": [
+            "npx"
+          ],
+          "step": "Atlas check"
         },
         {
+          "dir": "",
           "job": "build",
-          "step": "3",
-          "text": "npm run build"
+          "programs": [
+            "npm"
+          ],
+          "step": "3"
         },
         {
+          "dir": "",
           "job": "build",
-          "step": "4",
-          "text": "npm test -- --coverage"
+          "programs": [
+            "npm"
+          ],
+          "step": "4"
         },
         {
+          "dir": "",
+          "job": "build",
+          "programs": [
+            "npm"
+          ],
+          "step": "5"
+        },
+        {
+          "dir": "",
           "job": "dep-audit",
-          "step": "2",
-          "text": "npm audit --omit=dev || true"
+          "programs": [
+            "npm"
+          ],
+          "step": "2"
         }
       ],
       "elsewhere": [],
       "file": ".github/workflows/ci.yml",
+      "jobs": [
+        {
+          "basis": "declared",
+          "name": "build",
+          "runsOn": [
+            {
+              "labels": [
+                "ubuntu-latest"
+              ],
+              "platform": {
+                "cpu": "x64",
+                "libc": "glibc",
+                "os": "linux"
+              }
+            }
+          ],
+          "setup": [
+            {
+              "ranges": [
+                {
+                  "from": "22",
+                  "range": ">=22.0.0 <23.0.0-0"
+                }
+              ],
+              "step": "1",
+              "uses": "actions/setup-node",
+              "version": "22"
+            }
+          ]
+        },
+        {
+          "basis": "declared",
+          "name": "codecov",
+          "runsOn": [
+            {
+              "labels": [
+                "ubuntu-latest"
+              ],
+              "platform": {
+                "cpu": "x64",
+                "libc": "glibc",
+                "os": "linux"
+              }
+            }
+          ]
+        },
+        {
+          "basis": "declared",
+          "name": "dep-audit",
+          "runsOn": [
+            {
+              "labels": [
+                "ubuntu-latest"
+              ],
+              "platform": {
+                "cpu": "x64",
+                "libc": "glibc",
+                "os": "linux"
+              }
+            }
+          ],
+          "setup": [
+            {
+              "ranges": [
+                {
+                  "from": "22",
+                  "range": ">=22.0.0 <23.0.0-0"
+                }
+              ],
+              "step": "1",
+              "uses": "actions/setup-node",
+              "version": "22"
+            }
+          ]
+        }
+      ],
       "landings": [],
       "mentions": [],
       "name": "CI",
-      "permissions": [],
+      "permissions": [
+        "contents:read",
+        "id-token:write"
+      ],
       "pushes": false,
       "reach": [
         {
@@ -965,25 +1614,17 @@
           "boundary": "tests",
           "depth": 0,
           "files": 16
-        },
-        {
-          "boundary": "root",
-          "depth": 1,
-          "enters": {
-            "file": "package.json",
-            "from": "src/cli.ts"
-          },
-          "files": 1
         }
       ],
       "readers": [],
       "runs": [
         {
+          "built": true,
           "directory": true,
           "job": "build",
           "matched": true,
           "path": "src/",
-          "runKind": "checks",
+          "runKind": "executes",
           "via": "tsc tsconfig.json"
         },
         {
@@ -996,9 +1637,7 @@
         }
       ],
       "runsCount": 2,
-      "secrets": [
-        "CODECOV_TOKEN"
-      ],
+      "secrets": [],
       "sends": {
         "deploysPages": false,
         "dispatchesTo": [],
@@ -1010,11 +1649,27 @@
         "releases": false
       },
       "stages": [],
+      "tests": [
+        {
+          "config": "vitest.config.ts",
+          "coverage": true,
+          "files": 16,
+          "job": "build",
+          "junit": true,
+          "runner": "vitest",
+          "step": "5",
+          "through": [
+            "npm test"
+          ]
+        }
+      ],
       "triggers": [
         {
           "event": "pull_request",
           "paths": [
             ".github/workflows/**",
+            "atlas/**",
+            "codecov.yml",
             "package-lock.json",
             "package.json",
             "site/astro.config.mjs",
@@ -1032,6 +1687,8 @@
           "event": "push",
           "paths": [
             ".github/workflows/**",
+            "atlas/**",
+            "codecov.yml",
             "package-lock.json",
             "package.json",
             "site/astro.config.mjs",
@@ -1048,53 +1705,93 @@
       ],
       "uses": [
         "actions/checkout",
+        "actions/download-artifact",
         "actions/setup-node",
+        "actions/upload-artifact",
         "codecov/codecov-action"
       ],
       "usesWorkflowToken": false
     },
     {
-      "checksCount": 1,
+      "checksCount": 0,
       "commands": [
         {
+          "dir": "",
           "job": "dogfood",
-          "step": "2",
-          "text": "npm ci"
+          "programs": [
+            "npm"
+          ],
+          "step": "2"
         },
         {
+          "dir": "",
           "job": "dogfood",
-          "step": "3",
-          "text": "npm run build"
+          "programs": [
+            "npm"
+          ],
+          "step": "3"
         },
         {
+          "dir": "",
           "job": "dogfood",
-          "step": "Step: run-status",
-          "text": "# Create a mock Claude project dir so guardian has something to scan\nmkdir -p /tmp/claude-test/.claude/projects\necho \"test log content\" > /tmp/claude-test/.claude/projects/test.jsonl\nnode dist/cli.js status 2>&1 | tee /tmp/status.log\nif [ $? -eq 0 ]; then\n  echo \"status=pass\" >> \"$GITHUB_OUTPUT\"\nelse\n  echo \"status=fail\" >> \"$GITHUB_OUTPUT\"\nfi\n"
+          "programs": [
+            "1",
+            "echo",
+            "mkdir",
+            "node",
+            "tee"
+          ],
+          "step": "Step: run-status"
         },
         {
+          "dir": "",
           "job": "dogfood",
-          "step": "Step: run-preflight",
-          "text": "node dist/cli.js preflight --dry-run 2>&1 | tee /tmp/preflight.log\nif [ $? -eq 0 ]; then\n  echo \"status=pass\" >> \"$GITHUB_OUTPUT\"\nelse\n  echo \"status=fail\" >> \"$GITHUB_OUTPUT\"\nfi\n"
+          "programs": [
+            "1",
+            "echo",
+            "node",
+            "tee"
+          ],
+          "step": "Step: run-preflight"
         },
         {
+          "dir": "",
           "job": "dogfood",
-          "step": "Step: verify-output",
-          "text": "# Confirm both commands produced meaningful output\nif [ -s /tmp/status.log ] && [ -s /tmp/preflight.log ]; then\n  echo \"status=pass\" >> \"$GITHUB_OUTPUT\"\nelse\n  echo \"status=fail\" >> \"$GITHUB_OUTPUT\"\nfi\n"
+          "programs": [
+            "echo"
+          ],
+          "step": "Step: verify-output"
         },
         {
+          "dir": "",
           "job": "dogfood",
-          "step": "Determine overall verdict",
-          "text": "S=\"${{ steps.status.outputs.status }}\"\nP=\"${{ steps.preflight.outputs.status }}\"\nV=\"${{ steps.verify_output.outputs.status }}\"\nif [ \"$S\" = \"pass\" ] && [ \"$P\" = \"pass\" ] && [ \"$V\" = \"pass\" ]; then\n  echo \"verdict=pass\" >> \"$GITHUB_OUTPUT\"\nelse\n  echo \"verdict=fail\" >> \"$GITHUB_OUTPUT\"\nfi\n"
+          "programs": [
+            "echo"
+          ],
+          "step": "Determine overall verdict"
         },
         {
+          "dir": "",
           "job": "dogfood",
-          "step": "Build submission",
-          "text": "FINISHED_AT=$(date -u +\"%Y-%m-%dT%H:%M:%SZ\")\ncat > /tmp/submission.json << 'INNER_EOF'\n{\n  \"schema_version\": \"1.0.0\",\n  \"run_id\": \"claude-guardian-RUN_ID-ATTEMPT\",\n  \"repo\": \"REPO_SLUG\",\n  \"ref\": {\n    \"branch\": \"REF_NAME\",\n    \"commit_sha\": \"COMMIT_SHA\"\n  },\n  \"source\": {\n    \"provider\": \"github\",\n    \"workflow\": \"dogfood.yml\",\n    \"provider_run_id\": \"PROVIDER_RUN_ID\",\n    \"attempt\": ATTEMPT_NUM,\n    \"run_url\": \"RUN_URL_PLACEHOLDER\",\n    \"actor\": \"ACTOR_NAME\"\n  },\n  \"timing\": {\n    \"started_at\": \"STARTED_PLACEHOLDER\",\n    \"finished_at\": \"FINISHED_PLACEHOLDER\",\n    \"duration_ms\": 0\n  },\n  \"ci_checks\": [],\n  \"scenario_results\": [\n    {\n      \"scenario_id\": \"status-preflight-roundtrip\",\n      \"scenario_name\": \"Run status + preflight on mock project\",\n      \"scenario_version\": \"1.0.0\",\n      \"product_surface\": \"mcp-server\",\n      \"execution_mode\": \"bot\",\n      \"verdict\": \"VERDICT_PLACEHOLDER\",\n      \"step_results\": [\n        { \"step_id\": \"run-status\", \"status\": \"STATUS_STATUS\" },\n        { \"step_id\": \"run-preflight\", \"status\": \"PREFLIGHT_STATUS\" },\n        { \"step_id\": \"verify-output\", \"status\": \"VERIFY_STATUS\" }\n      ],\n      \"evidence\": [\n        {\n          \"kind\": \"log\",\n          \"url\": \"RUN_URL_PLACEHOLDER\",\n          \"description\": \"CI run log with status + preflight output\"\n        }\n      ],\n      \"notes\": \"Bot-driven status + preflight roundtrip\"\n    }\n  ],\n  \"overall_verdict\": \"VERDICT_PLACEHOLDER\",\n  \"notes\": \"Phase 2 rollout: claude-guardian MCP dogfood.\"\n}\nINNER_EOF\n\nsed -i \"s|REPO_SLUG|${GITHUB_REPOSITORY}|g\" /tmp/submission.json\nsed -i \"s|REF_NAME|${GITHUB_REF_NAME}|g\" /tmp/submission.json\nsed -i \"s|COMMIT_SHA|${GITHUB_SHA}|g\" /tmp/submission.json\nsed -i \"s|PROVIDER_RUN_ID|${GITHUB_RUN_ID}|g\" /tmp/submission.json\nsed -i \"s|ATTEMPT_NUM|${GITHUB_RUN_ATTEMPT}|g\" /tmp/submission.json\nsed -i \"s|RUN_URL_PLACEHOLDER|https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}|g\" /tmp/submission.json\nsed -i \"s|ACTOR_NAME|${GITHUB_ACTOR}|g\" /tmp/submission.json\nsed -i \"s|STARTED_PLACEHOLDER|${{ github.event.head_commit.timestamp || github.event.repository.pushed_at }}|g\" /tmp/submission.json\nsed -i \"s|FINISHED_PLACEHOLDER|${FINISHED_AT}|g\" /tmp/submission.json\nsed -i \"s|claude-guardian-RUN_ID-ATTEMPT|claude-guardian-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}|g\" /tmp/submission.json\nsed -i \"s|VERDICT_PLACEHOLDER|${{ steps.verdict.outputs.verdict }}|g\" /tmp/submission.json\nsed -i \"s|STATUS_STATUS|${{ steps.status.outputs.status }}|g\" /tmp/submission.json\nsed -i \"s|PREFLIGHT_STATUS|${{ steps.preflight.outputs.status }}|g\" /tmp/submission.json\nsed -i \"s|VERIFY_STATUS|${{ steps.verify_output.outputs.status }}|g\" /tmp/submission.json\n\njq empty /tmp/submission.json\necho \"Submission built:\"\njq '.run_id, .overall_verdict' /tmp/submission.json\n"
+          "programs": [
+            "cat",
+            "date",
+            "echo",
+            "jq",
+            "sed"
+          ],
+          "step": "Build submission"
         },
         {
+          "dir": "",
           "job": "dogfood",
-          "step": "Dispatch to testing-os",
-          "text": "SUBMISSION=$(cat /tmp/submission.json)\nRUN_ID=$(echo \"$SUBMISSION\" | jq -r '.run_id')\n\nif [ -z \"$GH_TOKEN\" ]; then\n  echo \"::warning::DOGFOOD_TOKEN not set — skipping dispatch\"\n  exit 0\nfi\n\njq -n --argjson sub \"$SUBMISSION\" \\\n  '{\"event_type\":\"dogfood_submission\",\"client_payload\":{\"submission\":$sub}}' \\\n  | gh api repos/dogfood-lab/testing-os/dispatches \\\n    --input - --silent\n\necho \"Dispatched $RUN_ID to testing-os\"\n"
+          "programs": [
+            "cat",
+            "echo",
+            "gh",
+            "jq"
+          ],
+          "step": "Dispatch to testing-os"
         }
       ],
       "elsewhere": [],
@@ -1116,6 +1813,37 @@
           }
         }
       ],
+      "jobs": [
+        {
+          "basis": "declared",
+          "name": "dogfood",
+          "runsOn": [
+            {
+              "labels": [
+                "ubuntu-latest"
+              ],
+              "platform": {
+                "cpu": "x64",
+                "libc": "glibc",
+                "os": "linux"
+              }
+            }
+          ],
+          "setup": [
+            {
+              "ranges": [
+                {
+                  "from": "22",
+                  "range": ">=22.0.0 <23.0.0-0"
+                }
+              ],
+              "step": "1",
+              "uses": "actions/setup-node",
+              "version": "22"
+            }
+          ]
+        }
+      ],
       "landings": [],
       "mentions": [],
       "name": "Dogfood",
@@ -1126,29 +1854,36 @@
           "boundary": "src",
           "depth": 0,
           "files": 19
-        },
-        {
-          "boundary": "root",
-          "depth": 1,
-          "enters": {
-            "file": "package.json",
-            "from": "src/cli.ts"
-          },
-          "files": 1
         }
       ],
       "readers": [],
       "runs": [
         {
+          "built": true,
           "directory": true,
           "job": "dogfood",
           "matched": true,
           "path": "src/",
-          "runKind": "checks",
-          "via": "tsc tsconfig.json"
+          "runKind": "executes",
+          "via": "tsc tsconfig.json",
+          "when": {
+            "branches": [
+              "main"
+            ]
+          }
+        },
+        {
+          "job": "dogfood",
+          "path": "src/cli.ts",
+          "runKind": "executes",
+          "when": {
+            "branches": [
+              "main"
+            ]
+          }
         }
       ],
-      "runsCount": 1,
+      "runsCount": 2,
       "secrets": [
         "DOGFOOD_TOKEN"
       ],
@@ -1189,18 +1924,74 @@
       "checksCount": 0,
       "commands": [
         {
+          "dir": "site",
           "job": "build",
-          "step": "Install site dependencies",
-          "text": "npm ci"
+          "programs": [
+            "npm"
+          ],
+          "step": "Install site dependencies"
         },
         {
+          "dir": "site",
           "job": "build",
-          "step": "Build site",
-          "text": "npm run build"
+          "programs": [
+            "npm"
+          ],
+          "step": "Build site"
         }
       ],
       "elsewhere": [],
       "file": ".github/workflows/pages.yml",
+      "jobs": [
+        {
+          "basis": "declared",
+          "name": "build",
+          "runsOn": [
+            {
+              "labels": [
+                "ubuntu-latest"
+              ],
+              "platform": {
+                "cpu": "x64",
+                "libc": "glibc",
+                "os": "linux"
+              }
+            }
+          ],
+          "setup": [
+            {
+              "ranges": [
+                {
+                  "from": "22",
+                  "range": ">=22.0.0 <23.0.0-0"
+                }
+              ],
+              "step": "1",
+              "uses": "actions/setup-node",
+              "version": "22"
+            }
+          ]
+        },
+        {
+          "basis": "declared",
+          "environment": {
+            "name": "github-pages"
+          },
+          "name": "deploy",
+          "runsOn": [
+            {
+              "labels": [
+                "ubuntu-latest"
+              ],
+              "platform": {
+                "cpu": "x64",
+                "libc": "glibc",
+                "os": "linux"
+              }
+            }
+          ]
+        }
+      ],
       "landings": [],
       "mentions": [],
       "name": "Deploy site to GitHub Pages",
@@ -1214,7 +2005,7 @@
         {
           "boundary": "site",
           "depth": 0,
-          "files": 3
+          "files": 5
         }
       ],
       "readers": [],
@@ -1272,51 +2063,112 @@
       "usesWorkflowToken": false
     },
     {
-      "checksCount": 1,
+      "checksCount": 0,
       "commands": [
         {
+          "dir": "",
           "job": "release",
-          "step": "Install npm >=11.5 in a sandbox for OIDC trusted-publishing auth",
-          "text": "# Node 22 ships npm 10.9, which signs provenance but cannot negotiate\n# the OIDC auth path (PUT returns a misleading 404). An in-place\n# `npm i -g npm@latest` races the bundled arborist and breaks — install\n# npm@latest into a sandbox dir and shadow the system npm via PATH.\nSANDBOX=\"$HOME/.npm-cli-sandbox\"\nmkdir -p \"$SANDBOX\"\npushd \"$SANDBOX\" >/dev/null\necho '{\"name\":\"npm-cli-sandbox\",\"version\":\"0.0.0\",\"private\":true}' > package.json\nnpm install --no-save --no-audit --no-fund --silent npm@latest\npopd >/dev/null\necho \"$SANDBOX/node_modules/.bin\" >> \"$GITHUB_PATH\"\n\"$SANDBOX/node_modules/.bin/npm\" --version\n"
+          "programs": [
+            "echo",
+            "mkdir",
+            "npm",
+            "popd",
+            "pushd"
+          ],
+          "step": "Install npm >=11.5 in a sandbox for OIDC trusted-publishing auth"
         },
         {
+          "dir": "",
           "job": "release",
-          "step": "Resolve tag",
-          "text": "TAG=\"${{ github.event.inputs.tag || github.ref_name }}\"\necho \"tag=${TAG}\" >> \"$GITHUB_OUTPUT\"\necho \"version=${TAG#v}\" >> \"$GITHUB_OUTPUT\"\n"
+          "programs": [
+            "echo"
+          ],
+          "step": "Resolve tag"
         },
         {
+          "dir": "",
           "job": "release",
-          "step": "Verify tag matches package.json version",
-          "text": "PKG_VERSION=$(node -p \"require('./package.json').version\")\nTAG_VERSION=\"${{ steps.tag.outputs.version }}\"\necho \"Tag: ${{ steps.tag.outputs.tag }} -> ${TAG_VERSION} | package.json: ${PKG_VERSION}\"\nif [ \"${PKG_VERSION}\" != \"${TAG_VERSION}\" ]; then\n  echo \"::error::Tag ${TAG_VERSION} does not match package.json version ${PKG_VERSION}\"\n  exit 1\nfi\n"
+          "programs": [
+            "echo",
+            "node"
+          ],
+          "step": "Verify tag matches package.json version"
         },
         {
+          "dir": "",
           "job": "release",
-          "step": "5",
-          "text": "npm ci"
+          "programs": [
+            "npm"
+          ],
+          "step": "5"
         },
         {
+          "dir": "",
           "job": "release",
-          "step": "Verify (repo's own contract — test + build + pack shape)",
-          "text": "npm run verify"
+          "programs": [
+            "npm"
+          ],
+          "step": "Verify (repo's own contract — test + build + pack shape)"
         },
         {
+          "dir": "",
           "job": "release",
-          "step": "Publish to npm with provenance (OIDC trusted publisher, no token)",
-          "text": "npm publish --provenance --access public"
+          "programs": [
+            "npm"
+          ],
+          "step": "Publish to npm with provenance (OIDC trusted publisher, no token)"
         },
         {
+          "dir": "",
           "job": "release",
-          "step": "Extract CHANGELOG section for the release notes",
-          "text": "# This CHANGELOG uses Keep-a-Changelog bracketed headings\n# (\"## [1.2.1] - 2026-03-25\"); the optional brackets keep this working\n# if the style is ever unbracketed.\nVERSION=\"${{ steps.tag.outputs.version }}\"\nawk -v ver=\"$VERSION\" '\n  /^## / {\n    if (inSection) exit\n    h = $0\n    gsub(/[][]/, \"\", h)          # tolerate both \"## 1.2.1\" and \"## [1.2.1]\"\n    if (h ~ (\"^## \" ver \"( |$)\")) inSection = 1\n    next\n  }\n  inSection { print }\n' CHANGELOG.md > release-notes.md\nif [ -s release-notes.md ]; then\n  echo \"have_notes=true\" >> \"$GITHUB_OUTPUT\"\nelse\n  echo \"have_notes=false\" >> \"$GITHUB_OUTPUT\"\nfi\n"
+          "programs": [
+            "awk",
+            "echo"
+          ],
+          "step": "Extract CHANGELOG section for the release notes"
         },
         {
+          "dir": "",
           "job": "release",
-          "step": "Create GitHub Release",
-          "text": "TAG=\"${{ steps.tag.outputs.tag }}\"\nif [ \"${{ steps.notes.outputs.have_notes }}\" = \"true\" ]; then\n  gh release create \"$TAG\" --title \"claude-guardian $TAG\" --notes-file release-notes.md --verify-tag\nelse\n  gh release create \"$TAG\" --title \"claude-guardian $TAG\" --generate-notes --verify-tag\nfi\n"
+          "programs": [
+            "gh"
+          ],
+          "step": "Create GitHub Release"
         }
       ],
       "elsewhere": [],
       "file": ".github/workflows/release.yml",
+      "jobs": [
+        {
+          "basis": "declared",
+          "name": "release",
+          "runsOn": [
+            {
+              "labels": [
+                "ubuntu-latest"
+              ],
+              "platform": {
+                "cpu": "x64",
+                "libc": "glibc",
+                "os": "linux"
+              }
+            }
+          ],
+          "setup": [
+            {
+              "ranges": [
+                {
+                  "from": "22",
+                  "range": ">=22.0.0 <23.0.0-0"
+                }
+              ],
+              "step": "1",
+              "uses": "actions/setup-node",
+              "version": "22"
+            }
+          ]
+        }
+      ],
       "landings": [],
       "mentions": [
         {
@@ -1344,25 +2196,17 @@
           "boundary": "tests",
           "depth": 0,
           "files": 16
-        },
-        {
-          "boundary": "root",
-          "depth": 1,
-          "enters": {
-            "file": "package.json",
-            "from": "src/cli.ts"
-          },
-          "files": 1
         }
       ],
       "readers": [],
       "runs": [
         {
+          "built": true,
           "directory": true,
           "job": "release",
           "matched": true,
           "path": "src/",
-          "runKind": "checks",
+          "runKind": "executes",
           "via": "tsc tsconfig.json"
         },
         {
@@ -1384,6 +2228,13 @@
         "opensIssues": false,
         "opensIssuesOnFailure": false,
         "opensPullRequests": false,
+        "packages": [
+          {
+            "dir": "",
+            "name": "@mcptoolshop/claude-guardian",
+            "registry": "npm"
+          }
+        ],
         "publishes": true,
         "publishesTo": [
           "npm"
@@ -1391,6 +2242,19 @@
         "releases": true
       },
       "stages": [],
+      "tests": [
+        {
+          "config": "vitest.config.ts",
+          "files": 16,
+          "job": "release",
+          "runner": "vitest",
+          "step": "Verify (repo's own contract — test + build + pack shape)",
+          "through": [
+            "npm run verify",
+            "npm test"
+          ]
+        }
+      ],
       "triggers": [
         {
           "event": "push",
@@ -1424,15 +2288,6 @@
           "boundary": "src",
           "depth": 0,
           "files": 19
-        },
-        {
-          "boundary": "root",
-          "depth": 1,
-          "enters": {
-            "file": "package.json",
-            "from": "src/cli.ts"
-          },
-          "files": 1
         }
       ],
       "readers": [],
@@ -1462,26 +2317,23 @@
   ],
   "edges": [
     {
-      "from": "src",
-      "kind": "file",
-      "to": "root"
-    },
-    {
       "from": "tests",
       "fromTests": true,
       "kind": "file",
       "to": "src"
     }
   ],
+  "engine": "1.24.0",
   "generatedFrom": {
-    "commit": "628c46f62bf3455a66bb8ac8d2b0bdc6b2b184ac",
-    "tracked": 130
+    "commit": "b484cb2778b43f25a9541f0f1333947b5bec42e1",
+    "tracked": 131
   },
   "landings": [
     {
       "readers": [
         {
-          "by": ".github/workflows/release.yml"
+          "by": ".github/workflows/release.yml",
+          "confidence": "config"
         }
       ],
       "target": "CHANGELOG.md",
@@ -1490,17 +2342,13 @@
     {
       "readers": [
         {
-          "by": ".github/workflows/release.yml"
+          "by": ".github/workflows/release.yml",
+          "confidence": "config"
         },
         {
-          "by": "src/project-classify.ts",
-          "call": "literal",
+          "by": "src/cli.ts",
+          "call": "import",
           "confidence": "ast"
-        },
-        {
-          "by": "src/project-classify.ts",
-          "call": "literal",
-          "confidence": "weak"
         }
       ],
       "target": "package.json",
@@ -1526,17 +2374,6 @@
         }
       ],
       "target": "site/src/content/docs/handbook",
-      "writers": []
-    },
-    {
-      "readers": [
-        {
-          "by": "src/project-classify.ts",
-          "call": "readdir",
-          "confidence": "ast"
-        }
-      ],
-      "target": "src",
       "writers": []
     }
   ],

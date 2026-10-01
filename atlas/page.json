@@ -28,60 +28,29 @@
   ],
   "changes": {
     "fileCounts": {
-      "added": 1,
-      "changed": 130,
+      "added": 0,
+      "changed": 2,
       "moved": 0,
-      "parts": 7,
+      "parts": 2,
       "removed": 0
     },
     "items": [
       {
-        "kind": "import-removed",
-        "sentence": "src no longer imports the repository root.",
-        "subjects": [
-          "src",
-          "root"
-        ]
-      },
-      {
         "kind": "door",
-        "sentence": "CI's pull request trigger now also names `atlas/**` and `codecov.yml`.",
+        "sentence": "CI's pull request trigger no longer names `.github/workflows/**`, `atlas/**`, `codecov.yml`, `package-lock.json`, `package.json`, `site/astro.config.mjs`, `site/package-lock.json`, `site/package.json`, `src/**`, `tests/**` and `tsconfig.json`.",
         "subjects": [
           ".github/workflows/ci.yml"
-        ]
-      },
-      {
-        "kind": "door",
-        "sentence": "CI's push trigger now also names `atlas/**` and `codecov.yml`.",
-        "subjects": [
-          ".github/workflows/ci.yml"
-        ]
-      },
-      {
-        "kind": "door",
-        "sentence": "Dogfood now also runs src/cli.ts.",
-        "subjects": [
-          ".github/workflows/dogfood.yml",
-          "src/cli.ts"
-        ]
-      },
-      {
-        "kind": "landing",
-        "sentence": "package.json is now also read by src/cli.ts.",
-        "subjects": [
-          "package.json",
-          "src/cli.ts"
         ]
       },
       {
         "kind": "counts",
-        "sentence": "1 file added and 130 changed content, across 7 parts.",
+        "sentence": "2 files changed content, across 2 parts.",
         "subjects": []
       }
     ],
     "since": {
-      "commit": "628c46f62bf3455a66bb8ac8d2b0bdc6b2b184ac",
-      "generatedAt": "2026-09-23T22:33:34.841Z"
+      "commit": "b484cb2778b43f25a9541f0f1333947b5bec42e1",
+      "generatedAt": "2026-09-30T20:08:49.880Z"
     },
     "unchanged": false
   },
@@ -90,7 +59,7 @@
     "Window: 180 days; a pair counts from 3 shared commits, since the window holds fewer than 30 qualifying commits."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "b484cb2778b43f25a9541f0f1333947b5bec42e1",
+  "commit": "d6d8c52b31b1fa492e9957ed53bca3e80d4b3671",
   "defaultBranch": "main",
   "derived": "7 parts, mostly Markdown (75 files); code in TypeScript (38), CSS (2), Astro (1) and JavaScript (1). Work enters through 5 doors; CI and Release each reach 2 parts, and CI is followed because a pull request goes through it. It publishes to npm. It deploys a site to GitHub Pages. People run claude-guardian.",
   "doors": [
@@ -128,7 +97,7 @@
       ],
       "stages": [],
       "triggers": [
-        "on a pull request touching 11 paths",
+        "on a pull request",
         "on a push to main touching 11 paths",
         "or by hand"
       ]
@@ -285,7 +254,7 @@
   ],
   "engine": "1.24.0",
   "generated": [],
-  "generatedAt": "2026-09-30T20:08:49.880Z",
+  "generatedAt": "2026-10-01T02:14:32.933Z",
   "limits": [
     "1 import could not be resolved: `src/mcp-server.ts` imports `zod`, which is not declared.",
     "1 write and 3 reads use paths built at run time and are not named here.",

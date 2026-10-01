@@ -1,23 +1,19 @@
 # claude-guardian: how it works
 
-Mapped at 2026-09-30 from commit b484cb2 by Atlas 1.24.0.
+Mapped at 2026-10-01 from commit d6d8c52 by Atlas 1.24.0.
 
 ## What this is
 
 7 parts, mostly Markdown (75 files); code in TypeScript (38), CSS (2), Astro (1) and JavaScript (1). Work enters through 5 doors; CI and Release each reach 2 parts, and CI is followed because a pull request goes through it. It publishes to npm. It deploys a site to GitHub Pages. People run claude-guardian.
 
-## What changed since 2026-09-23 (628c46f)
+## What changed since 2026-09-30 (b484cb2)
 
-- src no longer imports the repository root.
-- CI's pull request trigger now also names `atlas/**` and `codecov.yml`.
-- CI's push trigger now also names `atlas/**` and `codecov.yml`.
-- Dogfood now also runs src/cli.ts.
-- package.json is now also read by src/cli.ts.
-- 1 file added and 130 changed content, across 7 parts.
+- CI's pull request trigger no longer names `.github/workflows/**`, `atlas/**`, `codecov.yml`, `package-lock.json`, `package.json`, `site/astro.config.mjs`, `site/package-lock.json`, `site/package.json`, `src/**`, `tests/**` and `tsconfig.json`.
+- 2 files changed content, across 2 parts.
 
 ## What comes in
 
-1. **CI.** On a pull request touching 11 paths; on a push to main touching 11 paths; or by hand. Runs tests/; builds src/.
+1. **CI.** On a pull request; on a push to main touching 11 paths; or by hand. Runs tests/; builds src/.
 2. **Release.** When a tag matching `v*` is pushed; or by hand. Runs tests/; builds src/.
 3. **Deploy site to GitHub Pages.** On a push to main touching 2 paths; or by hand. Runs site/astro.config.mjs and site/src/.
 4. **Dogfood.** On a push to main touching 3 paths; or by hand. On main, it runs src/cli.ts; builds src/.

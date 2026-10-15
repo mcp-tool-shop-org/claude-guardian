@@ -5,6 +5,7 @@ import { DEFAULT_CONFIG, THRESHOLDS, getClaudeProjectsPath } from './defaults.js
 import { getDiskFreeGB, dirSize, bytesToMB, writeJournalEntry, pathExists } from './fs-utils.js';
 import { generateBundle } from './doctor.js';
 import { scanLogs } from './log-manager.js';
+import { killTree } from './kill-tree.js';
 
 export type WatchdogEventType =
   | 'started'
@@ -65,7 +66,7 @@ export class Watchdog {
       this.restartTimer = null;
     }
     if (this.child && !this.child.killed) {
-      this.child.kill('SIGTERM');
+      killTree(this.child, 'SIGTERM');
     }
     this.onEvent('stopped', 'Watchdog stopped');
   }
@@ -182,7 +183,7 @@ export class Watchdog {
       if (this.config.autoRestart) {
         // Kill existing child and restart
         if (this.child && !this.child.killed) {
-          this.child.kill('SIGTERM');
+          killTree(this.child, 'SIGTERM');
         }
         this.state.restartCount++;
         this.onEvent('restarting', `Restart #${this.state.restartCount} (hang recovery)`);

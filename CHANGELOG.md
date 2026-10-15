@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.2] - 2026-10-15
+
+### Fixed
+
+- Stopping the watchdog and hang recovery now end the supervised command's whole process tree on Windows (`taskkill /T /F`). The watchdog starts the command under `cmd.exe` (`shell: true`) and `kill()` ended only that shell, so a hung command stayed alive and recovery started a second copy beside it, and `stop()` left the command running after the watchdog had stopped. On other platforms the signal is unchanged (SIGTERM, so the supervised program can still clean up), and a child that has already exited is never signalled, since its pid may have been reused.
+
+### Tests
+
+- `tests/watchdog-kill-tree.test.ts`: `stop()` and hang recovery end a grandchild that shares the command's stdio (Windows), hang recovery restarts the command, and `killTree` sends the signal it is given and leaves an exited child alone.
+
 ## [1.2.1] - 2026-03-25
 
 ### Fixed

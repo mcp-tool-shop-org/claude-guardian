@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Tests
 
 - `tests/watchdog-kill-tree.test.ts`: `stop()` and hang recovery end a grandchild that shares the command's stdio (Windows), hang recovery restarts the command, and `killTree` sends the signal it is given and leaves an exited child alone.
+- `tests/kill-tree.test.ts`: every branch of `killTree` with the platform and `taskkill` faked, so the Windows branch is tested on any machine.
 
 ## [1.2.1] - 2026-03-25
 

@@ -65,7 +65,7 @@
       "confidence": "low",
       "highWater": null,
       "name": "root",
-      "qualifyingSourceCommits": 0,
+      "qualifyingSourceCommits": 1,
       "rebaseline": null
     },
     {
@@ -99,7 +99,7 @@
       "confidence": "low",
       "highWater": null,
       "name": "src",
-      "qualifyingSourceCommits": 0,
+      "qualifyingSourceCommits": 1,
       "rebaseline": null
     },
     {
@@ -115,7 +115,7 @@
       "confidence": "low",
       "highWater": null,
       "name": "tests",
-      "qualifyingSourceCommits": 0,
+      "qualifyingSourceCommits": 1,
       "rebaseline": null
     }
   ],
@@ -123,24 +123,24 @@
     "definition": "commits is how many commits in the window touch the file, including merges and commits dropped from coupling. lines is added plus deleted in those commits.",
     "files": [
       {
-        "commits": 10,
-        "lines": 248,
+        "commits": 11,
+        "lines": 284,
         "path": ".github/workflows/ci.yml"
       },
       {
-        "commits": 2,
-        "lines": 10,
-        "path": ".github/workflows/dogfood.yml"
-      },
-      {
         "commits": 1,
-        "lines": 8,
-        "path": ".github/workflows/pages.yml"
+        "lines": 6,
+        "path": ".github/workflows/dogfood.yml"
       },
       {
         "commits": 1,
         "lines": 143,
         "path": ".github/workflows/release.yml"
+      },
+      {
+        "commits": 1,
+        "lines": 11,
+        "path": "CHANGELOG.md"
       },
       {
         "commits": 1,
@@ -183,8 +183,8 @@
         "path": "README.zh.md"
       },
       {
-        "commits": 4,
-        "lines": 266,
+        "commits": 6,
+        "lines": 294,
         "path": "atlas/README.md"
       },
       {
@@ -193,18 +193,18 @@
         "path": "atlas/boundaries.yaml"
       },
       {
-        "commits": 4,
-        "lines": 972,
+        "commits": 6,
+        "lines": 1074,
         "path": "atlas/page.json"
       },
       {
-        "commits": 4,
-        "lines": 1902,
+        "commits": 6,
+        "lines": 1990,
         "path": "atlas/statistics.json"
       },
       {
-        "commits": 4,
-        "lines": 5866,
+        "commits": 6,
+        "lines": 5908,
         "path": "atlas/structure.json"
       },
       {
@@ -214,12 +214,12 @@
       },
       {
         "commits": 3,
-        "lines": 1947,
+        "lines": 16,
         "path": "package-lock.json"
       },
       {
         "commits": 1,
-        "lines": 14,
+        "lines": 2,
         "path": "package.json"
       },
       {
@@ -228,14 +228,39 @@
         "path": "site/astro.config.mjs"
       },
       {
-        "commits": 1,
-        "lines": 6051,
+        "commits": 3,
+        "lines": 6063,
         "path": "site/package-lock.json"
       },
       {
         "commits": 1,
         "lines": 6,
         "path": "site/package.json"
+      },
+      {
+        "commits": 1,
+        "lines": 36,
+        "path": "src/kill-tree.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 5,
+        "path": "src/watchdog.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 94,
+        "path": "tests/kill-tree.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 146,
+        "path": "tests/watchdog-kill-tree.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 5,
+        "path": "vitest.config.ts"
       }
     ]
   },
@@ -243,13 +268,13 @@
     "level": "low",
     "reason": "fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions"
   },
-  "generatedAt": "2026-10-01T02:14:32.933Z",
+  "generatedAt": "2026-11-11T22:11:32.845Z",
   "generatedFrom": {
-    "commit": "d6d8c52b31b1fa492e9957ed53bca3e80d4b3671"
+    "commit": "01b3022a35cb93f17b098b457c285b381da9b30a"
   },
   "pairs": [],
   "parameters": {
-    "appliedChangesetLimit": 34,
+    "appliedChangesetLimit": 34.75,
     "changeset": 50,
     "changesetFraction": 0.25,
     "cohesionDrop": 0.2,
@@ -258,16 +283,16 @@
     "floor": "fallen",
     "floorHeld": false,
     "floorTrigger": "both",
-    "headDate": "2026-09-30T14:27:07-07:00",
-    "inScopeFiles": 136,
+    "headDate": "2026-10-15T13:35:27-07:00",
+    "inScopeFiles": 139,
     "pinnedStart": null,
     "priorFloor": "fallen",
-    "qualifyingCommits": 10,
+    "qualifyingCommits": 13,
     "qualifyingMinimum": 30,
     "revisions": 5,
     "shared": 10,
     "sharedFloorUsed": 3,
-    "since": "2026-04-03T21:27:07.000Z",
+    "since": "2026-04-18T20:35:27.000Z",
     "sourceExtensions": [
       ".js",
       ".mjs",

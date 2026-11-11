@@ -1,15 +1,14 @@
 # claude-guardian: how it works
 
-Mapped at 2026-10-01 from commit d6d8c52 by Atlas 1.24.0.
+Mapped at 2026-11-11 from commit 01b3022 by Atlas 1.26.0.
 
 ## What this is
 
-7 parts, mostly Markdown (75 files); code in TypeScript (38), CSS (2), Astro (1) and JavaScript (1). Work enters through 5 doors; CI and Release each reach 2 parts, and CI is followed because a pull request goes through it. It publishes to npm. It deploys a site to GitHub Pages. People run claude-guardian.
+7 parts, mostly Markdown (75 files); code in TypeScript (41), CSS (2), Astro (1) and JavaScript (1). Work enters through 5 doors; CI and Release each reach 2 parts, and CI is followed because a pull request goes through it. It publishes to npm. It deploys a site to GitHub Pages. People run claude-guardian.
 
-## What changed since 2026-09-30 (b484cb2)
+## What changed since 2026-10-01 (d6d8c52)
 
-- CI's pull request trigger no longer names `.github/workflows/**`, `atlas/**`, `codecov.yml`, `package-lock.json`, `package.json`, `site/astro.config.mjs`, `site/package-lock.json`, `site/package.json`, `src/**`, `tests/**` and `tsconfig.json`.
-- 2 files changed content, across 2 parts.
+Nothing structural changed since 2026-10-01; 3 files added and 7 changed content.
 
 ## What comes in
 

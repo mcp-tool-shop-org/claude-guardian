@@ -28,40 +28,33 @@
   ],
   "changes": {
     "fileCounts": {
-      "added": 0,
-      "changed": 2,
+      "added": 3,
+      "changed": 7,
       "moved": 0,
-      "parts": 2,
+      "parts": 5,
       "removed": 0
     },
     "items": [
       {
-        "kind": "door",
-        "sentence": "CI's pull request trigger no longer names `.github/workflows/**`, `atlas/**`, `codecov.yml`, `package-lock.json`, `package.json`, `site/astro.config.mjs`, `site/package-lock.json`, `site/package.json`, `src/**`, `tests/**` and `tsconfig.json`.",
-        "subjects": [
-          ".github/workflows/ci.yml"
-        ]
-      },
-      {
         "kind": "counts",
-        "sentence": "2 files changed content, across 2 parts.",
+        "sentence": "Nothing structural changed since 2026-10-01; 3 files added and 7 changed content.",
         "subjects": []
       }
     ],
     "since": {
-      "commit": "b484cb2778b43f25a9541f0f1333947b5bec42e1",
-      "generatedAt": "2026-09-30T20:08:49.880Z"
+      "commit": "d6d8c52b31b1fa492e9957ed53bca3e80d4b3671",
+      "generatedAt": "2026-10-01T02:14:32.933Z"
     },
-    "unchanged": false
+    "unchanged": true
   },
   "changesTogether": [],
   "changesTogetherNote": [
     "Window: 180 days; a pair counts from 3 shared commits, since the window holds fewer than 30 qualifying commits."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "d6d8c52b31b1fa492e9957ed53bca3e80d4b3671",
+  "commit": "01b3022a35cb93f17b098b457c285b381da9b30a",
   "defaultBranch": "main",
-  "derived": "7 parts, mostly Markdown (75 files); code in TypeScript (38), CSS (2), Astro (1) and JavaScript (1). Work enters through 5 doors; CI and Release each reach 2 parts, and CI is followed because a pull request goes through it. It publishes to npm. It deploys a site to GitHub Pages. People run claude-guardian.",
+  "derived": "7 parts, mostly Markdown (75 files); code in TypeScript (41), CSS (2), Astro (1) and JavaScript (1). Work enters through 5 doors; CI and Release each reach 2 parts, and CI is followed because a pull request goes through it. It publishes to npm. It deploys a site to GitHub Pages. People run claude-guardian.",
   "doors": [
     {
       "builds": [
@@ -79,12 +72,12 @@
         {
           "boundary": "src",
           "depth": 0,
-          "files": 19
+          "files": 20
         },
         {
           "boundary": "tests",
           "depth": 0,
-          "files": 16
+          "files": 18
         }
       ],
       "runs": [
@@ -118,12 +111,12 @@
         {
           "boundary": "src",
           "depth": 0,
-          "files": 19
+          "files": 20
         },
         {
           "boundary": "tests",
           "depth": 0,
-          "files": 16
+          "files": 18
         }
       ],
       "runs": [
@@ -200,7 +193,7 @@
         {
           "boundary": "src",
           "depth": 0,
-          "files": 19
+          "files": 20
         }
       ],
       "runs": [],
@@ -229,7 +222,7 @@
         {
           "boundary": "src",
           "depth": 0,
-          "files": 19
+          "files": 20
         }
       ],
       "runs": [
@@ -252,9 +245,9 @@
       "to": "src"
     }
   ],
-  "engine": "1.24.0",
+  "engine": "1.26.0",
   "generated": [],
-  "generatedAt": "2026-10-01T02:14:32.933Z",
+  "generatedAt": "2026-11-11T22:11:32.845Z",
   "limits": [
     "1 import could not be resolved: `src/mcp-server.ts` imports `zod`, which is not declared.",
     "1 write and 3 reads use paths built at run time and are not named here.",
@@ -289,10 +282,11 @@
   ],
   "summary": null,
   "summaryFrom": null,
-  "testFiles": 16,
+  "testFiles": 18,
   "testedBy": {
-    "src": 16
+    "src": 18
   },
+  "testedCodeParts": 1,
   "unnamedWrites": 1,
   "unread": [],
   "unreadFiles": 0,

@@ -244,7 +244,7 @@
           "path": ".github/dependabot.yml"
         },
         {
-          "hash": "17b62764acb05ed950f75bd1cd29dbefac04a1d5f5d3d9cd9b983237054b5700",
+          "hash": "47799e37194c72ec35734ee083b37f5700d7fe801d78f051316fb898bc7cbf19",
           "path": ".github/workflows/ci.yml"
         },
         {
@@ -306,7 +306,7 @@
           "path": ".gitignore"
         },
         {
-          "hash": "0757471b8243b59eca8358f81fd27d1a47be16356014204b128a5e3f680a2209",
+          "hash": "fddcac9e594c9030c39690c8cb30e39736e99ce79ac21df35ec44020ee21f142",
           "path": "CHANGELOG.md"
         },
         {
@@ -366,11 +366,11 @@
           "path": "codecov.yml"
         },
         {
-          "hash": "34a4faa644a91871849b9d65569adb1e8e016ffff4d2849c8b328cbd6856e7d2",
+          "hash": "8771e262c31af05fe6bf515deb59ac0fdecb77dedc36b35d36e9c20c778f08fc",
           "path": "package-lock.json"
         },
         {
-          "hash": "fa397be2860e998da0632153ca451f9a1abdfd4e36d6f866b1af6c298fe7c7d5",
+          "hash": "11fbbaf8b102d2e411f01a42982dea9ece2e4ff99ec74b6146f29bd0af7d858a",
           "path": "package.json"
         },
         {
@@ -378,7 +378,7 @@
           "path": "tsconfig.json"
         },
         {
-          "hash": "9ca4633fe2b50fdcefa6336231b8903b9a0b1b336f186f590f4c8f833dc8ba63",
+          "hash": "e25492f1f4103949487174d7554267f32cb167f9c3c9b9d13c47c1e35085d78c",
           "path": "vitest.config.ts"
         }
       ],
@@ -406,7 +406,7 @@
           "path": "site/astro.config.mjs"
         },
         {
-          "hash": "af5d4f54dca60686724d306eb58759fb25b6f5ba4d66559ab84a968112a184e5",
+          "hash": "0607a19c4f60b635244a906c7ad2424359b50e20c4a83bc140f202abce4a941e",
           "path": "site/package-lock.json"
         },
         {
@@ -813,6 +813,20 @@
         },
         {
           "exports": [
+            "killTree"
+          ],
+          "failurePaths": [
+            {
+              "in": "killChild",
+              "kind": "catch",
+              "line": 33
+            }
+          ],
+          "hash": "de95e6b535ad011f8aeac5e859f01149ab7a00f2c575454c13e2e2f6bf4860f1",
+          "path": "src/kill-tree.ts"
+        },
+        {
+          "exports": [
             "cleanStaleSessions",
             "fixLogs",
             "formatFixReport",
@@ -1178,26 +1192,28 @@
             {
               "in": "getHealth",
               "kind": "catch",
-              "line": 90
+              "line": 91
             },
             {
               "in": "captureBundle",
               "kind": "catch",
-              "line": 234
+              "line": 235
             }
           ],
-          "hash": "201ea3adc71bd5d40fb8be15b34de1f6c5d30b720fb282891bb28165adbc637e",
+          "hash": "0a800a474e9e5c8bc492852a7f61986d3e34e505cca425b0052c2d006187972d",
           "importOrder": [
             "src/types.ts",
             "src/defaults.ts",
             "src/fs-utils.ts",
             "src/doctor.ts",
-            "src/log-manager.ts"
+            "src/log-manager.ts",
+            "src/kill-tree.ts"
           ],
           "importsFiles": [
             "src/defaults.ts",
             "src/doctor.ts",
             "src/fs-utils.ts",
+            "src/kill-tree.ts",
             "src/log-manager.ts",
             "src/types.ts"
           ],
@@ -1272,7 +1288,7 @@
       "testRunners": [
         "vitest"
       ],
-      "testedBy": 16,
+      "testedBy": 18,
       "unresolvedNamed": [
         {
           "path": "src/mcp-server.ts",
@@ -1349,6 +1365,14 @@
             "src/incident.ts"
           ],
           "path": "tests/incident.test.ts",
+          "testFramework": "vitest"
+        },
+        {
+          "hash": "b02acfe64eb3ae177f43920497f7f9bc3ded54d9168d9ee9ca20d9e56626277c",
+          "importsFiles": [
+            "src/kill-tree.ts"
+          ],
+          "path": "tests/kill-tree.test.ts",
           "testFramework": "vitest"
         },
         {
@@ -1441,6 +1465,23 @@
             "src/process-monitor.ts"
           ],
           "path": "tests/watch-daemon.test.ts",
+          "testFramework": "vitest"
+        },
+        {
+          "hash": "e919e4a120d53830c3da75fa10a160d78c836bd427eeccc603344e8463d857ec",
+          "importOrder": [
+            "src/defaults.ts",
+            "src/kill-tree.ts",
+            "src/watchdog.ts",
+            "src/fs-utils.ts"
+          ],
+          "importsFiles": [
+            "src/defaults.ts",
+            "src/fs-utils.ts",
+            "src/kill-tree.ts",
+            "src/watchdog.ts"
+          ],
+          "path": "tests/watchdog-kill-tree.test.ts",
           "testFramework": "vitest"
         },
         {
@@ -1608,12 +1649,12 @@
         {
           "boundary": "src",
           "depth": 0,
-          "files": 19
+          "files": 20
         },
         {
           "boundary": "tests",
           "depth": 0,
-          "files": 16
+          "files": 18
         }
       ],
       "readers": [],
@@ -1653,7 +1694,7 @@
         {
           "config": "vitest.config.ts",
           "coverage": true,
-          "files": 16,
+          "files": 18,
           "job": "build",
           "junit": true,
           "runner": "vitest",
@@ -1840,7 +1881,7 @@
         {
           "boundary": "src",
           "depth": 0,
-          "files": 19
+          "files": 20
         }
       ],
       "readers": [],
@@ -2177,12 +2218,12 @@
         {
           "boundary": "src",
           "depth": 0,
-          "files": 19
+          "files": 20
         },
         {
           "boundary": "tests",
           "depth": 0,
-          "files": 16
+          "files": 18
         }
       ],
       "readers": [],
@@ -2232,7 +2273,7 @@
       "tests": [
         {
           "config": "vitest.config.ts",
-          "files": 16,
+          "files": 18,
           "job": "release",
           "runner": "vitest",
           "step": "Verify (repo's own contract — test + build + pack shape)",
@@ -2251,6 +2292,13 @@
         },
         {
           "event": "workflow_dispatch"
+        }
+      ],
+      "unresolvedExpressions": [
+        {
+          "adds": "words",
+          "job": "release",
+          "step": "Verify tag matches package.json version"
         }
       ],
       "uses": [
@@ -2274,7 +2322,7 @@
         {
           "boundary": "src",
           "depth": 0,
-          "files": 19
+          "files": 20
         }
       ],
       "readers": [],
@@ -2310,10 +2358,10 @@
       "to": "src"
     }
   ],
-  "engine": "1.24.0",
+  "engine": "1.26.0",
   "generatedFrom": {
-    "commit": "d6d8c52b31b1fa492e9957ed53bca3e80d4b3671",
-    "tracked": 131
+    "commit": "01b3022a35cb93f17b098b457c285b381da9b30a",
+    "tracked": 134
   },
   "landings": [
     {
@@ -2367,6 +2415,6 @@
   "overlaps": [],
   "submodules": [],
   "symlinks": [],
-  "testFiles": 16,
+  "testFiles": 18,
   "unassigned": []
 }
